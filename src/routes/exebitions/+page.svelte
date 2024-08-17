@@ -1,6 +1,9 @@
 <script>
   export let data;
-  let exhibitions = data.exhibitions;
+  
+  console.log(data.exibitions);
+
+  let exhibitions = data.exhibitions || [{ name: '', year: '2021', description: '' }];
 
   function addExhibition() {
     const lastYear = exhibitions[exhibitions.length - 1].year;

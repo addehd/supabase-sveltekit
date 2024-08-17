@@ -1,4 +1,4 @@
-import { supabase } from '$lib/supabase';
+import type { PageServerLoad } from './$types'
 
 // submit exhibition
 export const actions = {
@@ -13,7 +13,7 @@ export const actions = {
     }
 
     const { data: { user } } = await supabaseClient.auth.getUser();
-    console.log('user', user);
+    console.log('userrr', user);
 
     if (!user) {
       console.error('User not authenticated');
@@ -64,3 +64,8 @@ export const actions = {
     return { success: true, data };
   },
 };
+
+export const load: PageServerLoad = async ({ locals: { supabase } }) => {
+  const { data: exhibitions } = await supabase.from('exhibitions').select()
+  return { exibitions: exhibitions ?? [] }
+}

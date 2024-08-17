@@ -1,9 +1,7 @@
-  import { supabase } from "$lib/supabase";
+import type { PageServerLoad } from './$types'
 
-  export async function load() {
-    const { data } = await supabase.from("artists").select();
-    console.log("tada",data);
-    return {
-      countries: data ?? [],
-    };
-  }
+
+export const load: PageServerLoad = async ({ locals: { supabase } }) => {
+  const { data: artists } = await supabase.from('artists').select()
+  return { artists : artists ?? [] }
+}
