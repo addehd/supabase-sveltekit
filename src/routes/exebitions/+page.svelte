@@ -1,9 +1,7 @@
 <script>
   export let data;
   
-  console.log(data.exibitions);
-
-  let exhibitions = data.exhibitions || [{ name: '', year: '2021', description: '' }];
+  let exhibitions = data.exibitions
 
   function addExhibition() {
     const lastYear = exhibitions[exhibitions.length - 1].year;
@@ -17,19 +15,22 @@
     Add Exhibition
   </button>
 
-  {#each exhibitions as exhibition, index}
+  {#each exhibitions as exhibition}
     <form method="POST" enctype="multipart/form-data" action="?/submit_exhibition" class="exhibition section border border-solid border-gray-300 rounded-md mb-8 p-7">
       <h1 class="text-3xl dark:text-white text-black font-bold mb-6">{exhibition.title}</h1>
 
-      <label class="mb-2 dark:text-white text-black">
-        Name:
+      <label class="mb-2 text-black">
+          Name:
         <input name="name" type="text" class="w-full px-3 py-2 border rounded" bind:value={exhibition.title} required>
       </label>
       
-      <label class="mb-2 dark:text-white text-black">
+      <label class="mb-2 text-black">
         Description:
         <textarea name="description" class="w-full px-3 py-2 border rounded" bind:value={exhibition.description} required></textarea>
       </label>
+
+      <p>{exhibition.description}, {exhibition.img}</p>
+      <img src={exhibition.image_url} alt={exhibition.title} class="w-1/2 h-1/2 rounded-md mb-4" />
 
       <label class="mb-2 dark:text-white text-black">
         Upload Image:
@@ -41,6 +42,19 @@
       <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 mt-4">
         Submit Exhibition
       </button>
+
+      <button type="button" on:click={() => exhibitions = exhibitions.filter(e => e !== exhibition)} class="bg-red-500
+        text-white px-4 py-2 rounded-md hover:bg-red-600 mt-4">
+        Delete Exhibition
+      </button>
+
+      <!-- button edit  -->
+      <a href="/exebitions/rum" >
+        { exhibition.exhibition_id }
+        <button type="button" on:click={() => console.log('edit')} class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 mt-4">
+          Edit Exhibition
+        </button>
+      </a>
     </form>
   {/each}
 </div>

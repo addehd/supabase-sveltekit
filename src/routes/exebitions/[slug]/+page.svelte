@@ -1,4 +1,10 @@
 <script>
+  export let data;
+
+  let rum = data.rum;
+
+  console.log(rum);
+
   let rooms = [
     {
       name: 'Hangaren',
@@ -42,16 +48,9 @@
             </button>
             <div class="flex flex-row overflow-x-scroll">
               {#each wall.forms as form, formIndex}
-                <div class="form-container mb-4" key={formIndex}>
+                <div class="form-container mb-4 mr-2" key={formIndex}>
                   <div class="flex flex-col w-full">
-                    <label class="mb-2 dark:text-white text-black">
-                      Title:
-                      <input type="text" class="w-full px-3 py-2 border rounded" value={form.title} on:input={(e) => updateForm(roomIndex, wallIndex, formIndex, 'title', e.target.value)} />
-                    </label>
-                    <label class="mb-2">
-                      Description:
-                      <textarea class="w-full px-3 py-2 border rounded" value={form.description} on:input={(e) => updateForm(roomIndex, wallIndex, formIndex, 'description', e.target.value)}></textarea>
-                    </label>
+
                     <div class="flex items-center justify-center w-full mb-4">
                       <label for={"dropzone-file-" + roomIndex + "-" + wallIndex + "-" + formIndex} class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
                         <div class="flex flex-col items-center justify-center pt-5 pb-6">
@@ -64,6 +63,16 @@
                         <input id={"dropzone-file-" + roomIndex + "-" + wallIndex + "-" + formIndex} type="file" class="hidden" on:change={(e) => updateForm(roomIndex, wallIndex, formIndex, 'file', e.target.files[0])} />
                       </label>
                     </div>
+                    
+                    <label class="mb-2 dark:text-white text-black">
+                      Title:
+                      <input type="text" class="w-full px-3 py-2 border rounded" value={form.title} on:input={(e) => updateForm(roomIndex, wallIndex, formIndex, 'title', e.target.value)} />
+                    </label>
+                    <label class="mb-2">
+                      Description:
+                      <textarea class="w-full px-3 py-2 border rounded" value={form.description} on:input={(e) => updateForm(roomIndex, wallIndex, formIndex, 'description', e.target.value)}></textarea>
+                    </label>
+                  
                   </div>
                 </div>
               {/each}

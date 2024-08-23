@@ -28,11 +28,13 @@ export const actions = {
     // image upload
     const fileExt = image.name.split('.').pop();
     const fileName = `${name}-${Date.now()}.${fileExt}`;
-    const filePath = `exhibitions/${fileName}`;
+    const filePath = `bucket/${fileName}`;
 
     const { data: storageData, error: storageError } = await supabaseClient.storage
       .from('bucket')
       .upload(filePath, image);
+
+    console.log('storageData', storageData);
 
     if (storageError) {
       console.error('Error uploading image:', storageError);
@@ -43,6 +45,7 @@ export const actions = {
       .from('exhibition-images')
       .getPublicUrl(filePath).data.publicUrl;
 
+
     const { data, error } = await supabaseClient
       .from('exhibitions')
       .insert([
@@ -51,7 +54,7 @@ export const actions = {
           description: description,
           start_date: new Date(),
           end_date: new Date(),
-          //image_url: imageUrl,
+          image_url: imageUrl,
         },
       ])
       .select();
