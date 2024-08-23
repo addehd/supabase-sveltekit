@@ -1,4 +1,4 @@
-import type { PageServerLoad } from './$types'
+import type { PageServerLoad } from './$types';
 
 // submit exhibition
 export const actions = {
@@ -25,7 +25,7 @@ export const actions = {
     const description = formData.get('description');
     const image = formData.get('image');
 
-    // image upload
+    // Image upload
     const fileExt = image.name.split('.').pop();
     const fileName = `${name}-${Date.now()}.${fileExt}`;
     const filePath = `bucket/${fileName}`;
@@ -45,8 +45,8 @@ export const actions = {
       .from('exhibition-images')
       .getPublicUrl(filePath).data.publicUrl;
 
-
-    const { data, error } = await supabaseClient
+    // Insert exhibition data
+    const { data: exhibition_data, error } = await supabaseClient
       .from('exhibitions')
       .insert([
         {
@@ -60,15 +60,29 @@ export const actions = {
       .select();
 
     if (error) {
-      console.error('Error inserting data:', error);
+      console.error('Error inserting exhibition data:', error);
       return { success: false, error: error.message };
     }
 
-    return { success: true, data };
+    const exhibitionId = exhibition_data[0].exhibition_id;
+
+    const { error: roomError } = await supabaseClient
+      .from('rooms')
+      .insert([
+        { name: 'hangaren', exhibition_id: exhibitionId },
+        { name: 'stappen', exhibition_id: exhibitionId },
+      ]);
+
+    if (roomError) {
+      console.error('Error inserting rooms:', roomError);
+      return { success: false, error: roomError.message };
+    }
+
+    return { success: true, exhibition_data };
   },
 };
 
 export const load: PageServerLoad = async ({ locals: { supabase } }) => {
-  const { data: exhibitions } = await supabase.from('exhibitions').select()
-  return { exibitions: exhibitions ?? [] }
-}
+  const { data: exhibitions } = await supabase.from('exhibitions').select();
+  return { exibitions: exhibitions ?? [] };
+};
