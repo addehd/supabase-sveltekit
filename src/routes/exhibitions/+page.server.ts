@@ -1,16 +1,46 @@
 import type { PageServerLoad } from './$types';
+import { checkAuthentication } from '$lib/helper';
 
 // submit exhibition
 export const actions = {
+  delete_exhibition: async ({ request, locals }) => {
+    
+    const { supabaseClient } = await checkAuthentication(locals);
+
+    const formData = await request.formData();
+    const exhibition_id = parseInt(formData.get('exhibition_id'), 10);
+
+    if (isNaN(exhibition_id)) {
+      return { success: false, error: 'Invalid exhibition ID' };
+    }
+
+    // First, delete related records in rooms
+    const { error: roomError } = await supabaseClient
+      .from('rooms')
+      .delete()
+      .eq('exhibition_id', exhibition_id);
+
+    if (roomError) {
+      console.error('Error deleting related rooms:', roomError);
+      return { success: false, error: roomError.message };
+    }
+
+    // Then, delete the exhibition
+    const { error: exhibitionError } = await supabaseClient
+      .from('exhibitions')
+      .delete()
+      .eq('exhibition_id', exhibition_id);
+
+    if (exhibitionError) {
+      console.error('Error deleting exhibition:', exhibitionError);
+      return { success: false, error: exhibitionError.message };
+    }
+
+    return { success: true };
+  },
   submit_exhibition: async ({ request, locals }) => {
 
-    console.log('locals', locals);
-
-    const supabaseClient = locals.supabase;
-    if (!supabaseClient) {
-      console.error('Supabase client not found in locals');
-      return { success: false, error: 'Not authenticated' };
-    }
+    const { supabaseClient } = await checkAuthentication(locals);
 
     const { data: { user } } = await supabaseClient.auth.getUser();
     console.log('userrr', user);
@@ -80,6 +110,30 @@ export const actions = {
 
     return { success: true, exhibition_data };
   },
+  edit_exhibition: async ({ request, locals }) => {
+    const { supabaseClient } = await checkAuthentication(locals);
+
+    const formData = await request.formData();
+    const exhibition_id = parseInt(formData.get('exhibition_id'), 10);
+    const name = formData.get('name');
+    const description = formData.get('description');
+
+    if (isNaN(exhibition_id)) {
+      return { success: false, error: 'Invalid exhibition ID' };
+    }
+
+    const { error } = await supabaseClient
+      .from('exhibitions')
+      .update({ title: name, description: description })
+      .eq('exhibition_id', exhibition_id);
+
+    if (error) {
+      console.error('Error updating exhibition:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  }
 };
 
 export const load: PageServerLoad = async ({ locals: { supabase } }) => {
