@@ -29,10 +29,10 @@ function addExhibition() {
     <form method="POST" enctype="multipart/form-data" action="?/submit_exhibition" class="exhibition section border border-solid border-gray-300 rounded-md mb-8 p-7">
       <div>
         <h1 class="text-3xl dark:text-white text-black font-bold mb-6">{exhibition.title}</h1>
-        <!-- <label class="mb-2 text-black">
+        <label class="mb-2 text-black">
             Name:
           <input name="name" type="text" class="w-full px-3 py-2 border rounded" bind:value={exhibition.title} required>
-        </label> -->
+        </label>
         
         <!-- <label class="mb-2 text-black">
           Description:
@@ -71,7 +71,7 @@ function addExhibition() {
         </button>
       </form>
       <!-- button edit -->
-      <a href="/exhibitions/rum">
+      <a href={`/exhibitions/${exhibition.exhibition_id}`}>
         {exhibition.exhibition_id}
         <button type="button" on:click={() => console.log('edit')} class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 mt-4">
           Edit Exhibition
