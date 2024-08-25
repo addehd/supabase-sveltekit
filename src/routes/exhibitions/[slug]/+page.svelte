@@ -3,15 +3,21 @@
   
   export let data;
 
-  let rooms = data.rooms.map(room => ({
-    ...room,
-    walls: {
-      East: [],
-      West: [],
-      North: [],
-      South: []
+  console.log(data.rooms);
+  console.log(data.artworks);
+
+  // Initialize rooms with walls and map artworks to the corresponding walls
+  let rooms = data.rooms.map(room => {
+    return {
+      ...room,
+      walls: {
+        East: data.artworks.filter(artwork => artwork.room_id === room.id && artwork.position === 'East'),
+        West: data.artworks.filter(artwork => artwork.room_id === room.id && artwork.position === 'West'),
+        North: data.artworks.filter(artwork => artwork.room_id === room.id && artwork.position === 'North'),
+        South: data.artworks.filter(artwork => artwork.room_id === room.id && artwork.position === 'South')
+      }
     }
-  }));
+  });
 
   function addForm(roomIndex, wallPosition) {
     rooms[roomIndex].walls[wallPosition] = [
@@ -21,13 +27,13 @@
   }
 </script>
 
-<div>
+<div class="text-white">
   {#each rooms as room, roomIndex}
-    <div class="room section border border-solid border-gray-300 rounded-md mb-8 p-7">
+    <div class="room mb-8 p-7">
       <h1 class="text-3xl dark:text-white text-black font-bold mb-6">{room.name}</h1>
       <div class="walls">
 
-        <div>
+        <div class="border border-solid border-gray-300 p-7 my-7"> 
           <h3 class="text-2xl">East wall</h3>
           <button
             class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 mb-4"
@@ -47,7 +53,7 @@
           </div>
         </div>
 
-        <div>
+        <div class="border border-solid border-gray-300 p-7 my-7">
           <h3 class="text-2xl">North wall</h3>
           <button
             class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 mb-4"
@@ -67,7 +73,7 @@
           </div>
         </div>
 
-        <div>
+        <div class="border border-solid border-gray-300 p-7 my-7">
           <h3 class="text-2xl">South wall</h3>
           <button
             class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 mb-4"
@@ -87,7 +93,7 @@
           </div>
         </div>
 
-        <div>
+        <div class="border border-solid border-gray-300 p-7 my-7">
           <h3 class="text-2xl">West wall</h3>
           <button
             class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 mb-4"

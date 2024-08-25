@@ -5,7 +5,7 @@
   export let form;
 </script>
 
-<form method="POST" enctype="multipart/form-data" action="?/submit_artpiece" class="mb-4 float-left overflow-hidden">
+<form method="POST" enctype="multipart/form-data" action="?/submit_artpiece" class="mb-4 mr-4 float-left overflow-hidden">
   <input type="hidden" name="room_id" value={roomId} />
   <input type="hidden" name="position" value={position} />
   
@@ -14,7 +14,7 @@
     <input
       name="title"
       type="text"
-      class="w-full px-3 py-2 border rounded"
+      class="w-full px-3 py-2 border rounded text-black"
       bind:value={form.title}
       required
     />
@@ -24,7 +24,7 @@
     <label class="block text-black dark:text-white mb-2">Description</label>
     <textarea
       name="description"
-      class="w-full px-3 py-2 border rounded"
+      class="w-full px-3 py-2 border rounded text-black"
       bind:value={form.description}
       required
     ></textarea>

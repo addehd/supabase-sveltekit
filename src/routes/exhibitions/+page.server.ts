@@ -4,39 +4,42 @@ import { checkAuthentication } from '$lib/helper';
 // submit exhibition
 export const actions = {
   submit_exhibition: async ({ request, locals }) => {
-  
     const { supabaseClient, user } = await checkAuthentication(locals);
     
     if (!user) {
       console.error('User not authenticated');
-      return { success: false, error: 'User not authenticated' }; }
+      return { success: false, error: 'User not authenticated' };
+    }
   
     const formData = await request.formData();
     const name = formData.get('name');
     const description = formData.get('description');
     const image = formData.get('image');
   
-    // Image upload  
     const fileExt = image.name.split('.').pop();
     const fileName = `${name}-${Date.now()}.${fileExt}`;
-    const filePath = `bucket/${fileName}`;
+    const filePath = `exhibition-images/${fileName}`;
   
     const { data: storageData, error: storageError } = await supabaseClient.storage
       .from('bucket')
       .upload(filePath, image);
-  
-    console.log('storageData', storageData);
   
     if (storageError) {
       console.error('Error uploading image:', storageError);
       return { success: false, error: storageError.message };
     }
   
-    const imageUrl = supabaseClient.storage
-      .from('exhibition-images')
-      .getPublicUrl(filePath).data.publicUrl;
+    const { data: publicUrlData, error: publicUrlError } = supabaseClient.storage
+      .from('bucket')
+      .getPublicUrl(filePath);
   
-    // Insert exhibition data
+    if (publicUrlError) {
+      console.error('Error generating public URL:', publicUrlError);
+      return { success: false, error: publicUrlError.message };
+    }
+  
+    const imageUrl = publicUrlData.publicUrl;
+  
     const { data: exhibition_data, error } = await supabaseClient
       .from('exhibitions')
       .insert([
@@ -54,10 +57,9 @@ export const actions = {
       console.error('Error inserting exhibition data:', error);
       return { success: false, error: error.message };
     }
-    const exhibitionId = exhibition_data[0].exhibition_id;
 
+    const exhibitionId = exhibition_data[0].exhibition_id;
   
-    // Insert rooms data
     const { data: room_data, error: roomError } = await supabaseClient
       .from('rooms')
       .insert([
@@ -70,21 +72,6 @@ export const actions = {
       console.error('Error inserting rooms:', roomError);
       return { success: false, error: roomError.message };
     }
-  
-    //// Insert walls for each room
-    //const walls = ['East', 'West', 'North', 'South'];
-    //const wallInsertions = room_data.flatMap(room => 
-      //walls.map(position => ({ room_id: room.id, position }))
-    //);
-  
-    //const { error: wallError } = await supabaseClient
-      //.from('walls')
-      //.insert(wallInsertions);
-  
-    //if (wallError) {
-      //console.error('Error inserting walls:', wallError);
-      //return { success: false, error: wallError.message };
-    //}
   
     return { success: true, exhibition_data };
   },

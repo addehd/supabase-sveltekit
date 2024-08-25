@@ -64,11 +64,17 @@ export const actions = {
         return { success: false, error: storageError.message };
       }
 
-      const imageUrl = supabaseClient.storage
-        .from('artworks')
-        .getPublicUrl(filePath).data.publicUrl;
+      const { data: publicUrlData, error: publicUrlError } = supabaseClient.storage
+        .from('bucket')
+        .getPublicUrl(filePath);
 
-      // Insert artwork into the database
+      if (publicUrlError) {
+        console.error('Error generating public URL:', publicUrlError);
+        return { success: false, error: publicUrlError.message };
+      }
+
+      const imageUrl = publicUrlData.publicUrl;
+
       const { data, error } = await supabaseClient
         .from('artworks')
         .insert({
@@ -95,11 +101,14 @@ export const actions = {
 };
 
 export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
-
   const { data: rooms } = await supabase.from('rooms').select().eq('exhibition_id', params.slug);
-  // get data from walls wit  
+  const rooms_ids = rooms.map(room => room.id);
+
+  const { data: artworks } = await supabase.from('artworks').select().in('room_id', rooms_ids);
 
   return { 
     rooms: rooms,
+    artworks: artworks,
+    ids: rooms_ids
   };
 };
