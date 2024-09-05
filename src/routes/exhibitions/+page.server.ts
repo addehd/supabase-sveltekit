@@ -100,7 +100,6 @@ export const actions = {
     return { success: true };
   },
   delete_exhibition: async ({ request, locals }) => {
-    
     const { supabaseClient } = await checkAuthentication(locals);
 
     const formData = await request.formData();
@@ -110,15 +109,38 @@ export const actions = {
       return { success: false, error: 'Invalid exhibition ID' };
     }
 
-    // First, delete related records in rooms
-    const { error: roomError } = await supabaseClient
+    const { data: rooms, error: roomFetchError } = await supabaseClient
       .from('rooms')
-      .delete()
+      .select('id')
       .eq('exhibition_id', exhibition_id);
 
-    if (roomError) {
-      console.error('Error deleting related rooms:', roomError);
-      return { success: false, error: roomError.message };
+    if (roomFetchError) {
+      console.error('Error fetching rooms:', roomFetchError);
+      return { success: false, error: roomFetchError.message };
+    }
+
+    const roomIds = rooms.map(room => room.id);
+
+    if (roomIds.length > 0) {
+      const { error: artworkError } = await supabaseClient
+        .from('artworks')
+        .delete()
+        .in('room_id', roomIds);
+
+      if (artworkError) {
+        console.error('Error deleting related artworks:', artworkError);
+        return { success: false, error: artworkError.message };
+      }
+    }
+
+    const { error: roomDeleteError } = await supabaseClient
+      .from('rooms')
+      .delete()
+      .in('id', roomIds);
+
+    if (roomDeleteError) {
+      console.error('Error deleting rooms:', roomDeleteError);
+      return { success: false, error: roomDeleteError.message };
     }
 
     const { error: exhibitionError } = await supabaseClient

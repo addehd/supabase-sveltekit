@@ -17,11 +17,6 @@
 	});
 </script>
 
-<header class="fixed text-white p-11 right-0">
-	<nav>
-		<a href="/">Home</a>
-	</nav>
-</header>
 
 <main class="dark:bg-gray-900 min-h-[100vh]">
 	<slot />

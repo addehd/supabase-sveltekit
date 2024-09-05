@@ -6,7 +6,6 @@
   console.log(data.rooms);
   console.log(data.artworks);
 
-  // Initialize rooms with walls and map artworks to the corresponding walls
   let rooms = data.rooms.map(room => {
     return {
       ...room,
