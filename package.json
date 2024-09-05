@@ -26,6 +26,8 @@
 	"dependencies": {
 		"@supabase/ssr": "^0.4.0",
 		"@supabase/supabase-js": "^2.41.1",
+		"cannon-es": "^0.20.0",
+		"lil-gui": "^0.19.2",
 		"three": "^0.163.0"
 	}
 }
