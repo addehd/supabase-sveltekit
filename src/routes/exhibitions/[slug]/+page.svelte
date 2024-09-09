@@ -3,115 +3,40 @@
   
   export let data;
 
-  console.log(data.rooms);
-  console.log(data.artworks);
+  let artworksByWall = {
+    East: data.artworks.filter(artwork => artwork.wall === 'east'),
+    West: data.artworks.filter(artwork => artwork.wall === 'west'),
+    North: data.artworks.filter(artwork => artwork.wall === 'north'),
+    South: data.artworks.filter(artwork => artwork.wall === 'south')
+  };
 
-  let rooms = data.rooms.map(room => {
-    return {
-      ...room,
-      walls: {
-        East: data.artworks.filter(artwork => artwork.room_id === room.id && artwork.position === 'East'),
-        West: data.artworks.filter(artwork => artwork.room_id === room.id && artwork.position === 'West'),
-        North: data.artworks.filter(artwork => artwork.room_id === room.id && artwork.position === 'North'),
-        South: data.artworks.filter(artwork => artwork.room_id === room.id && artwork.position === 'South')
-      }
-    }
-  });
-
-  function addForm(roomIndex, wallPosition) {
-    rooms[roomIndex].walls[wallPosition] = [
-      ...rooms[roomIndex].walls[wallPosition],
-      { title: '', description: '', file: null }
+  function addForm(wallPosition) {
+    artworksByWall[wallPosition] = [
+      ...artworksByWall[wallPosition],
+      { title: '', description: '', file: null, wall: wallPosition }
     ];
   }
 </script>
 
 <div class="text-white">
-  {#each rooms as room, roomIndex}
-    <div class="room mb-8 p-7">
-      <h1 class="text-3xl dark:text-white text-black font-bold mb-6">{room.name}</h1>
-      <div class="walls">
+  {#each Object.keys(artworksByWall) as wallPosition}
+    <div class="border border-solid border-gray-300 p-7 my-7">
+      <h3 class="text-2xl">{wallPosition} wall</h3>
+      <button
+        class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 mb-4"
+        on:click={() => addForm(wallPosition)}
+      >
+        Add art to {wallPosition} wall
+      </button>
 
-        <div class="border border-solid border-gray-300 p-7 my-7"> 
-          <h3 class="text-2xl">East wall</h3>
-          <button
-            class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 mb-4"
-            on:click={() => addForm(roomIndex, 'East')}
-          >
-            Add art to East wall
-          </button>
-
-          <div class="form-container">
-            {#each rooms[roomIndex].walls.East as form, formIndex}
-              <ArtPieceForm
-                roomId={room.id}
-                position="East"
-                form={form}
-              />
-            {/each}
-          </div>
-        </div>
-
-        <div class="border border-solid border-gray-300 p-7 my-7">
-          <h3 class="text-2xl">North wall</h3>
-          <button
-            class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 mb-4"
-            on:click={() => addForm(roomIndex, 'North')}
-          >
-            Add art to North wall
-          </button>
-
-          <div class="form-container">
-            {#each rooms[roomIndex].walls.North as form, formIndex}
-              <ArtPieceForm
-                roomId={room.id}
-                position="North"
-                form={form}
-              />
-            {/each}
-          </div>
-        </div>
-
-        <div class="border border-solid border-gray-300 p-7 my-7">
-          <h3 class="text-2xl">South wall</h3>
-          <button
-            class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 mb-4"
-            on:click={() => addForm(roomIndex, 'South')}
-          >
-            Add art to South wall
-          </button>
-
-          <div class="form-container">
-            {#each rooms[roomIndex].walls.South as form, formIndex}
-              <ArtPieceForm
-                roomId={room.id}
-                position="South"
-                form={form}
-              />
-            {/each}
-          </div>
-        </div>
-
-        <div class="border border-solid border-gray-300 p-7 my-7">
-          <h3 class="text-2xl">West wall</h3>
-          <button
-            class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 mb-4"
-            on:click={() => addForm(roomIndex, 'West')}
-          >
-            Add art to West wall
-          </button>
-
-          <div class="form-container">
-            {#each rooms[roomIndex].walls.West as form, formIndex}
-              <ArtPieceForm
-                roomId={room.id}
-                position="West"
-                form={form}
-              />
-            {/each}
-          </div>
-        </div>
-
+      <div class="form-container">
+        {#each artworksByWall[wallPosition] as form, formIndex}
+          <ArtPieceForm
+            roomId={form.room}
+            position={wallPosition}
+            form={form}
+          />
+        {/each}
       </div>
     </div>
   {/each}

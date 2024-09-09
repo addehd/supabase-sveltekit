@@ -5,7 +5,7 @@
   export let form;
 </script>
 
-<form method="POST" enctype="multipart/form-data" action="?/submit_artpiece" class="mb-4 mr-4 float-left overflow-hidden">
+<form method="POST" enctype="multipart/form-data" action="?/submit_exhibition" class="mb-4 mr-4 float-left overflow-hidden">
   <input type="hidden" name="room_id" value={roomId} />
   <input type="hidden" name="position" value={position} />
   

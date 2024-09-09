@@ -4,8 +4,10 @@ import {
   MeshBasicMaterial,
   PerspectiveCamera,
   Scene,
+  Shape,
   TextureLoader,
   WebGLRenderer,
+  ExtrudeGeometry
 } from 'three';
 
 let scene: Scene;
@@ -14,21 +16,30 @@ let renderer: WebGLRenderer;
 
 const initScene = () => {
   scene = new Scene();
-
   camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.z = 5;
 };
 
-const addCubeWithSingleTexture = (imageUrl: string) => {
-  const textureLoader = new TextureLoader();
-  const texture = textureLoader.load(imageUrl);
+const addRoundedRectangle = () => {
+  const shape = new Shape();
 
-  const materials = new MeshBasicMaterial({ map: texture });
+  shape.moveTo(-1, 1);
+  shape.lineTo(1, 1);
+  shape.lineTo(1, -0.5);
+  shape.quadraticCurveTo(1, -1, 0.5, -1);
+  shape.quadraticCurveTo(-1, -1, -1, -0.5);
+  shape.lineTo(-1, 1);
 
-  const geometry = new BoxGeometry(2, 2, 2);
-  const cube = new Mesh(geometry, materials);
+  const extrudeSettings = {
+    depth: 5,
+    bevelEnabled: false,
+  };
 
-  scene.add(cube);
+  const geometry = new ExtrudeGeometry(shape, extrudeSettings);
+  const material = new MeshBasicMaterial({ color: 0x00ff00 });
+  const mesh = new Mesh(geometry, material);
+
+  scene.add(mesh);
 };
 
 const animate = () => {
@@ -50,15 +61,24 @@ const resize = () => {
   }
 };
 
-export const createScene = (el: HTMLCanvasElement, imageUrl) => {
+export const exportScene = () => {
+  const sceneJSON = scene.toJSON();
+  const jsonStr = JSON.stringify(sceneJSON);
+  const blob = new Blob([jsonStr], { type: 'application/json' });
+
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'scene.json';
+  link.click();
+};
+
+export const createScene = (el: HTMLCanvasElement, imageUrl: string) => {
   if (typeof window !== 'undefined') {
     initScene();
     renderer = new WebGLRenderer({ antialias: true, canvas: el });
     resize();
     animate();
-
-    addCubeWithSingleTexture(imageUrl);
-
+    addRoundedRectangle();
     window.addEventListener('resize', resize);
   } else {
     console.error("createScene should only be called in a browser environment");
