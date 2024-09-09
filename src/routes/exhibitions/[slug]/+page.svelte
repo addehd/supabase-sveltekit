@@ -3,6 +3,8 @@
   
   export let data;
 
+  console.log(data);
+
   let artworksByWall = {
     East: data.artworks.filter(artwork => artwork.wall === 'east'),
     West: data.artworks.filter(artwork => artwork.wall === 'west'),
@@ -31,11 +33,14 @@
 
       <div class="form-container">
         {#each artworksByWall[wallPosition] as form, formIndex}
-          <ArtPieceForm
-            roomId={form.room}
-            position={wallPosition}
-            form={form}
-          />
+          <div class="artwork">
+            <img src={form.image_url} alt={form.title} class="artwork-image w-48" />
+            <ArtPieceForm
+              roomId={form.room}
+              position={wallPosition}
+              form={form}
+            />
+          </div>
         {/each}
       </div>
     </div>
@@ -51,5 +56,14 @@
     float: right;
     margin-right: 10px;
     width: 100%; /* Adjust width as needed */
+  }
+  .artwork {
+    margin-bottom: 20px;
+  }
+  .artwork-image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin-bottom: 10px;
   }
 </style>
