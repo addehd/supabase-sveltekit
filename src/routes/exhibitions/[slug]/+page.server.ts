@@ -121,5 +121,9 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
     .select('*')
     .eq('exhibitions_id', params.slug);
 
-  return { artworks };
+  const { data: artists } = await supabase
+    .from('artists')
+    .select('*')
+  
+  return { artworks, artists };
 };

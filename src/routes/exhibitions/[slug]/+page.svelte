@@ -3,7 +3,7 @@
   
   export let data;
 
-  console.log(data);
+  console.log(data.artists);
 
   let artworksByWall = {
     East: data.artworks.filter(artwork => artwork.wall === 'east'),
@@ -15,7 +15,7 @@
   function addForm(wallPosition) {
     artworksByWall[wallPosition] = [
       ...artworksByWall[wallPosition],
-      { title: '', description: '', file: null, wall: wallPosition }
+      { title: '', description: '', image_url: '', wall: wallPosition }
     ];
   }
 </script>
@@ -32,16 +32,22 @@
       </button>
 
       <div class="form-container">
-        {#each artworksByWall[wallPosition] as form, formIndex}
-          <div class="artwork">
-            <img src={form.image_url} alt={form.title} class="artwork-image w-48" />
-            <ArtPieceForm
-              roomId={form.room}
-              position={wallPosition}
-              form={form}
-            />
-          </div>
-        {/each}
+        <div class="artwork-scroll">
+          {#each artworksByWall[wallPosition] as form, formIndex}
+            <div class="artwork rounded-sm flex justify-between px-7 py-7 bg-gray-300/15 w-[60rem] relative">
+              <div class="artwork-number">{formIndex + 1}</div>
+              <div class="flex flex-col">
+                <ArtPieceForm
+                  roomId={form.room}
+                  position={wallPosition}
+                  form={form}
+                  artists={data.artists} />
+              </div>
+
+              <div class="artwork-image w-[50%]" style="background-image: url('{form.image_url}')"></div>
+            </div>
+          {/each}
+        </div>
       </div>
     </div>
   {/each}
@@ -49,21 +55,42 @@
 
 <style>
   .form-container {
-    overflow: hidden;
     width: 100%;
+    overflow-x: auto;
   }
-  form {
-    float: right;
-    margin-right: 10px;
-    width: 100%; /* Adjust width as needed */
+
+  .artwork-scroll {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 20px;
   }
+
   .artwork {
-    margin-bottom: 20px;
+    flex: 0 0 auto;
+    margin-right: 20px;
   }
+
   .artwork-image {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    margin-bottom: 10px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .artwork-number {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    padding-left: 2px;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: black;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.7rem;
   }
 </style>

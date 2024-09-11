@@ -3,6 +3,7 @@
   export let roomId;
   export let position;
   export let form;
+  export let artists;
 </script>
 
 <form method="POST" enctype="multipart/form-data" action="?/submit_exhibition" class="mb-4 mr-4 float-left overflow-hidden">
@@ -40,6 +41,12 @@
       required
     />
   </div>
+  
+  <select class="bg-gray-700 text-white rounded-md p-2 mb-4 w-72" bind:value={form.artist_id}>
+    {#each artists as artist}
+      <option value={artist.artist_id}>{artist.name}</option>
+    {/each}
+  </select>
   
   <button
     type="submit"
