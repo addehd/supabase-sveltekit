@@ -3,8 +3,6 @@
   
   export let data;
 
-  console.log(data.artists);
-
   let artworksByWall = {
     East: data.artworks.filter(artwork => artwork.wall === 'east'),
     West: data.artworks.filter(artwork => artwork.wall === 'west'),
@@ -37,6 +35,7 @@
             <div class="artwork rounded-sm flex justify-between px-7 py-7 bg-gray-300/15 w-[60rem] relative">
               <div class="artwork-number">{formIndex + 1}</div>
               <div class="flex flex-col">
+                { wallPosition}
                 <ArtPieceForm
                   roomId={form.room}
                   position={wallPosition}

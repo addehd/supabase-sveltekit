@@ -15,6 +15,8 @@ export const actions = {
       const title = formData.get('title') || '';
       const description = formData.get('description') || '';
       const image = formData.get('image');
+      const artistId = formData.get('artist_id');
+      const position = formData.get('position');
 
       let imageUrl = '';
 
@@ -49,9 +51,10 @@ export const actions = {
         .insert({
           title,
           description,
-          wall: 'east',
+          wall: position.toLowerCase(),
           room: 'hangaren',
           exhibitions_id: 20,
+          artist_id: artistId,
           image_url: imageUrl || '',
         })
         .select();
