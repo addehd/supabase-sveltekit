@@ -6,9 +6,16 @@
   let imageUrl = data.artworks[0].image_url;
   let el;
 
-  onMount(() => {
-    createScene(el, imageUrl); });
+  // Ensure data.artworks is an array
+  if (!Array.isArray(data.artworks)) {
+    console.error('data.artworks is not an array');
+  }
 
+  onMount(() => {
+    if (Array.isArray(data.artworks)) {
+      createScene(el, data.artworks);
+    }
+  });
 </script>
 
 <header class="bg-purple-400 fixed bottom-0 w-full  p-4">

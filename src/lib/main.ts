@@ -13,7 +13,7 @@ declare global {
   }
 }
 
-const initRum = (el, imageUrl) => {
+const initRum = (el, data) => {
   window.CANNON = CANNON;
   window.THREE = THREE;
   window.VG = VG;
@@ -25,32 +25,54 @@ const initRum = (el, imageUrl) => {
   renderer.setSize(window.innerWidth, window.innerHeight);
   vg.renderer = renderer;
 
-
   const textureLoader = new THREE.TextureLoader();
 
-  textureLoader.load(imageUrl, (texture) => {
-    // Apply the texture to the front wall
-    const material = new THREE.MeshBasicMaterial({ map: texture });
+  data.forEach((artwork) => {
+    textureLoader.load(artwork.image_url, (texture) => {
+      const material = new THREE.MeshBasicMaterial({ map: texture });
+      const body = new CANNON.Body({
+        type: CANNON.Body.STATIC,
+        shape: new CANNON.Box(new CANNON.Vec3(50, 50, 0.5))
+      });
 
-    // front wall
-    let body = new CANNON.Body({
-      type: CANNON.Body.STATIC,
-      shape: new CANNON.Box(new CANNON.Vec3(50, 50, 0.5))
+      let position;
+      const artworkSize = { width: 100, height: 100, depth: 1 };
+      switch (artwork.wall) {
+        case 'east':
+          position = { x: room.width / 2 - room.thickness / 2 - artworkSize.depth / 2, y: room.height / 2, z: 0 };
+          break;
+        case 'west':
+          position = { x: -room.width / 2 + room.thickness / 2 + artworkSize.depth / 2, y: room.height / 2, z: 0 };
+          break;
+        case 'north':
+          position = { x: 0, y: room.height / 2, z: -room.depth / 2 + room.thickness / 2 + artworkSize.depth / 2 };
+          break;
+        case 'south':
+          position = { x: 0, y: room.height / 2, z: room.depth / 2 - room.thickness / 2 - artworkSize.depth / 2 };
+          break;
+        default:
+          return;
+      }
+
+      body.position.set(position.x, position.y, position.z);
+
+      const geometry = new THREE.BoxGeometry(artworkSize.width, artworkSize.height, artworkSize.depth);
+      const object = new THREE.Mesh(geometry, material);
+      object.position.copy(body.position);
+
+      if (artwork.wall === 'east' || artwork.wall === 'west') {
+        object.rotation.y = Math.PI / 2;
+      }
+
+      const artwork3D = {
+        name: `${artwork.wall}Artwork`,
+        body: body,
+        object: object,
+        gui: []
+      };
+
+      vg.add(artwork3D);
     });
-
-    body.position.set(0, room.height / 2, -room.depth / 2 - room.thickness / 2);
-
-    const geometry = new THREE.BoxGeometry(room.width, room.height, room.thickness);
-    const object = new THREE.Mesh(geometry, material);
-
-    var frontWall = {
-      name: 'frontWall',
-      body: body,
-      object: object,
-      gui: []
-    };
-
-    vg.add(frontWall);
   });
 
   { // general
