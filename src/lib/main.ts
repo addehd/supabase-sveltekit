@@ -518,12 +518,23 @@ const initRum = (el, data) => {
           }
         });
     
-        gltf.scene.scale.set(3.8, 4.1, 58.2);
-        gltf.scene.position.set(0, 0, -150);
+        const scale = 5;
+        gltf.scene.scale.set(scale, scale, scale);
+    
+        gltf.scene.position.set(0, 0, -50);
     
         vg.add({
           name: 'hangar',
-          object: gltf.scene
+          object: gltf.scene,
+          gui: [
+            [gltf.scene.position, 'x', -200, 200, 1, 'position x'],
+            [gltf.scene.position, 'y', -200, 200, 1, 'position y'],
+            [gltf.scene.position, 'z', -200, 200, 1, 'position z'],
+            [gltf.scene.scale, 'x', 0.1, 20, 0.1, 'scale x'],
+            [gltf.scene.scale, 'y', 0.1, 20, 0.1, 'scale y'],
+            [gltf.scene.scale, 'z', 0.1, 20, 0.1, 'scale z'],
+            [gltf.scene.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rotation y']
+          ]
         });
       },
       undefined,
