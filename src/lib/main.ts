@@ -27,7 +27,9 @@ const initRum = (el, data) => {
 
   const textureLoader = new THREE.TextureLoader();
 
-  data.forEach((artwork) => {
+  // position artwork
+  {
+    data.forEach((artwork) => {
     textureLoader.load(artwork.image_url, (texture) => {
       const material = new THREE.MeshBasicMaterial({ map: texture });
       const body = new CANNON.Body({
@@ -74,6 +76,7 @@ const initRum = (el, data) => {
       vg.add(artwork3D);
     });
   });
+}
 
   { // general
     vg.input.onDown['c'] = (key) => { vg.gui.show(vg.gui._hidden) }
@@ -507,9 +510,9 @@ const initRum = (el, data) => {
         console.debug('gltf', gltf);
     
         const material = new THREE.MeshStandardMaterial({
-          color: 0xFFAA00,
-          roughness: 0.5,  // 0 = smooth, 1 = rough)
-          metalness: 0.8 // 1 = full metal reflection 
+          color: 0xFFAAff,
+          roughness: 0.5,
+          metalness: 0.8
         });
     
         gltf.scene.traverse(function(child) {
@@ -518,21 +521,37 @@ const initRum = (el, data) => {
           }
         });
     
-        const scale = 5;
+        // fit the room
+        const roomWidth = room.width;
+        const roomDepth = room.depth;
+        const roomHeight = room.height;
+    
+        const boundingBox = new THREE.Box3().setFromObject(gltf.scene);
+        const hangarWidth = boundingBox.max.x - boundingBox.min.x;
+        const hangarDepth = boundingBox.max.z - boundingBox.min.z;
+        const hangarHeight = boundingBox.max.y - boundingBox.min.y;
+    
+        const scaleX = roomWidth / hangarWidth;
+        const scaleY = roomHeight / hangarHeight;
+        const scaleZ = roomDepth / hangarDepth;
+    
+        const scale = Math.min(scaleX, scaleY, scaleZ) * 1.5;
+    
         gltf.scene.scale.set(scale, scale, scale);
     
-        gltf.scene.position.set(0, 0, -50);
+        //center the hangar in the room
+        gltf.scene.position.set(0, roomHeight / 2, 0);
     
         vg.add({
           name: 'hangar',
           object: gltf.scene,
           gui: [
-            [gltf.scene.position, 'x', -200, 200, 1, 'position x'],
-            [gltf.scene.position, 'y', -200, 200, 1, 'position y'],
-            [gltf.scene.position, 'z', -200, 200, 1, 'position z'],
-            [gltf.scene.scale, 'x', 0.1, 20, 0.1, 'scale x'],
-            [gltf.scene.scale, 'y', 0.1, 20, 0.1, 'scale y'],
-            [gltf.scene.scale, 'z', 0.1, 20, 0.1, 'scale z'],
+            [gltf.scene.position, 'x', -roomWidth/2, roomWidth/2, 1, 'position x'],
+            [gltf.scene.position, 'y', 0, roomHeight, 1, 'position y'],
+            [gltf.scene.position, 'z', -roomDepth/2, roomDepth/2, 1, 'position z'],
+            [gltf.scene.scale, 'x', 0.1, 3, 0.01, 'scale x'],
+            [gltf.scene.scale, 'y', 0.1, 3, 0.01, 'scale y'],
+            [gltf.scene.scale, 'z', 0.1, 3, 0.01, 'scale z'],
             [gltf.scene.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rotation y']
           ]
         });
