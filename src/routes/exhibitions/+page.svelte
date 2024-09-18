@@ -39,22 +39,29 @@ function addExhibition() {
           <textarea name="description" class="w-full px-3 py-2 border rounded" bind:value={exhibition.description} required></textarea>
         </label> -->
         <p>{exhibition.description}, {exhibition.img}</p>
-        <img src={exhibition.image_url} alt={exhibition.title} class="w-1/2 h-1/2 rounded-md mb-4" />
+        <div 
+          class="w-full h-[22rem] rounded-md mb-4 bg-cover bg-center" 
+          style="background-image: url('{exhibition.image_url}');" 
+          aria-label={exhibition.title}
+        ></div>
         <label class="mb-2 dark:text-white text-black">
           Upload Image:
           <input name="image" type="file" accept="image/*" class="w-full px-3 py-2 border rounded" required>
         </label>
         <!-- <input type="hidden" name="year" value={exhibition.year} /> -->
-        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 mt-4">
-          Submit Exhibition
-        </button>
+        <div class="flex space-x-4">
+          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 mt-4">
+            Submit Exhibition
+          </button>
+          <form method="POST" action="?/delete_exhibition" class="mt-4">
+            <input type="hidden" name="exhibition_id" value={exhibition.exhibition_id} />
+            <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
+              Delete Exhibition
+            </button>
+          </form>
+        </div>
+  
       </div>
-      <form method="POST" action="?/delete_exhibition" class="mt-4">
-        <input type="hidden" name="exhibition_id" value={exhibition.exhibition_id} />
-        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
-          Delete Exhibition
-        </button>
-      </form>
 
       <form method="POST" action="?/edit_exhibition" class="mt-4">
         <input type="hidden" name="exhibition_id" value={exhibition.exhibition_id} />
@@ -66,10 +73,11 @@ function addExhibition() {
           Edit Description:
           <textarea name="description" class="w-full px-3 py-2 border rounded" bind:value={exhibition.description} required></textarea>
         </label>
+        
         <button type="submit" class="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 mt-4">
           Save Changes
         </button>
-      </form>
+
 
       <!-- button edit -->
       <a href={`/exhibitions/${exhibition.exhibition_id}`}>
@@ -80,9 +88,12 @@ function addExhibition() {
 
       <a href={`/rum/${exhibition.exhibition_id}`}>
         <button type="button" on:click={() => console.log('edit')} class="bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 mt-4">
-          go to exhibition {exhibition.exhibition_id}
+        
+            go to exhibition   <span class="rounded-full bg-purple-200 bg-opacity-50 px-1 ml-1 py-1">{exhibition.exhibition_id}</span>
         </button>
       </a>
+      </form>
+
 
     </form>
   {/each}

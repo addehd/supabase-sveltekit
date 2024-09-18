@@ -1,12 +1,13 @@
 <script>
   import { onMount } from 'svelte';
-  import { createScene, playBirdsSound } from '$lib/main';
+  import { createScene } from '$lib/main';
   
   export let data;
+
+  console.log('data', data);
   let imageUrl = data.artworks[0].image_url;
   let el;
 
-  // Ensure data.artworks is an array
   if (!Array.isArray(data.artworks)) {
     console.error('data.artworks is not an array');
   }
@@ -28,9 +29,9 @@
       <li><a href="/exhibitions" class="text-white hover:text-gray-200">exhibitions</a></li>
       <li><a href="/rum" class="text-white hover:text-gray-200">about</a></li>
       <li>
-        <button on:click={playBirdsSound} class="ml-20 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">
+        <!-- <button on:click={playBirdsSound} class="ml-20 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">
           Play
-        </button>
+        </button> -->
       </li>
     </ul>
   </nav>

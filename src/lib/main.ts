@@ -2,6 +2,7 @@ import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
 import VG from './vg'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+//import { loadSmileyFace } from './lib/smiley-face';
 
 let vg;
 
@@ -29,54 +30,79 @@ const initRum = (el, data) => {
 
   // position artwork
   {
+    const wallArtwork = {
+      north: [],
+      south: [],
+      east: [],
+      west: []
+    };
+
     data.forEach((artwork) => {
-    textureLoader.load(artwork.image_url, (texture) => {
-      const material = new THREE.MeshBasicMaterial({ map: texture });
-      const body = new CANNON.Body({
-        type: CANNON.Body.STATIC,
-        shape: new CANNON.Box(new CANNON.Vec3(50, 50, 0.5))
+      textureLoader.load(artwork.image_url, (texture) => {
+        const aspectRatio = texture.image.width / texture.image.height;
+        const material = new THREE.MeshBasicMaterial({ map: texture });
+        
+        let width, height;
+        const wall = artwork.wall.toLowerCase();
+        if (wall === 'north' || wall === 'south') {
+          height = room.height * 0.5;
+          width = height * aspectRatio;
+        } else {
+          width = room.depth * 0.5;
+          height = width / aspectRatio;
+        }
+
+        const geometry = new THREE.PlaneGeometry(width, height);
+        const object = new THREE.Mesh(geometry, material);
+
+        wallArtwork[wall].push(object);
+
+        vg.add({
+          name: `${wall}Artwork`,
+          object: object,
+          gui: []
+        });
       });
-
-      let position;
-      const artworkSize = { width: 100, height: 100, depth: 1 };
-      switch (artwork.wall) {
-        case 'east':
-          position = { x: room.width / 2 - room.thickness / 2 - artworkSize.depth / 2, y: room.height / 2, z: 0 };
-          break;
-        case 'west':
-          position = { x: -room.width / 2 + room.thickness / 2 + artworkSize.depth / 2, y: room.height / 2, z: 0 };
-          break;
-        case 'north':
-          position = { x: 0, y: room.height / 2, z: -room.depth / 2 + room.thickness / 2 + artworkSize.depth / 2 };
-          break;
-        case 'south':
-          position = { x: 0, y: room.height / 2, z: room.depth / 2 - room.thickness / 2 - artworkSize.depth / 2 };
-          break;
-        default:
-          return;
-      }
-
-      body.position.set(position.x, position.y, position.z);
-
-      const geometry = new THREE.BoxGeometry(artworkSize.width, artworkSize.height, artworkSize.depth);
-      const object = new THREE.Mesh(geometry, material);
-      object.position.copy(body.position);
-
-      if (artwork.wall === 'east' || artwork.wall === 'west') {
-        object.rotation.y = Math.PI / 2;
-      }
-
-      const artwork3D = {
-        name: `${artwork.wall}Artwork`,
-        body: body,
-        object: object,
-        gui: []
-      };
-
-      vg.add(artwork3D);
     });
-  });
-}
+
+    // position artwork on walls
+    const positionArtwork = (wall, artworks) => {
+      const totalWidth = artworks.reduce((sum, art) => sum + art.geometry.parameters.width, 0);
+      const spacing = 0; 
+      let startX = -totalWidth / 2 - spacing * (artworks.length - 1) / 2;
+
+      artworks.forEach((art) => {
+        const width = art.geometry.parameters.width;
+
+        switch (wall) {
+          case 'north':
+            art.position.set(startX + width / 2, room.height / 2, -room.depth / 2 + 1);
+            art.rotation.y = 0;
+            break;
+          case 'south':
+            art.position.set(startX + width / 2, room.height / 2, room.depth / 2 - 1);
+            art.rotation.y = Math.PI;
+            break;
+          case 'east':
+            art.position.set(room.width / 2 - 1, room.height / 2, startX + width / 2);
+            art.rotation.y = -Math.PI / 2;
+            break;
+          case 'west':
+            art.position.set(-room.width / 2 + 1, room.height / 2, startX + width / 2);
+            art.rotation.y = Math.PI / 2;
+            break;
+        }
+
+        startX += width + spacing;
+      });
+    };
+
+    console.log('wallArtwork', wallArtwork);
+   
+    setTimeout(() => {
+      Object.keys(wallArtwork).forEach(wall => positionArtwork(wall, wallArtwork[wall]));
+    }, 1000);
+  }
 
   { // general
     vg.input.onDown['c'] = (key) => { vg.gui.show(vg.gui._hidden) }
@@ -262,8 +288,8 @@ const initRum = (el, data) => {
 
       const geometry = new THREE.PlaneGeometry(room.width, room.depth)
       const material = new THREE.MeshBasicMaterial(
-        { color: 0xAA00AA,
-          transparent: true,
+        { color: 0x1A1A1A,
+          transparent: false,
           opacity: room.opacity,
           side: THREE.DoubleSide })
 
@@ -604,38 +630,39 @@ const initRum = (el, data) => {
     vg.hud = hud.update
   }
 
-  { // birds sound
-    const listener = new THREE.AudioListener();
-    vg.camera.add(listener);
+  // { // birds sound
+  //   const listener = new THREE.AudioListener();
+  //   vg.camera.add(listener);
 
-    const sound = new THREE.Audio(listener);
-    const audioLoader = new THREE.AudioLoader();
+  //   const sound = new THREE.Audio(listener);
+  //   const audioLoader = new THREE.AudioLoader();
 
-    audioLoader.load('./birds.mp3', function(buffer) {
-      sound.setBuffer(buffer);
-      sound.setLoop(true);
-      sound.setVolume(100);
-    });
+  //   // audioLoader.load('./birds.mp3', function(buffer) {
+  //   //   sound.setBuffer(buffer);
+  //   //   sound.setLoop(true);
+  //   //   sound.setVolume(100);
+  //   // });
 
-    playSound = () => {
-      sound.play();
-    };
+  //   // playSound = () => {
+  //   //   sound.play();
+  //   // };
 
-    vg.add({
-      name: 'audio',
-      unremovable: true,
-      object: sound
-    });
-  }
+  //   vg.add({
+  //     name: 'audio',
+  //     unremovable: true,
+  //     object: sound
+  //   });
+  // }
 
+  // loadSmileyFace(vg);
 }
 
-let playSound
+//let playSound
 
 export const createScene = (el, imageUrl) => {
   initRum(el, imageUrl);
 };
 
-export const playBirdsSound = () => {
-  playSound();
-};
+// export const playBirdsSound = () => {
+//   playSound();
+// };
