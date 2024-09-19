@@ -2,7 +2,7 @@ import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
 import VG from './vg'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
-//import { loadSmileyFace } from './lib/smiley-face';
+import { setupFloor } from './floor';
 
 let vg;
 
@@ -28,6 +28,8 @@ const initRum = (el, data) => {
 
   const textureLoader = new THREE.TextureLoader();
 
+
+
   // position artwork
   {
     const wallArtwork = {
@@ -45,10 +47,10 @@ const initRum = (el, data) => {
         let width, height;
         const wall = artwork.wall.toLowerCase();
         if (wall === 'north' || wall === 'south') {
-          height = room.height * 0.5;
+          height = room.height;
           width = height * aspectRatio;
         } else {
-          width = room.depth * 0.5;
+          width = room.depth;
           height = width / aspectRatio;
         }
 
@@ -271,42 +273,15 @@ const initRum = (el, data) => {
 
   { // Room
     var room = window.room = {
-      width: 150,
-      depth: 250,
-      height: 59,
+      width: 34 ,
+      depth: 107 / 2,
+      height: 2,
       opacity: 0.8,
-      thickness: 5
+      thickness: 1
     }
 
-    { // ground
-      let body = new CANNON.Body({
-        type: CANNON.Body.STATIC,
-        shape: new CANNON.Plane()
-      })
-
-      body.quaternion.setFromEuler(-Math.PI / 2, 0, 0)
-
-      const geometry = new THREE.PlaneGeometry(room.width, room.depth)
-      const material = new THREE.MeshBasicMaterial(
-        { color: 0x1A1A1A,
-          transparent: false,
-          opacity: room.opacity,
-          side: THREE.DoubleSide })
-
-      const object = new THREE.Mesh(geometry, material)
-
-      var ground = window.ground = {
-        name: 'ground',
-        body: body,
-        object: object,
-        gui: [
-          [ body.position, 'x', -10, 10, 1, 'x' ],
-          [ body.position, 'y', -10, 10, 1, 'y' ],
-          [ body.position, 'z', -10, 10, 1, 'z' ]
-        ]}
-
-      vg.add(ground)
-    }
+    const ground = setupFloor();
+    vg.add(ground);
 
     { // left wall
       let body = window.lw = new CANNON.Body({
@@ -538,7 +513,7 @@ const initRum = (el, data) => {
         const material = new THREE.MeshStandardMaterial({
           color: 0xFFAAff,
           roughness: 0.5,
-          metalness: 0.8
+          metalness: 2
         });
     
         gltf.scene.traverse(function(child) {
@@ -561,7 +536,7 @@ const initRum = (el, data) => {
         const scaleY = roomHeight / hangarHeight;
         const scaleZ = roomDepth / hangarDepth;
     
-        const scale = Math.min(scaleX, scaleY, scaleZ) * 1.5;
+        const scale = Math.min(scaleX, scaleY, scaleZ) * 5;
     
         gltf.scene.scale.set(scale, scale, scale);
     
@@ -626,7 +601,7 @@ const initRum = (el, data) => {
       }
     }
 
-    //vg.add(hud)
+    vg.add(hud)
     vg.hud = hud.update
   }
 
