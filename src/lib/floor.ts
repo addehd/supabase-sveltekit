@@ -5,19 +5,19 @@ export const setupFloor = () => {
   const textureLoader = new THREE.TextureLoader();
 
   const colorTexture = textureLoader.load(
-    "/Concrete032_4K-JPG/Concrete032_4K-JPG_Color.jpg"
+    "/Concrete031_1K-JPG/Concrete031_1K-JPG_Color.webp"
   );
   const displacementTexture = textureLoader.load(
-    "/Concrete032_4K-JPG/Concrete032_4K-JPG_Displacement.jpg"
+    "/Concrete031_1K-JPG/Concrete031_1K-JPG_Displacement.webp"
   );
   const normalTexture = textureLoader.load(
-    "/Concrete032_4K-JPG/Concrete032_4K-JPG_NormalDX.jpg"
+    "/Concrete031_1K-JPG/Concrete031_1K-JPG_NormalDX.webp"
   );
   const roughnessTexture = textureLoader.load(
-    "/Concrete032_4K-JPG/Concrete032_4K-JPG_Roughness.jpg"
+    "/Concrete031_1K-JPG/Concrete031_1K-JPG_Roughness.webp"
   );
   const aoTexture = textureLoader.load(
-    "/Concrete032_4K-JPG/Concrete032_4K-JPG_AmbientOcclusion.jpg"
+    "/Concrete031_1K-JPG/Concrete031_1K-JPG_AmbientOcclusion.webp"
   );
 
   colorTexture.wrapS = colorTexture.wrapT = THREE.RepeatWrapping;
@@ -33,9 +33,9 @@ export const setupFloor = () => {
   roughnessTexture.repeat.set(repeatFactor, repeatFactor);
   aoTexture.repeat.set(repeatFactor, repeatFactor);
 
-  const roomWidth = 250;
-  const roomLength = 150;
-  const roomHeight = 1.5;
+  const roomWidth = 34 * 1.8;
+  const roomLength = 107 * 1.38;
+  const roomHeight = 2;
 
   const geometry = new THREE.PlaneGeometry(roomWidth, roomLength);
   const material = new THREE.MeshStandardMaterial({
@@ -44,12 +44,10 @@ export const setupFloor = () => {
     normalMap: normalTexture,
     roughnessMap: roughnessTexture,
     aoMap: aoTexture,
-    displacementScale: 0.1,
+    displacementScale: 0.05,
     side: THREE.DoubleSide,
-    color: new THREE.Color(0xCCCCCC),
-    roughness: 0.3,
-    metalness: 0.2,
-    emissive: new THREE.Color(0x111111),
+    metalness: 0.1,
+    aoMapIntensity: 0.5, // lighten up shadows
   });
 
   const object = new THREE.Mesh(geometry, material);
@@ -65,13 +63,17 @@ export const setupFloor = () => {
   body.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
   body.position.set(0, -roomHeight / 2, 0);
 
-  const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.5);
+  const ambientLight = new THREE.AmbientLight(0xFFFFFF, 1.5);
+
+  const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 2);
+  directionalLight.position.set(0, 10, 10);
 
   return {
     name: 'ground',
     body: body,
     object: object,
     ambientLight: ambientLight,
+    directionalLight: directionalLight,
     gui: [
       [ body.position, 'x', -10, 10, 1, 'x' ],
       [ body.position, 'y', -10, 10, 1, 'y' ],
@@ -84,7 +86,8 @@ export const setupFloor = () => {
       [ material.emissive, 'r', 0, 1, 0.01, 'emissive r' ],
       [ material.emissive, 'g', 0, 1, 0.01, 'emissive g' ],
       [ material.emissive, 'b', 0, 1, 0.01, 'emissive b' ],
-      [ ambientLight, 'intensity', 0, 1, 0.01, 'ambient light' ],
+      [ ambientLight, 'intensity', 0, 2, 0.01, 'ambient light' ],
+      [ directionalLight, 'intensity', 0, 2, 0.01, 'directional light' ],
     ]
   };
 };

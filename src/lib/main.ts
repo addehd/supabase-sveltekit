@@ -28,8 +28,6 @@ const initRum = (el, data) => {
 
   const textureLoader = new THREE.TextureLoader();
 
-
-
   // position artwork
   {
     const wallArtwork = {
@@ -39,24 +37,24 @@ const initRum = (el, data) => {
       west: []
     };
 
+    const ground = setupFloor();
+    vg.add(ground);
+
+    const floorY = 0;
+    const zOffset = 0.5;
+
     data.forEach((artwork) => {
       textureLoader.load(artwork.image_url, (texture) => {
         const aspectRatio = texture.image.width / texture.image.height;
-        const material = new THREE.MeshBasicMaterial({ map: texture });
         
-        let width, height;
-        const wall = artwork.wall.toLowerCase();
-        if (wall === 'north' || wall === 'south') {
-          height = room.height;
-          width = height * aspectRatio;
-        } else {
-          width = room.depth;
-          height = width / aspectRatio;
-        }
+        const width = texture.image.width / 100;
+        const height = texture.image.height / 100;
 
         const geometry = new THREE.PlaneGeometry(width, height);
+        const material = new THREE.MeshBasicMaterial({ map: texture });
         const object = new THREE.Mesh(geometry, material);
 
+        const wall = artwork.wall.toLowerCase();
         wallArtwork[wall].push(object);
 
         vg.add({
@@ -70,32 +68,38 @@ const initRum = (el, data) => {
     // position artwork on walls
     const positionArtwork = (wall, artworks) => {
       const totalWidth = artworks.reduce((sum, art) => sum + art.geometry.parameters.width, 0);
-      const spacing = 0; 
-      let startX = -totalWidth / 2 - spacing * (artworks.length - 1) / 2;
+      let startX = -totalWidth / 2;
+
+      const heightAboveFloor = -0.4;
+      
+      const artworkYOffset = -1.5;
 
       artworks.forEach((art) => {
         const width = art.geometry.parameters.width;
+        const height = art.geometry.parameters.height;
+
+        const yPosition = floorY + heightAboveFloor + height / 2 + artworkYOffset;
 
         switch (wall) {
           case 'north':
-            art.position.set(startX + width / 2, room.height / 2, -room.depth / 2 + 1);
+            art.position.set(startX + width / 2, yPosition, -room.depth / 2 + 0.1);
             art.rotation.y = 0;
             break;
           case 'south':
-            art.position.set(startX + width / 2, room.height / 2, room.depth / 2 - 1);
+            art.position.set(startX + width / 2, yPosition, room.depth / 2 - 0.1);
             art.rotation.y = Math.PI;
             break;
           case 'east':
-            art.position.set(room.width / 2 - 1, room.height / 2, startX + width / 2);
+            art.position.set(room.width / 2 - 0.1, yPosition, startX + width / 2);
             art.rotation.y = -Math.PI / 2;
             break;
           case 'west':
-            art.position.set(-room.width / 2 + 1, room.height / 2, startX + width / 2);
+            art.position.set(-room.width / 2 + 0.1, yPosition, startX + width / 2);
             art.rotation.y = Math.PI / 2;
             break;
         }
 
-        startX += width + spacing;
+        startX += width;
       });
     };
 
@@ -271,17 +275,17 @@ const initRum = (el, data) => {
     })
   }
 
-  { // Room
+  { // room
     var room = window.room = {
-      width: 34 ,
-      depth: 107 / 2,
-      height: 2,
+      width: 34 * 1.8,
+      depth: 107 * 1.38,
+      height: 4 * 1.5,
       opacity: 0.8,
       thickness: 1
     }
 
-    const ground = setupFloor();
-    vg.add(ground);
+    //const ground = setupFloor();
+    //vg.add(ground);
 
     { // left wall
       let body = window.lw = new CANNON.Body({
@@ -322,7 +326,7 @@ const initRum = (el, data) => {
       body.position.set(room.width/2 + room.thickness/2, room.height/2, 0)
 
       const geometry = new THREE.BoxGeometry(room.thickness, room.height, room.depth)
-      const material = new THREE.MeshBasicMaterial({ color: 0xFFAAAA, transparent: true, opacity: room.opacity })
+      const material = new THREE.MeshBasicMaterial({ color: 0xFFAAAA, transparent: true, opacity: 0 })
       const object = new THREE.Mesh(geometry, material)
 
       var rightWall = {
@@ -377,40 +381,41 @@ const initRum = (el, data) => {
     }
 
     { // light
-      //const object = new THREE.AmbientLight(0x748491)
-      //const object = new THREE.Light(0x748491)
-      const object = new THREE.DirectionalLight(0x748491, 0.5)
-
+      const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 0.2);
+      directionalLight.position.set(-40, 50, 50);
+    
+      const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.2);
+    
       var target = new THREE.Mesh(
         new THREE.SphereGeometry(10, 16, 10),
-        new THREE.MeshBasicMaterial({ color: 0xff0000 }))
-
-      target.position.x = -40
-
+        new THREE.MeshBasicMaterial({ color: 0xff0000 })
+      );
+      target.position.x = -40;
+    
       vg.add({
         object: target,
         unremovable: true
-      })
-
-      object.target = backWall.object
+      });
     
-      var light = window.light = {
+      directionalLight.target = target;
+    
+      vg.add({
         name: 'light',
-        object: object,
+        object: directionalLight,
         gui: [
-          [ object.position, 'x', 'pos x' ],
-          [ object.position, 'y', 'pos y' ],
-          [ object.position, 'z', 'pos z' ],
-          [ object.target.position, 'x', 'target pos x' ],
-          [ object.target.position, 'y', 'target pos y' ],
-          [ object.target.position, 'z', 'target pos z' ]
+          [ directionalLight.position, 'x', 'pos x' ],
+          [ directionalLight.position, 'y', 'pos y' ],
+          [ directionalLight.position, 'z', 'pos z' ],
+          [ directionalLight.target.position, 'x', 'target pos x' ],
+          [ directionalLight.target.position, 'y', 'target pos y' ],
+          [ directionalLight.target.position, 'z', 'target pos z' ]
         ],
-        update: function(delta) {
-          //this.object.position.y = Math.cos(delta) * 200 - 100
-        }
-      }
-
-      vg.add(light)
+      });
+    
+      vg.add({
+        name: 'ambientLight',
+        object: ambientLight
+      });
     }
   }
 
