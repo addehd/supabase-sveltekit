@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({params, locals: { supabase } }) => {
   const { data: artworks } = await supabase
     .from('artworks')
     .select()
-    .eq('exhibitions_id', 20);
+    .eq('exhibitions_id', exhibitionId);
 
   console.log(artworks);
 
