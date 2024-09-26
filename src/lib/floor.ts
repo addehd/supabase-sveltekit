@@ -33,8 +33,8 @@ export const setupFloor = () => {
   roughnessTexture.repeat.set(repeatFactor, repeatFactor);
   aoTexture.repeat.set(repeatFactor, repeatFactor);
 
-  const roomWidth = 34 * 1.8;
-  const roomLength = 107 * 1.38;
+  const roomWidth = 34 * 2.8;
+  const roomLength = 107 * 3.4;
   const roomHeight = 2;
 
   const geometry = new THREE.PlaneGeometry(roomWidth, roomLength);

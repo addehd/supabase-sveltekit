@@ -37,7 +37,7 @@ export function setupArtwork(vg: VG, textureLoader: THREE.TextureLoader, data: a
   // position artwork on walls
   const positionArtwork = (wall, artworks) => {
     const totalWidth = artworks.reduce((sum, art) => sum + art.geometry.parameters.width, 0);
-    let startX = -totalWidth / 2;
+    let startX = 0;
 
     const heightAboveFloor = -0.4;
     
@@ -59,11 +59,11 @@ export function setupArtwork(vg: VG, textureLoader: THREE.TextureLoader, data: a
           art.rotation.y = Math.PI;
           break;
         case 'east':
-          art.position.set(room.width / 2 - 0.1, yPosition, startX + width / 2);
+          art.position.set(room.width / 2 - 0.1, yPosition, startX + width / 2 - room.depth / 2);
           art.rotation.y = -Math.PI / 2;
           break;
         case 'west':
-          art.position.set(-room.width / 2 + 0.1, yPosition, startX + width / 2);
+          art.position.set(-room.width / 2 + 0.1, yPosition, startX + width / 2 - room.depth / 2);
           art.rotation.y = Math.PI / 2;
           break;
       }

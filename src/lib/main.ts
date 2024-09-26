@@ -4,7 +4,7 @@ import VG from './vg'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { setupFloor } from './floor';
 import { setupArtwork } from './art-canvas';
-import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
+import { loadSmileyFace } from './smiley';
 
 let vg;
 
@@ -29,7 +29,6 @@ const initRum = (el, data) => {
   vg.renderer = renderer;
 
   const textureLoader = new THREE.TextureLoader();
-
 
   const ground = setupFloor();
   vg.add(ground);
@@ -92,22 +91,28 @@ const initRum = (el, data) => {
 
   { // player
     var body = new CANNON.Body({
-      mass: 50,
-      shape: new CANNON.Box(new CANNON.Vec3(1, 1, 1)) })
+      mass: 30,
+      shape: new CANNON.Box(new CANNON.Vec3(1, 1, 1)),
+      linearDamping: 0.9,
+      angularDamping: 0.9
+    });
+
+    body.position.set(0, 1.5, 2);
 
     var object = new THREE.Mesh(
       new THREE.BoxGeometry(1, 3, 2),
-      new THREE.MeshBasicMaterial({ color: 0x00ff90 }))
+      new THREE.MeshBasicMaterial({ color: 0x00ff90 }));
 
     var player = window.player = {
       name: 'player',
       body: body,
       object: object,
-      moveSpeed: 0.5,
+      moveSpeed: 2,
       lookSpeed: 0.1,
       jumpSpeed: 10,
       crouchSpeed: 0.1,
       unremovable: true,
+      moveDirection: new THREE.Vector3(),
       gui: [
         [ object.position, 'x', -100, 100, 10, 'object x' ],
         [ object.position, 'y', -100, 100, 10, 'y' ],
@@ -126,67 +131,60 @@ const initRum = (el, data) => {
         [ body.quaternion, 'z', -1, 1, 0.01, "q z" ],
         [ body.quaternion, 'w', -1, 1, 0.01, "q w" ]
       ],
-      keysDown: []}
+      keysDown: {},
+      update: function(delta) {
+        this.moveDirection.set(0, 0, 0);
+        if (this.keysDown['s']) this.moveDirection.z -= 1;
+        if (this.keysDown['w']) this.moveDirection.z += 1;
+        if (this.keysDown['a']) this.moveDirection.x -= 1;
+        if (this.keysDown['d']) this.moveDirection.x += 1;
+        this.moveDirection.normalize();
 
-    vg.add(player)
+        let cameraDirection = new THREE.Vector3();
+        vg.camera.getWorldDirection(cameraDirection);
+        cameraDirection.y = 0;
+        cameraDirection.normalize();
+        let sideDirection = new THREE.Vector3(-cameraDirection.z, 0, cameraDirection.x);
+        
+        let moveImpulse = new CANNON.Vec3(
+          (this.moveDirection.x * sideDirection.x + this.moveDirection.z * cameraDirection.x) * this.moveSpeed * delta,
+          0,
+          (this.moveDirection.x * sideDirection.z + this.moveDirection.z * cameraDirection.z) * this.moveSpeed * delta
+        );
+        this.body.applyImpulse(moveImpulse);
 
-    vg.cameraTarget = object
+        this.object.position.copy(this.body.position);
+        this.object.quaternion.copy(this.body.quaternion);
 
-    //vg.initMouse()
+        vg.camera.position.copy(this.object.position);
+        vg.camera.position.y += 1.2;
+      }
+    };
 
-    // move
-    vg.input.whilePressed['a'] = (key) => {
-      let direction = new THREE.Vector3()
-      vg.camera.getWorldDirection(direction)
-      direction.y = 0
-      direction.normalize()
-      let left = new THREE.Vector3(direction.z, 0, -direction.x).normalize()
-      player.body.velocity.x += left.x * player.moveSpeed
-      player.body.velocity.z += left.z * player.moveSpeed
-    }
-  
-    vg.input.whilePressed['d'] = (key) => {
-      let direction = new THREE.Vector3()
-      vg.camera.getWorldDirection(direction)
-      direction.y = 0
-      direction.normalize()
-      let right = new THREE.Vector3(-direction.z, 0, direction.x).normalize()
-      player.body.velocity.x += right.x * player.moveSpeed
-      player.body.velocity.z += right.z * player.moveSpeed
-    }
-  
-    vg.input.whilePressed['w'] = (key) => {
-      let direction = new THREE.Vector3()
-      vg.camera.getWorldDirection(direction)
-      direction.y = 0
-      direction.normalize()
-      player.body.velocity.x += direction.x * player.moveSpeed
-      player.body.velocity.z += direction.z * player.moveSpeed
-    }
-  
-    vg.input.whilePressed['s'] = (key) => {
-      let direction = new THREE.Vector3()
-      vg.camera.getWorldDirection(direction)
-      direction.y = 0
-      direction.normalize()
-      player.body.velocity.x -= direction.x * player.moveSpeed
-      player.body.velocity.z -= direction.z * player.moveSpeed
-    }
+    vg.add(player);
+
+    vg.cameraTarget = object;
+
+    // input handling
+    ['w', 'a', 's', 'd'].forEach(key => {
+      vg.input.onDown[key] = () => { player.keysDown[key] = true; };
+      vg.input.onUp[key] = () => { player.keysDown[key] = false; };
+    });
 
     vg.input.onDown[' '] = (key) => {
-      if (Math.abs(player.body.velocity.y) < 1) {
-        player.body.velocity.y += player.jumpSpeed
+      if (Math.abs(player.body.velocity.y) < 0.1) {
+        player.body.applyImpulse(new CANNON.Vec3(0, player.jumpSpeed, 0));
       }
-    }
+    };
 
-    vg.input.whilePressed['Control'] = (key) => player.body.velocity.y -= player.crouchSpeed
+    vg.input.whilePressed['Control'] = (key) => player.body.velocity.y -= player.crouchSpeed;
 
     // look
-    vg.camera.rotation.order = "YXZ"
-    vg.input.whilePressed['ArrowRight'] = (key) => { vg.camera.rotation.y -= 0.05 }
-    vg.input.whilePressed['ArrowLeft'] = (key) => { vg.camera.rotation.y += 0.05 }
-    vg.input.whilePressed['ArrowDown'] = (key) => { vg.camera.rotation.x -= 0.02 }
-    vg.input.whilePressed['ArrowUp'] = (key) => { vg.camera.rotation.x += 0.02 }
+    vg.camera.rotation.order = "YXZ";
+    vg.input.whilePressed['ArrowRight'] = (key) => { vg.camera.rotation.y -= 0.05 };
+    vg.input.whilePressed['ArrowLeft'] = (key) => { vg.camera.rotation.y += 0.05 };
+    vg.input.whilePressed['ArrowDown'] = (key) => { vg.camera.rotation.x -= 0.02 };
+    vg.input.whilePressed['ArrowUp'] = (key) => { vg.camera.rotation.x += 0.02 };
   }
 
   { // background color
@@ -201,8 +199,8 @@ const initRum = (el, data) => {
 
   { // room
     var room = window.room = {
-      width: 34 * 1.8,
-      depth: 107 * 1.38,
+      width: 34 * 2.8,
+      depth: 107 *3.4,
       height: 4 * 1.5,
       opacity: 0.8,
       thickness: 1
@@ -255,85 +253,88 @@ const initRum = (el, data) => {
     }
 
     { // front wall
+      const wallHeight = 50;
+    
       const textureLoader = new THREE.TextureLoader();
-
+    
       const diffuseTexture = textureLoader.load('/bricks/brick_wall_02_diff_1k.jpg');
       const displacementTexture = textureLoader.load('/bricks/brick_wall_02_disp_1k.png');
-
-      const repeatX = 4;
-      const repeatY = 4;
-
+    
+      const repeatX = room.width / 5.5;
+      const repeatY = wallHeight / 5.5;
+    
       diffuseTexture.repeat.set(repeatX, repeatY);
       displacementTexture.repeat.set(repeatX, repeatY);
-
+    
       diffuseTexture.wrapS = diffuseTexture.wrapT = THREE.RepeatWrapping;
       displacementTexture.wrapS = displacementTexture.wrapT = THREE.RepeatWrapping;
-
+    
       let body = new CANNON.Body({
         type: CANNON.Body.STATIC,
-        shape: new CANNON.Box(new CANNON.Vec3(50, 50, 0.5))
-      })
-
-      body.position.set(0, room.height*2, -room.depth/2 - room.thickness/2)
-
-      const geometry = new THREE.BoxGeometry(room.width*1.2, room.height*6, room.thickness)
-      const material = new THREE.MeshStandardMaterial({ 
+        shape: new CANNON.Box(new CANNON.Vec3(room.width * 1.2 / 2, wallHeight / 2, room.thickness / 2))
+      });
+    
+      body.position.set(0, wallHeight / 2.6, -room.depth / 2 - room.thickness / 2);
+    
+      const geometry = new THREE.BoxGeometry(room.width * 1.2, wallHeight, room.thickness);
+      const material = new THREE.MeshStandardMaterial({
         map: diffuseTexture,
         displacementMap: displacementTexture,
         displacementScale: 0.1,
         roughness: 0.8,
         metalness: 0.2
-      })
-      const object = new THREE.Mesh(geometry, material)
-
+      });
+      const object = new THREE.Mesh(geometry, material);
+    
       var frontWall = {
         name: 'frontWall',
         body: body,
         object: object
-      }
-
-      vg.add(frontWall)
+      };
+    
+      vg.add(frontWall);
     }
-
-    { // north wall (previously back wall)
+    { // north wall
+      const wallHeight = 100;
+    
       const textureLoader = new THREE.TextureLoader();
-
+    
       const diffuseTexture = textureLoader.load('/bricks/brick_wall_02_diff_1k.jpg');
       const displacementTexture = textureLoader.load('/bricks/brick_wall_02_disp_1k.png');
-
-      const repeatX = 4;
-      const repeatY = 4;
-
+    
+      const repeatX = 5;
+      const repeatY = wallHeight / 10;
+    
       diffuseTexture.repeat.set(repeatX, repeatY);
       displacementTexture.repeat.set(repeatX, repeatY);
-
+    
       diffuseTexture.wrapS = diffuseTexture.wrapT = THREE.RepeatWrapping;
       displacementTexture.wrapS = displacementTexture.wrapT = THREE.RepeatWrapping;
-
+    
       let body = new CANNON.Body({
         type: CANNON.Body.STATIC,
-        shape: new CANNON.Box(new CANNON.Vec3(50, 50, 0.5))
-      })
-
-      body.position.set(0, room.height*2, room.depth/2 + room.thickness/2)
-
-      const geometry = new THREE.BoxGeometry(room.width, room.height*6, room.thickness)
+        shape: new CANNON.Box(new CANNON.Vec3(50, wallHeight / 2, 0.5))
+      });
+    
+      body.position.set(0, wallHeight / 2, room.depth / 2 + room.thickness / 2);
+    
+      const geometry = new THREE.BoxGeometry(room.width, wallHeight, room.thickness);
       const material = new THREE.MeshStandardMaterial({ 
         map: diffuseTexture,
         displacementMap: displacementTexture,
         displacementScale: 0.1,
         roughness: 0.8,
         metalness: 0.2
-      })
-      const object = new THREE.Mesh(geometry, material)
-
+      });
+      const object = new THREE.Mesh(geometry, material);
+    
       var northWall = {
         name: 'northWall',
         body: body,
         object: object
-      }
-
-      vg.add(northWall)
+      };
+    
+      vg.add(northWall);
     }
 
     { // light
@@ -375,95 +376,43 @@ const initRum = (el, data) => {
     }
   }
 
-  // { // roto Cube
-  //   var cube = window.cube = new THREE.Mesh(
-  //     new THREE.BoxGeometry(1, 1, 1),
-  //     new THREE.MeshBasicMaterial({ color: 0xff6030 }))
+  // { // gravity ball
+  //   var body = new CANNON.Body({
+  //     mass: 50,
+  //     shape: new CANNON.Sphere(8) })
 
-  //   cube.scale.set(5, 5, 5)
-  //   cube.translateX(-10)
+  //   body.position.y = 40
+  //   body.position.x = 40
 
-  //   var cube = window.cube = {
-  //     name: 'cube',
-  //     object: cube,
-  //     gui: [
-  //       [ cube.material.color, 'b', 0, 1, 0.1, 'cube blue' ],
-  //       [ cube.scale, 'x', 0, 10, 1, 'scale x' ],
-  //       [ cube.scale, 'y', 0, 10, 1, 'scale y' ],
-  //       [ cube.scale, 'z', 0, 10, 1, 'scale z' ],
-  //       [ cube.position, 'x', -10, 10, 1, 'pos x' ],
-  //       [ cube.position, 'y', -10, 10, 1, 'pos y' ],
-  //       [ cube.position, 'z', -10, 10, 1, 'pos z' ]
-  //     ],
-  //     update: function(delta) {
-  //       this.object.rotation.y += 0.001 * delta
-  //       this.object.rotation.x += 0.0001 * delta
-  //       this.object.rotation.z += 0.0002 * delta
-  //       this.object.translateX(Math.sin(0.01 * delta))
-  //     }}
+  //   var object = new THREE.Mesh(
+  //     new THREE.SphereGeometry(10, 32, 10),
+  //     new THREE.MeshBasicMaterial({ color: 0xfff030 }))
 
-  //   vg.add(cube)
-  // }
-
-  // { // roto Line
-  //   const object = new THREE.Line(
-  //     new THREE.BufferGeometry().setFromPoints(
-  //       [ new THREE.Vector3(-10, 0, 0),
-  //         new THREE.Vector3(0, 10, 0),
-  //         new THREE.Vector3(10, 0, 0)]),
-  //     new THREE.LineBasicMaterial({ color: 0x0000ff }))
-
-  //   var line = window.line = {
-  //     name: 'roto line',
+  //   var ball = window.ball = {
+  //     name: 'ball',
+  //     body: body,
   //     object: object,
   //     gui: [
-  //       [ object.rotation, 'x', 'pos x' ],
-  //       [ object.rotation, 'y', 'pos y' ],
-  //       [ object.rotation, 'z', 'pos z' ],
-  //       [ object.scale, 'x', 'scale x' ]
-  //     ],
-  //     update: function(delta) {
-  //       this.object.rotation.x += 0.001 * delta
-  //       this.object.rotation.y += 0.001 * (delta % 10)
-  //       this.object.rotation.z += 0.001 * (delta % 100)
-  //     }}
+  //       [ body.position, 'x', -10, 10, 1, 'x' ],
+  //       [ body.position, 'y', -10, 10, 1, 'y' ],
+  //       [ body.position, 'z', -10, 10, 1, 'z' ],
+  //       [ body.velocity, 'x', -10, 10, 1, 'v x' ],
+  //       [ body.velocity, 'y', -10, 10, 1, 'v y' ],
+  //       [ body.velocity, 'z', -10, 10, 1, 'v z' ],
+  //       [ body.quaternion, 'x', 0, 1, 0.01, 'q x' ],
+  //       [ body.quaternion, 'y', 0, 1, 0.01, 'q y' ],
+  //       [ body.quaternion, 'z', 0, 1, 0.01, 'q z' ],
+  //       [ body.quaternion, 'w', 0, 10, 0.01, 'q w' ]
+  //     ]}
 
-  //   vg.add(line)
+  //   vg.add(ball)
   // }
 
-  { // gravity ball
-    var body = new CANNON.Body({
-      mass: 50,
-      shape: new CANNON.Sphere(8) })
-
-    body.position.y = 40
-    body.position.x = 40
-
-    var object = new THREE.Mesh(
-      new THREE.SphereGeometry(10, 32, 10),
-      new THREE.MeshBasicMaterial({ color: 0xfff030 }))
-
-    var ball = window.ball = {
-      name: 'ball',
-      body: body,
-      object: object,
-      gui: [
-        [ body.position, 'x', -10, 10, 1, 'x' ],
-        [ body.position, 'y', -10, 10, 1, 'y' ],
-        [ body.position, 'z', -10, 10, 1, 'z' ],
-        [ body.velocity, 'x', -10, 10, 1, 'v x' ],
-        [ body.velocity, 'y', -10, 10, 1, 'v y' ],
-        [ body.velocity, 'z', -10, 10, 1, 'v z' ],
-        [ body.quaternion, 'x', 0, 1, 0.01, 'q x' ],
-        [ body.quaternion, 'y', 0, 1, 0.01, 'q y' ],
-        [ body.quaternion, 'z', 0, 1, 0.01, 'q z' ],
-        [ body.quaternion, 'w', 0, 10, 0.01, 'q w' ]
-      ]}
-
-    vg.add(ball)
+  { // smiley face
+    loadSmileyFace(vg);
   }
 
-  { // guy Fawkes mask
+  { // hangar
     const loader = new GLTFLoader();
 
     loader.load(
@@ -497,26 +446,31 @@ const initRum = (el, data) => {
         const scaleY = roomHeight / hangarHeight;
         const scaleZ = roomDepth / hangarDepth;
     
-        const scale = Math.min(scaleX, scaleY, scaleZ) * 5;
+        const scale = Math.min(scaleX, scaleY, scaleZ) * 6.8;
     
-        gltf.scene.scale.set(scale, scale, scale);
+        // Create three hangars
+        for (let i = 0; i < 3; i++) {
+          const hangarClone = gltf.scene.clone();
+          hangarClone.scale.set(scale, scale, scale);
+          
+          // Adjust z position for each hangar
+          const zOffset = (i - 1) * roomDepth / 3; // Distribute along z-axis
+          hangarClone.position.set(0, 0, zOffset);
     
-        //center the hangar in the room
-        gltf.scene.position.set(0, roomHeight / 2, 0);
-    
-        vg.add({
-          name: 'hangar',
-          object: gltf.scene,
-          gui: [
-            [gltf.scene.position, 'x', -roomWidth/2, roomWidth/2, 1, 'position x'],
-            [gltf.scene.position, 'y', 0, roomHeight, 1, 'position y'],
-            [gltf.scene.position, 'z', -roomDepth/2, roomDepth/2, 1, 'position z'],
-            [gltf.scene.scale, 'x', 0.1, 3, 0.01, 'scale x'],
-            [gltf.scene.scale, 'y', 0.1, 3, 0.01, 'scale y'],
-            [gltf.scene.scale, 'z', 0.1, 3, 0.01, 'scale z'],
-            [gltf.scene.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rotation y']
-          ]
-        });
+          vg.add({
+            name: `hangar_${i + 1}`,
+            object: hangarClone,
+            gui: [
+              [hangarClone.position, 'x', -roomWidth/2, roomWidth/2, 1, 'position x'],
+              [hangarClone.position, 'y', -roomHeight/2, roomHeight/2, 1, 'position y'],
+              [hangarClone.position, 'z', -roomDepth/2, roomDepth/2, 1, 'position z'],
+              [hangarClone.scale, 'x', 0.1, 3, 0.01, 'scale x'],
+              [hangarClone.scale, 'y', 0.1, 3, 0.01, 'scale y'],
+              [hangarClone.scale, 'z', 0.1, 3, 0.01, 'scale z'],
+              [hangarClone.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rotation y']
+            ]
+          });
+        }
       },
       undefined,
       function (error) {
@@ -526,45 +480,45 @@ const initRum = (el, data) => {
     );
   }
 
-  { // HUD
-    var width = 720
-    var height = 480
-    var margin = 20
+  // { // HUD
+  //   var width = 720
+  //   var height = 480
+  //   var margin = 20
 
-    var hudCanvas = window.hudCanvas = new OffscreenCanvas(width, height)
-    hudCanvas.width = width
-    hudCanvas.height = height
+  //   var hudCanvas = window.hudCanvas = new OffscreenCanvas(width, height)
+  //   hudCanvas.width = width
+  //   hudCanvas.height = height
 
-    var context = hudCanvas.getContext('2d')
-    context.font = "Normal 40px Arial"
-    context.textAlign = 'center'
-    context.fillStyle = "rgba(245,245,245,0.75)"
-    context.fillText('Initializing...', width / 2 - margin, height / 2 - margin)
+  //   var context = hudCanvas.getContext('2d')
+  //   context.font = "Normal 40px Arial"
+  //   context.textAlign = 'center'
+  //   context.fillStyle = "rgba(245,245,245,0.75)"
+  //   context.fillText('Initializing...', width / 2 - margin, height / 2 - margin)
 
-    var hudCamera = new THREE.OrthographicCamera(-width/2, width/2, height/2, -height/2, 0, 30)
-    var hudScene = new THREE.Scene()
+  //   var hudCamera = new THREE.OrthographicCamera(-width/2, width/2, height/2, -height/2, 0, 30)
+  //   var hudScene = new THREE.Scene()
 
-    var texture = new THREE.Texture(hudCanvas) 
-    texture.needsUpdate = true
+  //   var texture = new THREE.Texture(hudCanvas) 
+  //   texture.needsUpdate = true
 
-    var material = new THREE.MeshBasicMaterial({map: texture})
-    material.transparent = true
+  //   var material = new THREE.MeshBasicMaterial({map: texture})
+  //   material.transparent = true
 
-    // Create plane to render the HUD. This plane fill the whole screen.
-    var planeGeometry = new THREE.PlaneGeometry(width - margin, height - margin)
-    var plane = new THREE.Mesh(planeGeometry, material)
-    hudScene.add(plane)
+  //   // Create plane to render the HUD. This plane fill the whole screen.
+  //   var planeGeometry = new THREE.PlaneGeometry(width - margin, height - margin)
+  //   var plane = new THREE.Mesh(planeGeometry, material)
+  //   hudScene.add(plane)
 
-    var hud = {
-      update: function(delta) {
-        //console.log('draw hud', this)
-        vg.renderer.render(hudScene, hudCamera)
-      }
-    }
+  //   var hud = {
+  //     update: function(delta) {
+  //       //console.log('draw hud', this)
+  //       vg.renderer.render(hudScene, hudCamera)
+  //     }
+  //   }
 
-    vg.add(hud)
-    vg.hud = hud.update
-  }
+  //   // vg.add(hud)
+  //   // vg.hud = hud.update
+  // }
 
   // { // birds sound
   //   const listener = new THREE.AudioListener();

@@ -53,7 +53,7 @@ export const actions = {
           description,
           wall: position.toLowerCase(),
           room: 'hangaren',
-          exhibitions_id: 20,
+          exhibitions_id: 32,
           artist_id: artistId,
           image_url: imageUrl || '',
         })
@@ -122,7 +122,10 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
   const { data: artworks, error } = await supabase
     .from('artworks')
     .select('*')
-    .eq('exhibitions_id', params.slug);
+    .eq('exhibitions_id', params.slug)
+    .order('artwork_id', { ascending: true });
+
+  console.log(artworks);  
 
   const { data: artists } = await supabase
     .from('artists')

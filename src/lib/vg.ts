@@ -206,7 +206,7 @@ export default class VG {
 
   initWorld = function() {
     this.world = new CANNON.World({
-      gravity: new CANNON.Vec3(0, -19.81, 0) })
+      gravity: new CANNON.Vec3(0, -30, 0) })
   }
 
   onMouseMove = function(e) {
