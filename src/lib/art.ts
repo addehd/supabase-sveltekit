@@ -14,7 +14,7 @@ export function setupArtwork(vg: VG, textureLoader: THREE.TextureLoader, data: a
 
   data.forEach((artwork) => {
     textureLoader.load(artwork.image_url, (texture) => {
-      const aspectRatio = texture.image.width / texture.image.height;
+      //const aspectRatio = texture.image.width / texture.image.height;
       
       const width = texture.image.width / 100;
       const height = texture.image.height / 100;
@@ -29,7 +29,7 @@ export function setupArtwork(vg: VG, textureLoader: THREE.TextureLoader, data: a
       vg.add({
         name: `${wall}Artwork`,
         object: object,
-        gui: []
+        // gui: []
       });
     });
   });
@@ -72,8 +72,6 @@ export function setupArtwork(vg: VG, textureLoader: THREE.TextureLoader, data: a
     });
   };
 
-  console.log('wallArtwork', wallArtwork);
- 
   setTimeout(() => {
     Object.keys(wallArtwork).forEach(wall => positionArtwork(wall, wallArtwork[wall]));
   }, 1000);

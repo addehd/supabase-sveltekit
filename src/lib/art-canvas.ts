@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import VG from './vg';
 
-export async function setupArtwork(vg: VG, textureLoader: THREE.TextureLoader, data: any[], room: { width: number, depth: number, height: number }) {
+export function setupArtwork(vg: VG, textureLoader: THREE.TextureLoader, data: any[], room: { width: number, depth: number, height: number }) {
   const wallArtwork = {
     north: [],
     south: [],
@@ -9,13 +9,8 @@ export async function setupArtwork(vg: VG, textureLoader: THREE.TextureLoader, d
     west: []
   };
 
-  const loadTexture = (url: string) => new Promise<THREE.Texture>((resolve, reject) => {
-    textureLoader.load(url, resolve, undefined, reject);
-  });
-
-  const setupArtworkPromises = data.map(async (artwork) => {
-    try {
-      const texture = await loadTexture(artwork.image_url);
+  data.forEach((artwork) => {
+    textureLoader.load(artwork.image_url, (texture) => {
       const image = texture.image as HTMLImageElement;
 
       const canvas = document.createElement('canvas');
@@ -49,17 +44,17 @@ export async function setupArtwork(vg: VG, textureLoader: THREE.TextureLoader, d
         object: object,
         gui: []
       });
-    } catch (error) {
+    }, undefined, (error) => {
       console.error(`Error loading texture for artwork: ${artwork.image_url}`, error);
-    }
+    });
   });
 
-  await Promise.all(setupArtworkPromises);
-
-  // Position artwork on walls
-  Object.entries(wallArtwork).forEach(([wall, artworks]) => {
-    positionArtwork(wall, artworks as THREE.Mesh[], room);
-  });
+  // Position artwork on walls after a delay
+  setTimeout(() => {
+    Object.entries(wallArtwork).forEach(([wall, artworks]) => {
+      positionArtwork(wall, artworks as THREE.Mesh[], room);
+    });
+  }, 1000);
 }
 
 function positionArtwork(wall: string, artworks: THREE.Mesh[], room: { width: number, depth: number, height: number }) {

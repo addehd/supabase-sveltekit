@@ -26,10 +26,13 @@ export function loadSmileyFace(vg) {
       const center = boundingBox.getCenter(new THREE.Vector3());
       gltf.scene.position.sub(center);
 
-      const scaleFactor = 7.8;
+      const scaleFactor = 8.2;
       gltf.scene.scale.multiplyScalar(scaleFactor);
 
-      gltf.scene.position.set(0, 1, -11);
+      gltf.scene.position.set(-11, 1, -170);
+
+      // Changed rotation to face more to the right
+      gltf.scene.rotation.y = -Math.PI / 4;
 
       const pointLight = new THREE.PointLight(0xffffff, 1, 100);
       pointLight.position.set(0, 5, 0);

@@ -103,7 +103,7 @@ const initRum = (el, data) => {
       new THREE.BoxGeometry(1, 3, 2),
       new THREE.MeshBasicMaterial({ color: 0x00ff90 }));
 
-    var player = window.player = {
+    var player = {
       name: 'player',
       body: body,
       object: object,
@@ -153,6 +153,10 @@ const initRum = (el, data) => {
         );
         this.body.applyImpulse(moveImpulse);
 
+        // Constrain player movement within the room
+        this.body.position.x = Math.max(-room.width/2 + 1, Math.min(room.width/2 - 1, this.body.position.x));
+        this.body.position.z = Math.max(-room.depth/2 + 1, Math.min(room.depth/2 - 1, this.body.position.z));
+
         this.object.position.copy(this.body.position);
         this.object.quaternion.copy(this.body.quaternion);
 
@@ -200,7 +204,7 @@ const initRum = (el, data) => {
   { // room
     var room = window.room = {
       width: 34 * 2.8,
-      depth: 107 *3.4,
+      depth: 107 * 3.99,
       height: 4 * 1.5,
       opacity: 0.8,
       thickness: 1
@@ -218,8 +222,26 @@ const initRum = (el, data) => {
 
       body.position.set(-room.width/2 - room.thickness/2, room.height/2, 0)
 
-      const geometry = new THREE.BoxGeometry(room.thickness, room.height, room.depth)
-      const material = new THREE.MeshBasicMaterial({ color: 0xAAFFAA, transparent: true, opacity: 0 })
+      const diffuseTexture = textureLoader.load('/bricks/brick_wall_02_diff_1k.jpg');
+      const displacementTexture = textureLoader.load('/bricks/brick_wall_02_disp_1k.png');
+
+      const repeatX = room.depth / 3;
+      const repeatY = room.height;
+
+      diffuseTexture.repeat.set(repeatX, repeatY);
+      displacementTexture.repeat.set(repeatX, repeatY);
+
+      diffuseTexture.wrapS = diffuseTexture.wrapT = THREE.RepeatWrapping;
+      displacementTexture.wrapS = displacementTexture.wrapT = THREE.RepeatWrapping;
+
+      const geometry = new THREE.BoxGeometry(room.thickness, room.height * 7, room.depth)
+      const material = new THREE.MeshStandardMaterial({
+        map: diffuseTexture,
+        displacementMap: displacementTexture,
+        displacementScale: 0.1,
+        transparent: true,
+        opacity: room.opacity
+      })
       const object = new THREE.Mesh(geometry, material)
 
       var leftWall = {
