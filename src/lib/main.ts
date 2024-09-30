@@ -97,7 +97,7 @@ const initRum = (el, data) => {
       angularDamping: 0.9
     });
 
-    body.position.set(0, 1.5, 2);
+    body.position.set(0, 1.5, -70);
 
     var object = new THREE.Mesh(
       new THREE.BoxGeometry(1, 3, 2),
