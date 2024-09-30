@@ -450,15 +450,15 @@ const initRum = (el, data) => {
           vg.add({
             name: `hangar_${i + 1}`,
             object: hangarClone,
-            gui: [
-              [hangarClone.position, 'x', -roomWidth/2, roomWidth/2, 1, 'position x'],
-              [hangarClone.position, 'y', -roomHeight/2, roomHeight/2, 1, 'position y'],
-              [hangarClone.position, 'z', -roomDepth/2, roomDepth/2, 1, 'position z'],
-              [hangarClone.scale, 'x', 0.1, 3, 0.01, 'scale x'],
-              [hangarClone.scale, 'y', 0.1, 3, 0.01, 'scale y'],
-              [hangarClone.scale, 'z', 0.1, 3, 0.01, 'scale z'],
-              [hangarClone.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rotation y']
-            ]
+            // gui: [
+            //   [hangarClone.position, 'x', -roomWidth/2, roomWidth/2, 1, 'position x'],
+            //   [hangarClone.position, 'y', -roomHeight/2, roomHeight/2, 1, 'position y'],
+            //   [hangarClone.position, 'z', -roomDepth/2, roomDepth/2, 1, 'position z'],
+            //   [hangarClone.scale, 'x', 0.1, 3, 0.01, 'scale x'],
+            //   [hangarClone.scale, 'y', 0.1, 3, 0.01, 'scale y'],
+            //   [hangarClone.scale, 'z', 0.1, 3, 0.01, 'scale z'],
+            //   [hangarClone.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rotation y']
+            // ]
           });
         }
       },
@@ -469,33 +469,6 @@ const initRum = (el, data) => {
       }
     );
   }
-
-
-  // { // birds sound
-  //   const listener = new THREE.AudioListener();
-  //   vg.camera.add(listener);
-
-  //   const sound = new THREE.Audio(listener);
-  //   const audioLoader = new THREE.AudioLoader();
-
-  //   // audioLoader.load('./birds.mp3', function(buffer) {
-  //   //   sound.setBuffer(buffer);
-  //   //   sound.setLoop(true);
-  //   //   sound.setVolume(100);
-  //   // });
-
-  //   // playSound = () => {
-  //   //   sound.play();
-  //   // };
-
-  //   vg.add({
-  //     name: 'audio',
-  //     unremovable: true,
-  //     object: sound
-  //   });
-  // }
-
-  // loadSmileyFace(vg);
 }
 
 //let playSound
