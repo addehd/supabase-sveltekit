@@ -42,6 +42,7 @@ export function setupArtwork(vg: VG, textureLoader: THREE.TextureLoader, data: a
       vg.add({
         name: `${wall}Artwork`,
         object: object,
+        showGui: false,
         gui: []
       });
     }, undefined, (error) => {

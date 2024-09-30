@@ -52,7 +52,8 @@ export default class VG {
     if (thing.object)
       this.scene.add(thing.object)
 
-    if (thing.gui instanceof Array) {
+    // Check if GUI should be added, based on `showGui` property
+    if (thing.gui instanceof Array && thing.showGui !== false) {
       thing._gui = this.gui.addFolder(thing.name || '')
       for (var g of thing.gui) {
         if (g[0] === VG.COLOR) {
