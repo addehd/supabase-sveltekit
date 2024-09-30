@@ -253,69 +253,69 @@ const initRum = (el, data) => {
       vg.add(leftWall)
     }
 
-    { // right wall
-      let body = new CANNON.Body({
-        type: CANNON.Body.STATIC,
-        shape: new CANNON.Box(new CANNON.Vec3(0.5, 50, 50))
-      })
+    // { // right wall
+    //   let body = new CANNON.Body({
+    //     type: CANNON.Body.STATIC,
+    //     shape: new CANNON.Box(new CANNON.Vec3(0.5, 50, 50))
+    //   })
 
-      body.position.set(room.width/2 + room.thickness/2, room.height/2, 0)
+    //   body.position.set(room.width/2 + room.thickness/2, room.height/2, 0)
 
-      const geometry = new THREE.BoxGeometry(room.thickness, room.height, room.depth)
-      const material = new THREE.MeshBasicMaterial({ color: 0xFFAAAA, transparent: true, opacity: 0 })
-      const object = new THREE.Mesh(geometry, material)
+    //   const geometry = new THREE.BoxGeometry(room.thickness, room.height, room.depth)
+    //   const material = new THREE.MeshBasicMaterial({ color: 0xFFAAAA, transparent: true, opacity: 0 })
+    //   const object = new THREE.Mesh(geometry, material)
 
-      var rightWall = {
-        name: 'rightWall',
-        body: body,
-        object: object
-      }
+    //   var rightWall = {
+    //     name: 'rightWall',
+    //     body: body,
+    //     object: object
+    //   }
 
-      vg.add(rightWall)
-    }
+    //   vg.add(rightWall)
+    // }
 
-    { // front wall
-      const wallHeight = 50;
+    // { // front wall
+    //   const wallHeight = 50;
     
-      const textureLoader = new THREE.TextureLoader();
+    //   const textureLoader = new THREE.TextureLoader();
     
-      const diffuseTexture = textureLoader.load('/bricks/brick_wall_02_diff_1k.jpg');
-      const displacementTexture = textureLoader.load('/bricks/brick_wall_02_disp_1k.png');
+    //   const diffuseTexture = textureLoader.load('/bricks/brick_wall_02_diff_1k.jpg');
+    //   const displacementTexture = textureLoader.load('/bricks/brick_wall_02_disp_1k.png');
     
-      const repeatX = room.width / 5.5;
-      const repeatY = wallHeight / 5.5;
+    //   const repeatX = room.width / 5.5;
+    //   const repeatY = wallHeight / 5.5;
     
-      diffuseTexture.repeat.set(repeatX, repeatY);
-      displacementTexture.repeat.set(repeatX, repeatY);
+    //   diffuseTexture.repeat.set(repeatX, repeatY);
+    //   displacementTexture.repeat.set(repeatX, repeatY);
     
-      diffuseTexture.wrapS = diffuseTexture.wrapT = THREE.RepeatWrapping;
-      displacementTexture.wrapS = displacementTexture.wrapT = THREE.RepeatWrapping;
+    //   diffuseTexture.wrapS = diffuseTexture.wrapT = THREE.RepeatWrapping;
+    //   displacementTexture.wrapS = displacementTexture.wrapT = THREE.RepeatWrapping;
     
-      let body = new CANNON.Body({
-        type: CANNON.Body.STATIC,
-        shape: new CANNON.Box(new CANNON.Vec3(room.width * 1.2 / 2, wallHeight / 2, room.thickness / 2))
-      });
+    //   let body = new CANNON.Body({
+    //     type: CANNON.Body.STATIC,
+    //     shape: new CANNON.Box(new CANNON.Vec3(room.width * 1.2 / 2, wallHeight / 2, room.thickness / 2))
+    //   });
     
-      body.position.set(0, wallHeight / 2.6, -room.depth / 2 - room.thickness / 2);
+    //   body.position.set(0, wallHeight / 2.6, -room.depth / 2 - room.thickness / 2);
     
-      const geometry = new THREE.BoxGeometry(room.width * 1.2, wallHeight, room.thickness);
-      const material = new THREE.MeshStandardMaterial({
-        map: diffuseTexture,
-        displacementMap: displacementTexture,
-        displacementScale: 0.1,
-        roughness: 0.8,
-        metalness: 0.2
-      });
-      const object = new THREE.Mesh(geometry, material);
+    //   const geometry = new THREE.BoxGeometry(room.width * 1.2, wallHeight, room.thickness);
+    //   const material = new THREE.MeshStandardMaterial({
+    //     map: diffuseTexture,
+    //     displacementMap: displacementTexture,
+    //     displacementScale: 0.1,
+    //     roughness: 0.8,
+    //     metalness: 0.2
+    //   });
+    //   const object = new THREE.Mesh(geometry, material);
     
-      var frontWall = {
-        name: 'frontWall',
-        body: body,
-        object: object
-      };
+    //   var frontWall = {
+    //     name: 'frontWall',
+    //     body: body,
+    //     object: object
+    //   };
     
-      vg.add(frontWall);
-    }
+    //   vg.add(frontWall);
+    // }
     { // north wall
       const wallHeight = 100;
     
@@ -437,28 +437,17 @@ const initRum = (el, data) => {
         const scaleZ = roomDepth / hangarDepth;
     
         const scale = Math.min(scaleX, scaleY, scaleZ) * 6.8;
-    
-        // Create three hangars
+        
         for (let i = 0; i < 3; i++) {
           const hangarClone = gltf.scene.clone();
           hangarClone.scale.set(scale, scale, scale);
           
-          // Adjust z position for each hangar
-          const zOffset = (i - 1) * roomDepth / 3; // Distribute along z-axis
+          const zOffset = (i - 1) * roomDepth / 3;
           hangarClone.position.set(0, 0, zOffset);
     
           vg.add({
             name: `hangar_${i + 1}`,
             object: hangarClone,
-            // gui: [
-            //   [hangarClone.position, 'x', -roomWidth/2, roomWidth/2, 1, 'position x'],
-            //   [hangarClone.position, 'y', -roomHeight/2, roomHeight/2, 1, 'position y'],
-            //   [hangarClone.position, 'z', -roomDepth/2, roomDepth/2, 1, 'position z'],
-            //   [hangarClone.scale, 'x', 0.1, 3, 0.01, 'scale x'],
-            //   [hangarClone.scale, 'y', 0.1, 3, 0.01, 'scale y'],
-            //   [hangarClone.scale, 'z', 0.1, 3, 0.01, 'scale z'],
-            //   [hangarClone.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rotation y']
-            // ]
           });
         }
       },
