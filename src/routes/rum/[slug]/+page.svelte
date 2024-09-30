@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { createScene } from '$lib/main';
-  import Loading from '/Users/addehd/Documents/dev/coetiv/hangaren/arkivet/src/lib/components/Loading.svelte';
+  import Loading from '$lib/components/Loading.svelte';
 
 
   
