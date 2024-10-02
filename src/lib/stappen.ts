@@ -402,61 +402,19 @@ const initRum = (el, data) => {
     loadSmileyFace(vg);
   }
 
-  { // hangar
-    const loader = new GLTFLoader();
+  // { // skybox
+  //   const loader = new THREE.CubeTextureLoader();
+  //   const skyboxTexture = loader.load([
+  //     '/skybox/px.jpg', // positive x
+  //     '/skybox/nx.jpg', // negative x
+  //     '/skybox/py.jpg', // positive y
+  //     '/skybox/ny.jpg', // negative y
+  //     '/skybox/pz.jpg', // positive z
+  //     '/skybox/nz.jpg'  // negative z
+  //   ]);
 
-    loader.load(
-      '/hangar.glb',
-      function(gltf) {
-        console.debug('gltf', gltf);
-    
-        const material = new THREE.MeshStandardMaterial({
-          color: 0xC0C0C0,
-          roughness: 0.3,
-          metalness: 0.9
-        });
-    
-        gltf.scene.traverse(function(child) {
-          if (child.isMesh) {
-            child.material = material;
-          }
-        });
-    
-        // fit the room
-        const roomWidth = room.width;
-        const roomDepth = room.depth;
-        const roomHeight = room.height;
-    
-        const boundingBox = new THREE.Box3().setFromObject(gltf.scene);
-        const hangarWidth = boundingBox.max.x - boundingBox.min.x;
-        const hangarDepth = boundingBox.max.z - boundingBox.min.z;
-        const hangarHeight = boundingBox.max.y - boundingBox.min.y;
-    
-        const scaleX = roomWidth / hangarWidth;
-        const scaleY = roomHeight / hangarHeight;
-        const scaleZ = roomDepth / hangarDepth;
-    
-        const scale = Math.min(scaleX, scaleY, scaleZ) * 6.8;
-        for (let i = 0; i < 3; i++) {
-          const hangarClone = gltf.scene.clone();
-          hangarClone.scale.set(scale, scale, scale);
-          
-          const zOffset = (i - 1) * roomDepth / 3;
-          hangarClone.position.set(0, 0, zOffset);
-    
-          vg.add({
-            name: `hangar_${i + 1}`,
-            object: hangarClone,
-          });
-        }
-      },
-      undefined,
-      function (error) {
-        console.error('Error loading GLTF file', error);
-        alert('Failed to load the 3D model. Please check the path or file.');
-      }
-    );
-  }
+  //   vg.scene.background = skyboxTexture;
+  // }
 }
 
 //let playSound
