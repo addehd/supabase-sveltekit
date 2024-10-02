@@ -402,19 +402,19 @@ const initRum = (el, data) => {
     loadSmileyFace(vg);
   }
 
-  // { // skybox
-  //   const loader = new THREE.CubeTextureLoader();
-  //   const skyboxTexture = loader.load([
-  //     '/skybox/px.jpg', // positive x
-  //     '/skybox/nx.jpg', // negative x
-  //     '/skybox/py.jpg', // positive y
-  //     '/skybox/ny.jpg', // negative y
-  //     '/skybox/pz.jpg', // positive z
-  //     '/skybox/nz.jpg'  // negative z
-  //   ]);
+  { // skybox
+    const loader = new THREE.CubeTextureLoader();
+    const skyboxTexture = loader.load([
+      '/skybox/Daylight_Box_Right.jpg',   // positive x (px)
+      '/skybox/Daylight_Box_Left.jpg',    // negative x (nx)
+      '/skybox/Daylight_Box_Top.jpg',     // positive y (py)
+      '/skybox/Daylight_Box_Bottom.jpg',  // negative y (ny)
+      '/skybox/Daylight_Box_Front.jpg',   // positive z (pz)
+      '/skybox/Daylight_Box_Back.jpg'     // negative z (nz)
+    ]);
 
-  //   vg.scene.background = skyboxTexture;
-  // }
+    vg.scene.background = skyboxTexture;
+  }
 }
 
 //let playSound
