@@ -19,7 +19,7 @@ export function setupArtwork(vg: VG, textureLoader: THREE.TextureLoader, data: a
       canvas.height = image.height;
 
       ctx.drawImage(image, 0, 0);
-      ctx.filter = 'contrast(150%) brightness(70%)';
+     ctx.filter = 'contrast(150%) brightness(70%)';
       ctx.drawImage(canvas, 0, 0);
 
       const processedTexture = new THREE.CanvasTexture(canvas);
@@ -43,7 +43,9 @@ export function setupArtwork(vg: VG, textureLoader: THREE.TextureLoader, data: a
         name: `${wall}Artwork`,
         object: object,
         showGui: false,
-        gui: []
+        gui: [
+          [object.material, 'opacity', 0, 1, 0.01, 'Opacity']
+        ]
       });
     }, undefined, (error) => {
       console.error(`Error loading texture for artwork: ${artwork.image_url}`, error);

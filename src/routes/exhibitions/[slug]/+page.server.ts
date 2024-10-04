@@ -3,7 +3,7 @@ import { checkAuthentication } from '$lib/helper';
 
 export const actions = {
   
-  submit_exhibition: async ({ request, locals }) => {
+  submit_exhibition: async ({ params, request, locals }) => {
     try {
       const { supabaseClient, user } = await checkAuthentication(locals);
 
@@ -17,6 +17,9 @@ export const actions = {
       const image = formData.get('image');
       const artistId = formData.get('artist_id');
       const position = formData.get('position');
+      const room = formData.get('room');
+
+      const slug = params.slug;
 
       let imageUrl = '';
 
@@ -51,9 +54,9 @@ export const actions = {
         .insert({
           title,
           description,
-          wall: position.toLowerCase(),
-          room: 'hangaren',
-          exhibitions_id: 32,
+          wall: position?.toLowerCase(),
+          room: room,
+          exhibitions_id: slug,
           artist_id: artistId,
           image_url: imageUrl || '',
         })
@@ -124,8 +127,6 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
     .select('*')
     .eq('exhibitions_id', params.slug)
     .order('artwork_id', { ascending: true });
-
-  console.log(artworks);  
 
   const { data: artists } = await supabase
     .from('artists')

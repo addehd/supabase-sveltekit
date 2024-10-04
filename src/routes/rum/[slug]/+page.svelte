@@ -3,8 +3,6 @@
   import { createScene } from '$lib/main';
   import Loading from '$lib/components/Loading.svelte';
 
-
-  
   export let data;
 
   console.log('data', data);

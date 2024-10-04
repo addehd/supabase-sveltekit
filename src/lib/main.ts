@@ -16,6 +16,14 @@ declare global {
   }
 }
 
+var room = window.room = {
+  width: 34 * 2.8,
+  depth: 107 * 3.99,
+  height: 4 * 1.5,
+  opacity: 0.8,
+  thickness: 1
+}
+
 const initRum = (el, data) => {
   window.CANNON = CANNON;
   window.THREE = THREE;
@@ -202,17 +210,7 @@ const initRum = (el, data) => {
   }
 
   { // room
-    var room = window.room = {
-      width: 34 * 2.8,
-      depth: 107 * 3.99,
-      height: 4 * 1.5,
-      opacity: 0.8,
-      thickness: 1
-    }
-
     setupArtwork(vg, textureLoader, data, room);
-    //const ground = setupFloor();
-    //vg.add(ground);
 
     { // left wall
       let body = window.lw = new CANNON.Body({
@@ -238,9 +236,9 @@ const initRum = (el, data) => {
       const material = new THREE.MeshStandardMaterial({
         map: diffuseTexture,
         displacementMap: displacementTexture,
-        displacementScale: 0.1,
-        transparent: true,
-        opacity: room.opacity
+        // displacementScale: 0.1,
+        // transparent: false,
+        // opacity: 1
       })
       const object = new THREE.Mesh(geometry, material)
 
@@ -397,42 +395,8 @@ const initRum = (el, data) => {
       });
     }
   }
-
-  // { // gravity ball
-  //   var body = new CANNON.Body({
-  //     mass: 50,
-  //     shape: new CANNON.Sphere(8) })
-
-  //   body.position.y = 40
-  //   body.position.x = 40
-
-  //   var object = new THREE.Mesh(
-  //     new THREE.SphereGeometry(10, 32, 10),
-  //     new THREE.MeshBasicMaterial({ color: 0xfff030 }))
-
-  //   var ball = window.ball = {
-  //     name: 'ball',
-  //     body: body,
-  //     object: object,
-  //     gui: [
-  //       [ body.position, 'x', -10, 10, 1, 'x' ],
-  //       [ body.position, 'y', -10, 10, 1, 'y' ],
-  //       [ body.position, 'z', -10, 10, 1, 'z' ],
-  //       [ body.velocity, 'x', -10, 10, 1, 'v x' ],
-  //       [ body.velocity, 'y', -10, 10, 1, 'v y' ],
-  //       [ body.velocity, 'z', -10, 10, 1, 'v z' ],
-  //       [ body.quaternion, 'x', 0, 1, 0.01, 'q x' ],
-  //       [ body.quaternion, 'y', 0, 1, 0.01, 'q y' ],
-  //       [ body.quaternion, 'z', 0, 1, 0.01, 'q z' ],
-  //       [ body.quaternion, 'w', 0, 10, 0.01, 'q w' ]
-  //     ]}
-
-  //   vg.add(ball)
-  // }
-
-  { // smiley face
-    loadSmileyFace(vg);
-  }
+ 
+  loadSmileyFace(vg);
 
   { // hangar
     const loader = new GLTFLoader();
@@ -501,72 +465,6 @@ const initRum = (el, data) => {
       }
     );
   }
-
-  // { // HUD
-  //   var width = 720
-  //   var height = 480
-  //   var margin = 20
-
-  //   var hudCanvas = window.hudCanvas = new OffscreenCanvas(width, height)
-  //   hudCanvas.width = width
-  //   hudCanvas.height = height
-
-  //   var context = hudCanvas.getContext('2d')
-  //   context.font = "Normal 40px Arial"
-  //   context.textAlign = 'center'
-  //   context.fillStyle = "rgba(245,245,245,0.75)"
-  //   context.fillText('Initializing...', width / 2 - margin, height / 2 - margin)
-
-  //   var hudCamera = new THREE.OrthographicCamera(-width/2, width/2, height/2, -height/2, 0, 30)
-  //   var hudScene = new THREE.Scene()
-
-  //   var texture = new THREE.Texture(hudCanvas) 
-  //   texture.needsUpdate = true
-
-  //   var material = new THREE.MeshBasicMaterial({map: texture})
-  //   material.transparent = true
-
-  //   // Create plane to render the HUD. This plane fill the whole screen.
-  //   var planeGeometry = new THREE.PlaneGeometry(width - margin, height - margin)
-  //   var plane = new THREE.Mesh(planeGeometry, material)
-  //   hudScene.add(plane)
-
-  //   var hud = {
-  //     update: function(delta) {
-  //       //console.log('draw hud', this)
-  //       vg.renderer.render(hudScene, hudCamera)
-  //     }
-  //   }
-
-  //   // vg.add(hud)
-  //   // vg.hud = hud.update
-  // }
-
-  // { // birds sound
-  //   const listener = new THREE.AudioListener();
-  //   vg.camera.add(listener);
-
-  //   const sound = new THREE.Audio(listener);
-  //   const audioLoader = new THREE.AudioLoader();
-
-  //   // audioLoader.load('./birds.mp3', function(buffer) {
-  //   //   sound.setBuffer(buffer);
-  //   //   sound.setLoop(true);
-  //   //   sound.setVolume(100);
-  //   // });
-
-  //   // playSound = () => {
-  //   //   sound.play();
-  //   // };
-
-  //   vg.add({
-  //     name: 'audio',
-  //     unremovable: true,
-  //     object: sound
-  //   });
-  // }
-
-  // loadSmileyFace(vg);
 }
 
 //let playSound

@@ -6,7 +6,6 @@
   
   export let data;
 
-  let imageUrl = data.artworks[0].image_url;
   let el;
   let showDiv = true;
 
@@ -17,7 +16,7 @@
     
     setTimeout(() => {
       showDiv = false;
-    }, 5500);
+    }, 100);
 
     const svg = document.querySelector('svg');
     if (svg) {
@@ -41,8 +40,7 @@
 {#if showDiv}
   <div
     class="fixed inset-0 bg-black flex items-center justify-center z-50"
-    transition:fade="{{ duration: 500 }}"
-  >
+    transition:fade="{{ duration: 500 }}">
     <div class="w-[20rem] h-[10rem]">
       <Loading />
     </div>

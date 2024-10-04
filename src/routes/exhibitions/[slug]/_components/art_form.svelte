@@ -4,13 +4,14 @@
   export let position;
   export let form;
   export let artists;
+  export let room;
 </script>
 
 <form method="POST" enctype="multipart/form-data" action="?/submit_exhibition" class="mb-4 mr-4 float-left overflow-hidden">
   <input type="hidden" name="room_id" value={roomId} />
   <input type="hidden" name="position" value={position} />
   <input type="hidden" name="artist_id" value={form.artist_id} />
-
+  <input type="hidden" name="room" value={room} />
   <div class="mb-4">
     <label class="block text-black dark:text-white mb-2">Art Piece Title</label>
     <input

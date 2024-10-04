@@ -1,7 +1,6 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
 import VG from './vg'
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { setupFloor } from './floor';
 import { setupArtwork } from './art-canvas';
 import { loadSmileyFace } from './smiley';
@@ -211,8 +210,6 @@ const initRum = (el, data) => {
     }
 
     setupArtwork(vg, textureLoader, data, room);
-    //const ground = setupFloor();
-    //vg.add(ground);
 
     { // left wall
       let body = window.lw = new CANNON.Body({
@@ -416,8 +413,6 @@ const initRum = (el, data) => {
     vg.scene.background = skyboxTexture;
   }
 }
-
-//let playSound
 
 export const createScene = (el, imageUrl) => {
   initRum(el, imageUrl);
