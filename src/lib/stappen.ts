@@ -102,6 +102,18 @@ const initRum = (el, data) => {
       new THREE.BoxGeometry(1, 3, 2),
       new THREE.MeshBasicMaterial({ color: 0x00ff90 }));
 
+    // Define the room dimensions
+    const roomm = {
+      width: 34 * 2.8,
+      depth: 107 * 3.99,
+      height: 4 * 1.5,
+      opacity: 0.8,
+      thickness: 1
+    };
+
+    // Pass the artwork data to setupArtwork and get the proximity check function
+    const checkArtworkProximity = setupArtwork(vg, textureLoader, data, roomm);
+
     var player = {
       name: 'player',
       body: body,
@@ -161,6 +173,9 @@ const initRum = (el, data) => {
 
         vg.camera.position.copy(this.object.position);
         vg.camera.position.y += 1.2;
+
+        // Check proximity to artwork
+        checkArtworkProximity(this.object.position);
       }
     };
 

@@ -16,13 +16,7 @@ declare global {
   }
 }
 
-var room = window.room = {
-  width: 34 * 2.8,
-  depth: 107 * 3.99,
-  height: 4 * 1.5,
-  opacity: 0.8,
-  thickness: 1
-}
+
 
 const initRum = (el, data) => {
   window.CANNON = CANNON;
@@ -210,6 +204,15 @@ const initRum = (el, data) => {
   }
 
   { // room
+
+    var room = window.room = {
+      width: 34 * 2.8,
+      depth: 107 * 3.99,
+      height: 4 * 1.5,
+      opacity: 0.8,
+      thickness: 1
+    }
+    
     setupArtwork(vg, textureLoader, data, room);
 
     { // left wall

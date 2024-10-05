@@ -19,7 +19,7 @@ export function setupArtwork(vg: VG, textureLoader: THREE.TextureLoader, data: a
       canvas.height = image.height;
 
       ctx.drawImage(image, 0, 0);
-     ctx.filter = 'contrast(150%) brightness(70%)';
+      ctx.filter = 'contrast(150%) brightness(70%)';
       ctx.drawImage(canvas, 0, 0);
 
       const processedTexture = new THREE.CanvasTexture(canvas);
@@ -38,6 +38,13 @@ export function setupArtwork(vg: VG, textureLoader: THREE.TextureLoader, data: a
       const object = new THREE.Mesh(geometry, material);
       const wall = artwork.wall.toLowerCase();
       wallArtwork[wall].push(object);
+
+      // collision detection
+      const boundingSphere = new THREE.Sphere(object.position, Math.max(width, height) / 2);
+      object.userData = {
+        artwork: artwork,
+        boundingSphere: boundingSphere
+      };
 
       vg.add({
         name: `${wall}Artwork`,
@@ -58,6 +65,18 @@ export function setupArtwork(vg: VG, textureLoader: THREE.TextureLoader, data: a
       positionArtwork(wall, artworks as THREE.Mesh[], room);
     });
   }, 1000);
+
+  // return proximity to artworks
+  return (playerPosition: THREE.Vector3) => {
+    vg.scene.children.forEach((child) => {
+      if (child.userData && child.userData.artwork) {
+        const boundingSphere = child.userData.boundingSphere;
+        if (boundingSphere.containsPoint(playerPosition)) {
+          console.log(`Near artwork: ${child.userData.artwork.title}`);
+        }
+      }
+    });
+  };
 }
 
 function positionArtwork(wall: string, artworks: THREE.Mesh[], room: { width: number, depth: number, height: number }) {
