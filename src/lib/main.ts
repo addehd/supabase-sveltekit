@@ -16,7 +16,13 @@ declare global {
   }
 }
 
-
+var room = {
+  width: 34 * 2.8,
+  depth: 107 * 3.99,
+  height: 4 * 1.5,
+  opacity: 0.8,
+  thickness: 1
+}
 
 const initRum = (el, data) => {
   window.CANNON = CANNON;
@@ -204,17 +210,6 @@ const initRum = (el, data) => {
   }
 
   { // room
-
-    var room = window.room = {
-      width: 34 * 2.8,
-      depth: 107 * 3.99,
-      height: 4 * 1.5,
-      opacity: 0.8,
-      thickness: 1
-    }
-    
-    setupArtwork(vg, textureLoader, data, room);
-
     { // left wall
       let body = window.lw = new CANNON.Body({
         type: CANNON.Body.STATIC,
@@ -317,6 +312,7 @@ const initRum = (el, data) => {
     
       vg.add(frontWall);
     }
+
     { // north wall
       const wallHeight = 100;
     
@@ -399,8 +395,6 @@ const initRum = (el, data) => {
     }
   }
  
-  loadSmileyFace(vg);
-
   { // hangar
     const loader = new GLTFLoader();
 
@@ -468,6 +462,10 @@ const initRum = (el, data) => {
       }
     );
   }
+
+  loadSmileyFace(vg);
+
+  setupArtwork(vg, textureLoader, data, room);
 }
 
 //let playSound

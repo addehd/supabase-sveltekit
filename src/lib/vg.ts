@@ -43,7 +43,7 @@ export default class VG {
     let i = this.things.indexOf(thing)
     if (i > -1) return
 
-    console.debug('+ thing', thing)
+    //console.debug('+ thing', thing)
     this.things.push(thing)
 
     if (thing.body)

@@ -5,7 +5,7 @@
 
   export let data;
 
-  console.log('data', data);
+  console.log('data', data.artworks);
   let imageUrl = data.artworks[0].image_url;
   let el;
   let showDiv = true;
@@ -21,7 +21,7 @@
     
     setTimeout(() => {
       showDiv = false;
-    }, 5500);
+    }, 1500);
 
     const svg = document.querySelector('svg');
     if (svg) {

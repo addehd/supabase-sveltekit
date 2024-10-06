@@ -9,62 +9,69 @@ export function setupArtwork(vg: VG, textureLoader: THREE.TextureLoader, data: a
     west: []
   };
 
-  data.forEach((artwork) => {
-    textureLoader.load(artwork.image_url, (texture) => {
-      const image = texture.image as HTMLImageElement;
+  // use promises to ensure order
+  const loadPromises = data.map((artwork) => {
+    return new Promise<void>((resolve, reject) => {
+      textureLoader.load(artwork.image_url, (texture) => {
+        const image = texture.image as HTMLImageElement;
 
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      canvas.width = image.width;
-      canvas.height = image.height;
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = image.width;
+        canvas.height = image.height;
 
-      ctx.drawImage(image, 0, 0);
-      ctx.filter = 'contrast(150%) brightness(70%)';
-      ctx.drawImage(canvas, 0, 0);
+        ctx.drawImage(image, 0, 0);
+        ctx.filter = 'contrast(130%) brightness(70%)';
+        ctx.drawImage(canvas, 0, 0);
 
-      const processedTexture = new THREE.CanvasTexture(canvas);
-      processedTexture.encoding = THREE.sRGBEncoding;
+        const processedTexture = new THREE.CanvasTexture(canvas);
+        processedTexture.encoding = THREE.sRGBEncoding;
 
-      const width = image.width / 100;
-      const height = image.height / 100;
+        const geometry = new THREE.PlaneGeometry(image.width / 100, image.height / 100);
+        const material = new THREE.MeshBasicMaterial({
+          map: processedTexture,
+          transparent: true,
+          opacity: 1,
+        });
 
-      const geometry = new THREE.PlaneGeometry(width, height);
-      const material = new THREE.MeshBasicMaterial({
-        map: processedTexture,
-        transparent: true,
-        opacity: 0.8,
+        const object = new THREE.Mesh(geometry, material);
+        const wall = artwork.wall.toLowerCase();
+        if (wallArtwork[wall]) {
+          wallArtwork[wall].push({ object, artwork_id: artwork.artwork_id });
+        } else {
+          console.error(`Invalid wall specified for artwork ${artwork.artwork_id}: ${artwork.wall}`);
+        }
+
+        object.userData = {
+          artwork: artwork,
+          boundingSphere: new THREE.Sphere(object.position, Math.max(image.width, image.height) / 200)
+        };
+
+        vg.add({
+          name: `${wall}Artwork`,
+          object: object,
+          showGui: false,
+          gui: [
+            [object.material, 'opacity', 0, 1, 0.01, 'Opacity']
+          ]
+        });
+
+        resolve();
+      }, undefined, (error) => {
+        console.error(`Error loading texture for artwork: ${artwork.image_url}`, error);
+        reject(error);
       });
-
-      const object = new THREE.Mesh(geometry, material);
-      const wall = artwork.wall.toLowerCase();
-      wallArtwork[wall].push(object);
-
-      // collision detection
-      const boundingSphere = new THREE.Sphere(object.position, Math.max(width, height) / 2);
-      object.userData = {
-        artwork: artwork,
-        boundingSphere: boundingSphere
-      };
-
-      vg.add({
-        name: `${wall}Artwork`,
-        object: object,
-        showGui: false,
-        gui: [
-          [object.material, 'opacity', 0, 1, 0.01, 'Opacity']
-        ]
-      });
-    }, undefined, (error) => {
-      console.error(`Error loading texture for artwork: ${artwork.image_url}`, error);
     });
   });
 
-  // Position artwork on walls after a delay
-  setTimeout(() => {
+  // wait for all textures to load before positioning
+  Promise.all(loadPromises).then(() => {
     Object.entries(wallArtwork).forEach(([wall, artworks]) => {
-      positionArtwork(wall, artworks as THREE.Mesh[], room);
+      // Sort artworks by artwork_id before positioning
+      artworks.sort((a, b) => a.artwork_id - b.artwork_id);
+      positionArtwork(wall, artworks.map(art => art.object) as THREE.Mesh[], room);
     });
-  }, 1000);
+  });
 
   // return proximity to artworks
   return (playerPosition: THREE.Vector3) => {

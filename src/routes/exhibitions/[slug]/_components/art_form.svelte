@@ -5,11 +5,13 @@
   export let form;
   export let artists;
   export let room;
+  export let order;
 </script>
 
-<form method="POST" enctype="multipart/form-data" action="?/submit_exhibition" class="mb-4 mr-4 float-left overflow-hidden">
+<form method="POST" enctype="multipart/form-data" action="?/submit_artwork" class="mb-4 mr-4 float-left overflow-hidden">
   <input type="hidden" name="room_id" value={roomId} />
   <input type="hidden" name="position" value={position} />
+  <input type="hidden" name="order" value={order} />
   <input type="hidden" name="artist_id" value={form.artist_id} />
   <input type="hidden" name="room" value={room} />
   <div class="mb-4">

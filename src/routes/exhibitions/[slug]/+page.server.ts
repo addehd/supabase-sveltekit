@@ -2,8 +2,7 @@ import type { PageServerLoad } from './$types';
 import { checkAuthentication } from '$lib/helper';
 
 export const actions = {
-  
-  submit_exhibition: async ({ params, request, locals }) => {
+  submit_artwork: async ({ params, request, locals }) => {
     try {
       const { supabaseClient, user } = await checkAuthentication(locals);
 
@@ -18,7 +17,7 @@ export const actions = {
       const artistId = formData.get('artist_id');
       const position = formData.get('position');
       const room = formData.get('room');
-
+      const order = formData.get('order');
       const slug = params.slug;
 
       let imageUrl = '';
@@ -56,6 +55,7 @@ export const actions = {
           description,
           wall: position?.toLowerCase(),
           room: room,
+          order: order,
           exhibitions_id: slug,
           artist_id: artistId,
           image_url: imageUrl || '',

@@ -51,6 +51,7 @@
                     position={wallPosition}
                     form={form}
                     artists={data.artists}
+                    order={formIndex + 1}
                     room={sectionName} />
                 </div>
 
