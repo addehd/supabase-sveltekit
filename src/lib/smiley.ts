@@ -7,7 +7,6 @@ export function loadSmileyFace(vg) {
   loader.load(
     '/smiley.glb',
     function(gltf) {
-      console.debug('gltf', gltf);
 
       const material = new THREE.MeshStandardMaterial({
         color: 0xffff00,

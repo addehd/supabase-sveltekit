@@ -79,7 +79,7 @@ export function setupArtwork(vg: VG, textureLoader: THREE.TextureLoader, data: a
       if (child.userData && child.userData.artwork) {
         const boundingSphere = child.userData.boundingSphere;
         if (boundingSphere.containsPoint(playerPosition)) {
-          console.log(`Near artwork: ${child.userData.artwork.title}`);
+          console.log(`Near artwork: ${child.userData.artwork.title}`, child.userData);
         }
       }
     });

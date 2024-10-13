@@ -47,7 +47,6 @@ const initRum = (el, data) => {
   }
 
   { // world
-    console.log('vg.world', vg.world)
     vg.add({
       name: 'world',
       unremovable: true,
@@ -105,11 +104,16 @@ const initRum = (el, data) => {
       angularDamping: 0.9
     });
 
-    body.position.set(0, 1.5, -70);
+    const xPosition = -room.width * 0.3;
+    const zPosition = -room.depth * 0.46;
+
+    body.position.set(xPosition, 1.5, zPosition);
 
     var object = new THREE.Mesh(
       new THREE.BoxGeometry(1, 3, 2),
       new THREE.MeshBasicMaterial({ color: 0x00ff90 }));
+
+    const checkArtworkProximity = setupArtwork(vg, textureLoader, data, room);
 
     var player = {
       name: 'player',
@@ -161,7 +165,7 @@ const initRum = (el, data) => {
         );
         this.body.applyImpulse(moveImpulse);
 
-        // Constrain player movement within the room
+        // constrain player movement within the room
         this.body.position.x = Math.max(-room.width/2 + 1, Math.min(room.width/2 - 1, this.body.position.x));
         this.body.position.z = Math.max(-room.depth/2 + 1, Math.min(room.depth/2 - 1, this.body.position.z));
 
@@ -170,6 +174,15 @@ const initRum = (el, data) => {
 
         vg.camera.position.copy(this.object.position);
         vg.camera.position.y += 1.2;
+
+        // initial camera rotation to look up and to the right
+        if (!this.initialRotationSet) {
+          vg.camera.rotation.x = 0.31;
+          vg.camera.rotation.y = -0.3;
+          this.initialRotationSet = true;
+        }
+
+        checkArtworkProximity(this.object.position);
       }
     };
 
