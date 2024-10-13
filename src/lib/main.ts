@@ -259,7 +259,7 @@ const initRum = (el, data) => {
         object: object,
       }
 
-      vg.add(leftWall)
+      //vg.add(leftWall)
     }
 
     { // right wall

@@ -28,7 +28,7 @@
 <header class="bg-purple-400 fixed bottom-0 w-full p-4 py-1 z-50 flex items-center justify-between">
   <nav class="flex  space-x-[20rem] justify-around w-full">
     <div class="text-white font-bold text-xl left-20 py-3">
-      Hangaren/CFUK 
+      Hangaren 
     </div>
 
     <div class="text-white font-bold text-xl h-[3rem] hover:cursor-pointer">

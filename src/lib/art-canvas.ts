@@ -1,7 +1,16 @@
 import * as THREE from 'three';
 import VG from './vg';
 
-export function setupArtwork(vg: VG, textureLoader: THREE.TextureLoader, data: any[], room: { width: number, depth: number, height: number }) {
+export function setupArtwork(
+    vg: VG, 
+    textureLoader: THREE.TextureLoader, 
+    data: any[], 
+    room: {
+    width: number,
+    depth: number,
+    height: number
+  }) {
+  
   const wallArtwork = {
     north: [],
     south: [],
@@ -11,7 +20,7 @@ export function setupArtwork(vg: VG, textureLoader: THREE.TextureLoader, data: a
 
   // use promises to ensure order
   const loadPromises = data.map((artwork) => {
-    return new Promise<void>((resolve, reject) => {
+    return new Promise < void > ((resolve, reject) => {
       textureLoader.load(artwork.image_url, (texture) => {
         const image = texture.image as HTMLImageElement;
 
@@ -37,7 +46,10 @@ export function setupArtwork(vg: VG, textureLoader: THREE.TextureLoader, data: a
         const object = new THREE.Mesh(geometry, material);
         const wall = artwork.wall.toLowerCase();
         if (wallArtwork[wall]) {
-          wallArtwork[wall].push({ object, artwork_id: artwork.artwork_id });
+          wallArtwork[wall].push({
+            object,
+            artwork_id: artwork.artwork_id
+          });
         } else {
           console.error(`Invalid wall specified for artwork ${artwork.artwork_id}: ${artwork.wall}`);
         }
@@ -86,7 +98,11 @@ export function setupArtwork(vg: VG, textureLoader: THREE.TextureLoader, data: a
   };
 }
 
-function positionArtwork(wall: string, artworks: THREE.Mesh[], room: { width: number, depth: number, height: number }) {
+function positionArtwork(wall: string, artworks: THREE.Mesh[], room: {
+  width: number,
+  depth: number,
+  height: number
+}) {
   const floorY = 0;
   const heightAboveFloor = -0.4;
   const artworkYOffset = -1.5;
@@ -101,11 +117,11 @@ function positionArtwork(wall: string, artworks: THREE.Mesh[], room: { width: nu
 
     switch (wall) {
       case 'north':
-        art.position.set(startX + width / 2, yPosition, -room.depth / 2 + 0.1);
+        art.position.set(startX + width / 2, yPosition, -room.depth / 2 + 0.5);
         art.rotation.y = 0;
         break;
       case 'south':
-        art.position.set(startX + width / 2, yPosition, room.depth / 2 - 0.1);
+        art.position.set(-startX - width / 2 + totalWidth / 30, yPosition, room.depth / 2 - 0.5);
         art.rotation.y = Math.PI;
         break;
       case 'east':
@@ -113,7 +129,7 @@ function positionArtwork(wall: string, artworks: THREE.Mesh[], room: { width: nu
         art.rotation.y = -Math.PI / 2;
         break;
       case 'west':
-        art.position.set(-room.width / 2 + 0.1, yPosition, startX + width / 2);
+        art.position.set(-room.width / 2 + 0.1, yPosition, startX + width / 2 + 15.5);
         art.rotation.y = Math.PI / 2;
         break;
     }
