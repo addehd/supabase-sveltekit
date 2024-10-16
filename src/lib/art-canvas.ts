@@ -36,7 +36,13 @@ export function setupArtwork(
         const processedTexture = new THREE.CanvasTexture(canvas);
         processedTexture.encoding = THREE.sRGBEncoding;
 
-        const geometry = new THREE.PlaneGeometry(image.width / 100, image.height / 100);
+        const widthScalingFactor = 1;
+        let scaleFactor = 1.03;
+        if (artwork.wall.toLowerCase() === 'south') {
+          scaleFactor = 0.97;
+        }
+        const geometry = new THREE.PlaneGeometry((image.width / 100) * widthScalingFactor * scaleFactor, (image.height / 100) * scaleFactor);
+        
         const material = new THREE.MeshBasicMaterial({
           map: processedTexture,
           transparent: true,
@@ -56,7 +62,7 @@ export function setupArtwork(
 
         object.userData = {
           artwork: artwork,
-          boundingSphere: new THREE.Sphere(object.position, Math.max(image.width, image.height) / 200)
+          boundingSphere: new THREE.Sphere(object.position, Math.max(image.width, image.height) / 200 * scaleFactor)
         };
 
         vg.add({
@@ -105,9 +111,10 @@ function positionArtwork(wall: string, artworks: THREE.Mesh[], room: {
 }) {
   const floorY = 0;
   const heightAboveFloor = -0.4;
-  const artworkYOffset = -1.5;
+  const artworkYOffset = - 1.5;
 
-  const totalWidth = artworks.reduce((sum, art) => sum + art.geometry.parameters.width, 0);
+  const spacing = 2; // spacing between artworks
+  const totalWidth = artworks.reduce((sum, art) => sum + art.geometry.parameters.width, 0) + (artworks.length - 1) * spacing;
   let startX = -totalWidth / 2;
 
   artworks.forEach((art) => {
@@ -117,11 +124,11 @@ function positionArtwork(wall: string, artworks: THREE.Mesh[], room: {
 
     switch (wall) {
       case 'north':
-        art.position.set(startX + width / 2, yPosition, -room.depth / 2 + 0.5);
+        art.position.set(startX + 10 + width / 2, yPosition, -room.depth / 2 + 0.5);
         art.rotation.y = 0;
         break;
       case 'south':
-        art.position.set(-startX - width / 2 + totalWidth / 30, yPosition, room.depth / 2 - 0.5);
+        art.position.set(totalWidth / 2 - startX - (width + 42), yPosition, room.depth / 2 - 0.5);
         art.rotation.y = Math.PI;
         break;
       case 'east':
@@ -134,6 +141,6 @@ function positionArtwork(wall: string, artworks: THREE.Mesh[], room: {
         break;
     }
 
-    startX += width;
+    startX += width 
   });
 }

@@ -16,8 +16,8 @@ declare global {
   }
 }
 
-var room = {
-  width: 34 * 2.8,
+const room = {
+  width: 34 * 3.3,
   depth: 107 * 3.99,
   height: 4 * 1.5,
   opacity: 0.8,
@@ -38,7 +38,7 @@ const initRum = (el, data) => {
 
   const textureLoader = new THREE.TextureLoader();
 
-  const ground = setupFloor();
+  const ground = setupFloor(room );
   vg.add(ground);
 
   { // general
@@ -224,18 +224,23 @@ const initRum = (el, data) => {
 
   { // room
     { // left wall
-      let body = window.lw = new CANNON.Body({
+      let body = new CANNON.Body({
         type: CANNON.Body.STATIC,
-        shape: new CANNON.Box(new CANNON.Vec3(room.thickness, room.height, room.depth))
-      })
+        shape: new CANNON.Box(new CANNON.Vec3(room.thickness, room.height * 2, room.depth))
+      });
 
-      body.position.set(-room.width/2 - room.thickness/2, room.height/2, 0)
+      // define position constants
+      const xPos = -room.width / 2 - room.thickness - 1;
+      const yPos = room.height;
+      const zPos = 0;
+      // set body position using constants
+      body.position.set(xPos, yPos, zPos);
 
       const diffuseTexture = textureLoader.load('/bricks/brick_wall_02_diff_1k.jpg');
       const displacementTexture = textureLoader.load('/bricks/brick_wall_02_disp_1k.png');
 
       const repeatX = room.depth / 3;
-      const repeatY = room.height;
+      const repeatY = room.height * 2;
 
       diffuseTexture.repeat.set(repeatX, repeatY);
       displacementTexture.repeat.set(repeatX, repeatY);
@@ -243,41 +248,78 @@ const initRum = (el, data) => {
       diffuseTexture.wrapS = diffuseTexture.wrapT = THREE.RepeatWrapping;
       displacementTexture.wrapS = displacementTexture.wrapT = THREE.RepeatWrapping;
 
-      const geometry = new THREE.BoxGeometry(room.thickness, room.height * 7, room.depth)
+      const geometry = new THREE.BoxGeometry(room.thickness, room.height * 14, room.depth);
       const material = new THREE.MeshStandardMaterial({
         map: diffuseTexture,
         displacementMap: displacementTexture,
-        // displacementScale: 0.1,
-        // transparent: false,
-        // opacity: 1
-      })
-      const object = new THREE.Mesh(geometry, material)
+        opacity: 0.5
+      });
+      const object = new THREE.Mesh(geometry, material);
 
       var leftWall = {
         name: 'leftWall',
         body: body,
         object: object,
-      }
+        gui: [
+          // ensure the range allows for sufficient movement to the left
+          [object.position, 'x', -room.width * 1.5, room.width, 0.1, 'pos x'],
+          [object.position, 'y', 0, room.height * 2, 0.1, 'pos y'],
+          [object.position, 'z', -room.depth, room.depth, 0.1, 'pos z'],
+          [object.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rot y']
+        ]
+      };
 
-      //vg.add(leftWall)
+      vg.add(leftWall);
+
+      // debugging: log the object to ensure it's being added correctly
+      console.log('Left Wall:', leftWall);
     }
-
     { // right wall
       let body = new CANNON.Body({
         type: CANNON.Body.STATIC,
-        shape: new CANNON.Box(new CANNON.Vec3(0.5, 50, 50))
+        shape: new CANNON.Box(new CANNON.Vec3(room.thickness, room.height * 2, room.depth))
       })
 
-      body.position.set(room.width/2 + room.thickness/2, room.height/2, 0)
+      body.position.set(room.width/2 + room.thickness/2, room.height, 0)
 
-      const geometry = new THREE.BoxGeometry(room.thickness, room.height, room.depth)
-      const material = new THREE.MeshBasicMaterial({ color: 0xFFAAAA, transparent: true, opacity: 0 })
+      const diffuseTexture = textureLoader.load('/bricks/brick_wall_02_diff_1k.jpg');
+      const displacementTexture = textureLoader.load('/bricks/brick_wall_02_disp_1k.png');
+
+      const repeatX = room.depth / 3;
+      const repeatY = room.height * 2;
+
+      diffuseTexture.repeat.set(repeatX, repeatY);
+      displacementTexture.repeat.set(repeatX, repeatY);
+
+      diffuseTexture.wrapS = diffuseTexture.wrapT = THREE.RepeatWrapping;
+      displacementTexture.wrapS = displacementTexture.wrapT = THREE.RepeatWrapping;
+
+      const geometry = new THREE.BoxGeometry(room.thickness, room.height * 14, room.depth)
+      const material = new THREE.MeshStandardMaterial({
+        map: diffuseTexture,
+        displacementMap: displacementTexture,
+        displacementScale: 0.1,
+        roughness: 0.8,
+        metalness: 0.2,
+        
+        transparent: true
+      })
       const object = new THREE.Mesh(geometry, material)
 
       var rightWall = {
         name: 'rightWall',
         body: body,
-        object: object
+        object: object,
+        gui: [
+          [object.position, 'x', -room.width, room.width, 0.1, 'pos x'],
+          [object.position, 'y', 0, room.height * 2, 0.1, 'pos y'],
+          [object.position, 'z', -room.depth, room.depth, 0.1, 'pos z'],
+          [object.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rot y'],
+          [material, 'roughness', 0, 1, 0.01, 'roughness'],
+          [material, 'metalness', 0, 1, 0.01, 'metalness'],
+          [material, 'displacementScale', 0, 1, 0.01, 'displacement'],
+          [material, 'opacity', 0, 1, 0.01, 'opacity']
+        ]
       }
 
       vg.add(rightWall)
@@ -320,14 +362,23 @@ const initRum = (el, data) => {
       var frontWall = {
         name: 'frontWall',
         body: body,
-        object: object
+        object: object,
+        gui: [
+          [material, 'roughness', 0, 1, 0.01, 'roughness'],
+          [material, 'metalness', 0, 1, 0.01, 'metalness'],
+          [material, 'displacementScale', 0, 1, 0.01, 'displacement'],
+          [body.position, 'x', -10, 10, 0.1, 'move x'],
+          [body.position, 'y', 0, 20, 0.1, 'move y'],
+          [body.position, 'z', -10, 10, 0.1, 'move z']
+        ],
+        // removed zyx property
       };
     
       vg.add(frontWall);
     }
 
     { // north wall
-      const wallHeight = 100;
+      const wallHeight = 150; // increased wall height
     
       const textureLoader = new THREE.TextureLoader();
     
@@ -335,7 +386,7 @@ const initRum = (el, data) => {
       const displacementTexture = textureLoader.load('/bricks/brick_wall_02_disp_1k.png');
     
       const repeatX = 5;
-      const repeatY = wallHeight / 10;
+      const repeatY = wallHeight / 8;
     
       diffuseTexture.repeat.set(repeatX, repeatY);
       displacementTexture.repeat.set(repeatX, repeatY);
@@ -348,7 +399,9 @@ const initRum = (el, data) => {
         shape: new CANNON.Box(new CANNON.Vec3(50, wallHeight / 2, 0.5))
       });
     
-      body.position.set(0, wallHeight / 2, room.depth / 2 + room.thickness / 2);
+      // lowered position of north wall
+      const wallPosition = wallHeight / 4;
+      body.position.set(0, wallPosition, room.depth / 2 + room.thickness / 2);
     
       const geometry = new THREE.BoxGeometry(room.width, wallHeight, room.thickness);
       const material = new THREE.MeshStandardMaterial({ 
@@ -360,10 +413,16 @@ const initRum = (el, data) => {
       });
       const object = new THREE.Mesh(geometry, material);
     
-      var northWall = {
+      const northWall = {
         name: 'northWall',
         body: body,
-        object: object
+        object: object,
+        gui: [
+          [object.position, 'x', -room.width, room.width, 0.1, 'pos x'],
+          [object.position, 'y', 0, room.height, 0.1, 'pos y'],
+          [object.position, 'z', -room.depth, room.depth, 0.1, 'pos z'],
+          [object.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rot y']
+        ]
       };
     
       vg.add(northWall);
@@ -373,20 +432,10 @@ const initRum = (el, data) => {
       const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 0.2);
       directionalLight.position.set(-40, 50, 50);
     
+      // remove target object
+      // directionalLight.target = target; // comment or remove this line if not needed
+
       const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.2);
-    
-      var target = new THREE.Mesh(
-        new THREE.SphereGeometry(10, 16, 10),
-        new THREE.MeshBasicMaterial({ color: 0xff0000 })
-      );
-      target.position.x = -40;
-    
-      vg.add({
-        object: target,
-        unremovable: true
-      });
-    
-      directionalLight.target = target;
     
       vg.add({
         name: 'light',
@@ -394,10 +443,8 @@ const initRum = (el, data) => {
         gui: [
           [ directionalLight.position, 'x', 'pos x' ],
           [ directionalLight.position, 'y', 'pos y' ],
-          [ directionalLight.position, 'z', 'pos z' ],
-          [ directionalLight.target.position, 'x', 'target pos x' ],
-          [ directionalLight.target.position, 'y', 'target pos y' ],
-          [ directionalLight.target.position, 'z', 'target pos z' ]
+          [ directionalLight.position, 'z', 'pos z' ]
+          // remove target position controls if target is not used
         ],
       });
     
@@ -412,7 +459,7 @@ const initRum = (el, data) => {
     const loader = new GLTFLoader();
 
     loader.load(
-      '/hangar.glb',
+      '/hangar2.glb',
       function(gltf) {
         console.debug('gltf', gltf);
     
@@ -438,16 +485,15 @@ const initRum = (el, data) => {
         const hangarDepth = boundingBox.max.z - boundingBox.min.z;
         const hangarHeight = boundingBox.max.y - boundingBox.min.y;
     
-        const scaleX = roomWidth / hangarWidth;
+        const scaleX = (roomWidth / hangarWidth) * 1.2; // increase width by 20%
         const scaleY = roomHeight / hangarHeight;
         const scaleZ = roomDepth / hangarDepth;
     
-        const scale = Math.min(scaleX, scaleY, scaleZ) * 6.8;
+        const scale = Math.min(scaleY, scaleZ) * 6.8; // use minimum of height and depth scales
     
-        // Create three hangars
         for (let i = 0; i < 3; i++) {
           const hangarClone = gltf.scene.clone();
-          hangarClone.scale.set(scale, scale, scale);
+          hangarClone.scale.set(scale * 1.2, scale, scale); // apply wider scale to x-axis
           
           // Adjust z position for each hangar
           const zOffset = (i - 1) * roomDepth / 3; // Distribute along z-axis
@@ -460,7 +506,7 @@ const initRum = (el, data) => {
               [hangarClone.position, 'x', -roomWidth/2, roomWidth/2, 1, 'position x'],
               [hangarClone.position, 'y', -roomHeight/2, roomHeight/2, 1, 'position y'],
               [hangarClone.position, 'z', -roomDepth/2, roomDepth/2, 1, 'position z'],
-              [hangarClone.scale, 'x', 0.1, 3, 0.01, 'scale x'],
+              [hangarClone.scale, 'x', 0.1, 3.6, 0.01, 'scale x'], // increased max scale for x
               [hangarClone.scale, 'y', 0.1, 3, 0.01, 'scale y'],
               [hangarClone.scale, 'z', 0.1, 3, 0.01, 'scale z'],
               [hangarClone.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rotation y']
@@ -481,12 +527,6 @@ const initRum = (el, data) => {
   setupArtwork(vg, textureLoader, data, room);
 }
 
-//let playSound
-
 export const createScene = (el, imageUrl) => {
   initRum(el, imageUrl);
 };
-
-// export const playBirdsSound = () => {
-//   playSound();
-// };

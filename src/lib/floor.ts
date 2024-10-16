@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
 
-export const setupFloor = () => {
+export const setupFloor = (room: { width: number; depth: number; height: number }) => {
   const textureLoader = new THREE.TextureLoader();
 
   const colorTexture = textureLoader.load(
@@ -33,11 +33,7 @@ export const setupFloor = () => {
   roughnessTexture.repeat.set(repeatFactor, repeatFactor);
   aoTexture.repeat.set(repeatFactor, repeatFactor);
 
-  const roomWidth = 34 * 2.8;
-  const roomLength = 107 * 4;
-  const roomHeight = 2;
-
-  const geometry = new THREE.PlaneGeometry(roomWidth, roomLength);
+  const geometry = new THREE.PlaneGeometry(room.width, room.depth);
   const material = new THREE.MeshStandardMaterial({
     map: colorTexture,
     displacementMap: displacementTexture,
@@ -52,8 +48,10 @@ export const setupFloor = () => {
 
   const object = new THREE.Mesh(geometry, material);
 
+  // adjust the floor height
+  const floorOffset = 1; // raise the floor by 0.1 units
   object.rotation.x = -Math.PI / 2;
-  object.position.y = -roomHeight / 2;
+  object.position.y = -room.height / 2 + floorOffset;
 
   const body = new CANNON.Body({
     type: CANNON.Body.STATIC,
@@ -61,7 +59,7 @@ export const setupFloor = () => {
   });
 
   body.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
-  body.position.set(0, -roomHeight / 2, 0);
+  body.position.set(0, -room.height / 2 + floorOffset, 0);
 
   const ambientLight = new THREE.AmbientLight(0xFFFFFF, 1.5);
 
