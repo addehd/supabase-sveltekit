@@ -1,20 +1,21 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-export function loadSmileyFace(vg) {
+export function loadSmileyFace(vg, player, room) {
   const loader = new GLTFLoader();
 
   loader.load(
     '/smiley.glb',
     function(gltf) {
-
       const material = new THREE.MeshStandardMaterial({
         color: 0xffff00,
         emissive: 0x444400,  // glow
         roughness: 1,
         metalness: 0.5,
+        transparent: true,
+        opacity: 0,
       });
-  
+
       gltf.scene.traverse(function(child) {
         if (child.isMesh) {
           child.material = material;
@@ -28,14 +29,45 @@ export function loadSmileyFace(vg) {
       const scaleFactor = 8.2;
       gltf.scene.scale.multiplyScalar(scaleFactor);
 
-      gltf.scene.position.set(-11, 1, -170);
+      // calculate position in front of the player
+      const offsetDistance = 6; // distance in front of the player
+      const direction = new THREE.Vector3();
+      vg.camera.getWorldDirection(direction);
+      direction.y = 0; // keep it on the same horizontal plane
+      direction.normalize();
 
-      // Changed rotation to face more to the right
-      gltf.scene.rotation.y = -Math.PI / 4;
+      // set position in front of the player
+      gltf.scene.position.copy(player.object.position).add(direction.multiplyScalar(offsetDistance));
+
+      // ensure it doesn't overlap with walls and position it higher
+      gltf.scene.position.x = Math.max(-room.width / 2 + 1, Math.min(room.width / 2 - 1, gltf.scene.position.x));
+      gltf.scene.position.y += 1; // raise the smiley face by 2 units
+      gltf.scene.position.z = Math.max(-room.depth / 2 + 1, Math.min(room.depth / 2 - 1, gltf.scene.position.z));
+
+      // rotate smiley towards player
+      const playerPosition = player.object.position.clone();
+      playerPosition.y = gltf.scene.position.y;
+      gltf.scene.lookAt(playerPosition);
 
       const pointLight = new THREE.PointLight(0xffffff, 1, 100);
       pointLight.position.set(0, 5, 0);
       gltf.scene.add(pointLight);
+
+      // fade in animation
+      const fadeInDuration = 900;
+      const startTime = Date.now();
+
+      function fadeIn() {
+        const elapsedTime = Date.now() - startTime;
+        const progress = Math.min(elapsedTime / fadeInDuration, 1);
+        material.opacity = progress;
+
+        if (progress < 1) {
+          requestAnimationFrame(fadeIn);
+        }
+      }
+
+      fadeIn();
 
       vg.add({
         name: 'smiley',

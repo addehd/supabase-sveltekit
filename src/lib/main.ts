@@ -7,6 +7,7 @@ import { setupArtwork } from './art-canvas';
 import { loadSmileyFace } from './smiley';
 
 let vg;
+let player; // declare player at a higher scope
 
 declare global {
   interface Window {
@@ -115,7 +116,7 @@ const initRum = (el, data) => {
 
     const checkArtworkProximity = setupArtwork(vg, textureLoader, data, room);
 
-    var player = {
+    player = {
       name: 'player',
       body: body,
       object: object,
@@ -522,7 +523,7 @@ const initRum = (el, data) => {
     );
   }
 
-  loadSmileyFace(vg);
+  loadSmileyFace(vg, player, room);
 
   setupArtwork(vg, textureLoader, data, room);
 }
@@ -530,3 +531,8 @@ const initRum = (el, data) => {
 export const createScene = (el, imageUrl) => {
   initRum(el, imageUrl);
 };
+
+export const loadSmileyFaceWrapper = () => {
+  console.log('loadSmileyFaceWrapper');
+  loadSmileyFace(vg, player, room); // player is now accessible
+}
