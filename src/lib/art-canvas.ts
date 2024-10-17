@@ -1,3 +1,5 @@
+import { description, audioSource, updateDescription, updateAudioSource } from './state/art-info';
+
 import * as THREE from 'three';
 import VG from './vg';
 
@@ -92,12 +94,19 @@ export function setupArtwork(
   });
 
   // return proximity to artworks
+  let lastUpdatedArtwork = null;
+
   return (playerPosition: THREE.Vector3) => {
     vg.scene.children.forEach((child) => {
       if (child.userData && child.userData.artwork) {
         const boundingSphere = child.userData.boundingSphere;
-        if (boundingSphere.containsPoint(playerPosition)) {
-          console.log(`Near artwork: ${child.userData.artwork.title}`, child.userData);
+        if (boundingSphere.containsPoint(playerPosition) && child !== lastUpdatedArtwork) {
+          // update description and audio source
+          updateDescription(child.userData.artwork.description);
+          updateAudioSource(child.userData.artwork.audio);
+          lastUpdatedArtwork = child;
+          // log the update
+          console.log('updated artwork:', child.userData.artwork.audio);
         }
       }
     });

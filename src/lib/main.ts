@@ -7,7 +7,7 @@ import { setupArtwork } from './art-canvas';
 import { loadSmileyFace } from './smiley';
 
 let vg;
-let player; // declare player at a higher scope
+let player;
 
 declare global {
   interface Window {
@@ -23,6 +23,26 @@ const room = {
   height: 4 * 1.5,
   opacity: 0.8,
   thickness: 1
+}
+
+// utility function to throttle function calls
+function throttle(func, limit) {
+  let lastFunc;
+  let lastRan;
+  return function(...args) {
+    if (!lastRan) {
+      func.apply(this, args);
+      lastRan = Date.now();
+    } else {
+      clearTimeout(lastFunc);
+      lastFunc = setTimeout(() => {
+        if ((Date.now() - lastRan) >= limit) {
+          func.apply(this, args);
+          lastRan = Date.now();
+        }
+      }, limit - (Date.now() - lastRan));
+    }
+  };
 }
 
 const initRum = (el, data) => {
@@ -183,7 +203,9 @@ const initRum = (el, data) => {
           this.initialRotationSet = true;
         }
 
-        checkArtworkProximity(this.object.position);
+        // throttle the proximity check to run every 200ms
+        const throttledCheckProximity = throttle(checkArtworkProximity, 200);
+        throttledCheckProximity(this.object.position);
       }
     };
 
@@ -217,9 +239,6 @@ const initRum = (el, data) => {
     vg.add({
       name: 'background',
       unremovable: true,
-      gui: [
-        [ VG.COLOR, vg.scene, 'background' ]
-      ]
     })
   }
 
@@ -523,7 +542,7 @@ const initRum = (el, data) => {
     );
   }
 
-  loadSmileyFace(vg, player, room);
+  //dddddddwloadSmileyFace(vg, player, room);
 
   setupArtwork(vg, textureLoader, data, room);
 }

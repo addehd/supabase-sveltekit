@@ -2,16 +2,26 @@
   import { onMount } from 'svelte';
   import { createScene, loadSmileyFaceWrapper } from '$lib/main';
   import Loading from '$lib/components/Loading.svelte';
+  import { description, audioSource, updateDescription, updateAudioSource } from '$lib/state/art-info';
 
   export let data;
 
-  let imageUrl = data.artworks[0].image_url;
   let el;
   let showDiv = true;
   let audio;
 
-  function playAudio() {
-    audio.play();
+  $: {
+    console.log('audioSource:', $audioSource);
+    if (audio) {
+      audio.src = $audioSource;
+    }
+  }
+
+  function playAndLoad() {
+    loadSmileyFaceWrapper();
+    if (audio) {
+      audio.play();
+    }
   }
 
   onMount(() => {
@@ -21,14 +31,14 @@
     
     setTimeout(() => {
       showDiv = false;
-    }, 4500);
+    }, 300);
 
     const svgs = document.querySelectorAll('svg');
     svgs.forEach(svg => {
       svg.classList.add('active');
     });
 
-    audio = new Audio('https://www.idell.se/wp-content/uploads/2024/10/intro-18.28.48.mp3');
+    audio = new Audio($audioSource);
   });
 </script>
 
@@ -40,16 +50,11 @@
 
     <div class="flex space-x-2">
       <button
-        class="text-white font-medium text-xl h-[3rem] hover:cursor-pointer"
-        on:click={() => loadSmileyFaceWrapper()}>
-        Play
-      </button>
-      <button
         class="text-white font-bold text-xl h-[3rem] hover:cursor-pointer smile"
-        on:click={playAudio}
-        on:keydown={(e) => e.key === 'Enter' && playAudio()}
-      >
-        <svg class="h-[3rem]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        on:click={playAndLoad}
+        on:keydown={(e) => e.key === 'Enter' && playAndLoad()}>
+        Play
+        <svg class="h-[3rem] inline-block ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
           <circle fill="white" cx="36" cy="40.2" r="5"/>
           <circle fill="white" cx="64" cy="40.2" r="5"/>
           <path fill="white" d="M50 10c-22.1 0-40 17.9-40 40s17.9 40 40 40 40-17.9 40-40-17.9-40-40-40zm0 74.4C31 84.4 15.6 69 15.6 50S31 15.6 50 15.6 84.4 31 84.4 50 69 84.4 50 84.4z"/>
