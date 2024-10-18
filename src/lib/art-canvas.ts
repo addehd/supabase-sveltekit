@@ -105,6 +105,7 @@ export function setupArtwork(
           updateDescription(child.userData.artwork.description);
           updateAudioSource(child.userData.artwork.audio);
           lastUpdatedArtwork = child;
+          console.log('updated artwork:', child.userData);
           // log the update
           console.log('updated artwork:', child.userData.artwork.audio);
         }
@@ -141,7 +142,7 @@ function positionArtwork(wall: string, artworks: THREE.Mesh[], room: {
         art.rotation.y = Math.PI;
         break;
       case 'east':
-        art.position.set(room.width / 2 - 0.1, yPosition, startX + width / 2);
+        art.position.set(room.width / 2 - 0.1, yPosition, (startX - 7.5)  + width / 2);
         art.rotation.y = -Math.PI / 2;
         break;
       case 'west':

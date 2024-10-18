@@ -3,8 +3,6 @@
   
   export let data;
 
-  console.log(data.artworks);
-
   let sections = {
     Hangaren: {
       East: data.artworks.filter(artwork => artwork.wall === 'east'),

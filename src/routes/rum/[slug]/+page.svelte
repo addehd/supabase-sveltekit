@@ -31,7 +31,7 @@
     
     setTimeout(() => {
       showDiv = false;
-    }, 300);
+    }, 4200);
 
     const svgs = document.querySelectorAll('svg');
     svgs.forEach(svg => {
@@ -53,7 +53,7 @@
         class="text-white font-bold text-xl h-[3rem] hover:cursor-pointer smile"
         on:click={playAndLoad}
         on:keydown={(e) => e.key === 'Enter' && playAndLoad()}>
-        Play
+        Spela
         <svg class="h-[3rem] inline-block ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
           <circle fill="white" cx="36" cy="40.2" r="5"/>
           <circle fill="white" cx="64" cy="40.2" r="5"/>
