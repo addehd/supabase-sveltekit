@@ -108,12 +108,11 @@ export const actions = {
       const wall = formData.get('wall');
       const exhibitionsId = formData.get('exhibitions_id');
 
-      // Call postAudioData to get the audio URL
       let audioUrl = '';
       // try {
       //   const audioResponse = await postAudioData(title, shortDescription);
       //   if (audioResponse.success) {
-      //     audioUrl = audioResponse.url; // extract the url from the response
+      //     audioUrl = audioResponse.url;
       //   } else {
       //     throw new Error('Audio generation failed');
       //   }
@@ -122,9 +121,8 @@ export const actions = {
       //   return { success: false, error: 'Failed to generate audio' };
       // }
 
-      console.log('audioUrl:', audioUrl, formData);
-
-      return { "hi": "hi"}
+      // console.log('formData:', formData);
+      // return { "hi": "hi" }
 
       const { data, error } = await supabaseClient
         .from('artworks')
@@ -137,7 +135,7 @@ export const actions = {
           room,
           description,
           image_url: imageUrl,
-          audio: audioUrl, // use the audio URL from the response
+          audio: audioUrl,
           wall,
           exhibitions_id: exhibitionsId,
         })

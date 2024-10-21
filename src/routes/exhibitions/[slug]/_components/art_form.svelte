@@ -6,6 +6,8 @@
   export let artists;
   export let room;
   export let order;
+
+  //console.log(form);
 </script>
 
 <form method="POST" enctype="multipart/form-data" action="?/submit_artwork" class="mb-4 mr-4 float-left overflow-hidden">
