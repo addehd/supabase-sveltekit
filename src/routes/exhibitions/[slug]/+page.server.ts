@@ -17,6 +17,7 @@ export const actions = {
       const image = formData.get('image');
       const artistId = formData.get('artist_id');
       const position = formData.get('position');
+      const wall = formData.get('wall');
       const room = formData.get('room');
       const order = formData.get('order');
       const slug = params.slug;
@@ -50,11 +51,10 @@ export const actions = {
         imageUrl = publicUrlData.publicUrl;
       }
 
-      // Call postAudioData to get the audio URL
       try {
         const audioResponse = await postAudioData(title, shortDescription);
         if (audioResponse.success) {
-          audioUrl = audioResponse.url; // extract the url from the response
+          audioUrl = audioResponse.url;
         } else {
           throw new Error('Audio generation failed');
         }
@@ -106,23 +106,25 @@ export const actions = {
       const description = formData.get('description');
       const imageUrl = formData.get('image_url');
       const wall = formData.get('wall');
-      const exhibitionsId = formData.get('exhibitions_id');
+      const exhibitionsId = formData.get('exhibition_id');
 
       let audioUrl = '';
-      // try {
-      //   const audioResponse = await postAudioData(title, shortDescription);
-      //   if (audioResponse.success) {
-      //     audioUrl = audioResponse.url;
-      //   } else {
-      //     throw new Error('Audio generation failed');
-      //   }
-      // } catch (audioError) {
-      //   console.error('Error fetching audio data:', audioError);
-      //   return { success: false, error: 'Failed to generate audio' };
-      // }
 
-      // console.log('formData:', formData);
-      // return { "hi": "hi" }
+      try {
+        const audioResponse = await postAudioData(title, shortDescription);
+        if (audioResponse.success) {
+          audioUrl = audioResponse.url;
+        } else {
+          throw new Error('Audio generation failed');
+        }
+      } catch (audioError) {
+        console.error('Error fetching audio data:', audioError);
+        return { success: false, error: 'Failed to generate audio' };
+      }
+
+      console.log('exhibitionsId:', exhibitionsId, "wall:", wall);
+
+        //return { "hi": "hii",exhibitionsId, wall }
 
       const { data, error } = await supabaseClient
         .from('artworks')
@@ -136,11 +138,13 @@ export const actions = {
           description,
           image_url: imageUrl,
           audio: audioUrl,
-          wall,
+          wall: wall?.toLowerCase(),
           exhibitions_id: exhibitionsId,
         })
         .eq('artwork_id', artworkId)
         .select();
+
+      console.log('data:', data);
 
       if (error) {
         console.error('Error updating artwork:', error);
@@ -156,6 +160,9 @@ export const actions = {
 };
 
 export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
+
+  console.log('params.slug:', params.slug);
+
   const { data: artworks, error } = await supabase
     .from('artworks')
     .select('*')
@@ -166,5 +173,5 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
     .from('artists')
     .select('*')
   
-  return { artworks, artists };
+  return { artworks, artists, exhibition_id: params.slug };
 };

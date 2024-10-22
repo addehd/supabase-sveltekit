@@ -22,6 +22,8 @@
       { title: '', description: '', image_url: '', wall: wallPosition.toLowerCase() }
     ];
   }
+
+
 </script>
 
 <div class="text-white">
@@ -37,6 +39,7 @@
         </button>
 
         <div class="form-container">
+          {wallPosition}
           <div class="artwork-scroll">
             {#each artworks as form, formIndex}
               <div class="artwork rounded-sm flex justify-between px-7 py-7 bg-gray-300/15 w-[60rem] relative">
@@ -44,8 +47,9 @@
                 <div class="flex flex-col">
                   {wallPosition}
                   <ArtPieceForm
+                    exhibition_id={data.exhibition_id}
                     roomId={form.room}
-                    position={wallPosition}
+                    wall={wallPosition}
                     form={form}
                     artists={data.artists}
                     order={formIndex + 1}

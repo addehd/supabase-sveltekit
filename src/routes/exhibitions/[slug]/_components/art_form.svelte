@@ -1,22 +1,24 @@
 <!-- ArtPieceForm.svelte -->
 <script>
   export let roomId;
-  export let position;
+  export let wall;
   export let form;
   export let artists;
   export let room;
   export let order;
+  export let exhibition_id;
 
-  //console.log(form);
+ // console.log('exhibition_id:', exhibition_id, wall);
 </script>
 
 <form method="POST" enctype="multipart/form-data" action="?/submit_artwork" class="mb-4 mr-4 float-left overflow-hidden">
   <input type="hidden" name="room_id" value={roomId} />
-  <input type="hidden" name="position" value={position} />
+  <input type="hidden" name="wall" value={wall} />
   <input type="hidden" name="order" value={order} />
   <input type="hidden" name="artist_id" value={form.artist_id} />
   <input type="hidden" name="room" value={room} />
   <input type="hidden" name="artwork_id" value={form.artwork_id} />
+  <input type="hidden" name="exhibition_id" value={exhibition_id} />
 
   <div class="mb-4">
     <label class="block text-black dark:text-white mb-2">Art Piece Title</label>
