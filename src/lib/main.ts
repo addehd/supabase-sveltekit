@@ -542,7 +542,7 @@ const initRum = (el, data) => {
     );
   }
 
-  //dddddddwloadSmileyFace(vg, player, room);
+  //loadSmileyFace(vg, player, room);
 
   setupArtwork(vg, textureLoader, data, room);
 }
@@ -553,5 +553,5 @@ export const createScene = (el, imageUrl) => {
 
 export const loadSmileyFaceWrapper = () => {
   console.log('loadSmileyFaceWrapper');
-  loadSmileyFace(vg, player, room); // player is now accessible
+  loadSmileyFace(vg, player, room);
 }

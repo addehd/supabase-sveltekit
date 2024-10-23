@@ -31,7 +31,7 @@
     
     setTimeout(() => {
       showDiv = false;
-    }, 4200);
+    }, 2500);
 
     const svgs = document.querySelectorAll('svg');
     svgs.forEach(svg => {

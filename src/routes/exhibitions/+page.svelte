@@ -19,16 +19,16 @@ function addExhibition() {
   exhibitions = [...exhibitions, { name: '', year: nextYear.toString(), description: '' }];
 }
 </script>
+<button on:click={addExhibition} class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 mb-4">
+  Add Exhibition
+</button>
+<div class="flex flex-col-reverse">
 
-<div>
-  <button on:click={addExhibition} class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 mb-4">
-    Add Exhibition
-  </button>
 
   {#each exhibitions as exhibition}
     <form method="POST" enctype="multipart/form-data" action="?/submit_exhibition" class="exhibition section border border-solid border-gray-300 rounded-md mb-8 p-7">
       <div>
-        <h1 class="text-3xl dark:text-white text-black font-bold mb-6">{exhibition.title}</h1>
+        <h1 class="text-3xl dark:text-white text-black font-bold mb-6">{exhibition.title || 'Ny utställning'}</h1>
         <label class="mb-2 text-black">
             Name:
           <input name="name" type="text" class="w-full px-3 py-2 border rounded" bind:value={exhibition.title} required>
