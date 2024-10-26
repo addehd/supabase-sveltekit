@@ -136,7 +136,7 @@ function addArtworkToWall(wallArtwork: any, artwork: any, object: THREE.Mesh) {
   }
 }
 
-function positionArtwork(wall: string, artworks: THREE.Mesh[], room: { width: number, depth: number, height: number }) {
+function positionArtwork(wall: string, artworks: THREE.Mesh[], room: { width: number, depth: number, height: number }, videoUrl?: string) {
     const floorY = 0;
     const heightAboveFloor = -0.4;
     const artworkYOffset = -1.5;

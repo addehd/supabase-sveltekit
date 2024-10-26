@@ -25,26 +25,6 @@ const room = {
   thickness: 1
 }
 
-// utility function to throttle function calls
-function throttle(func, limit) {
-  let lastFunc;
-  let lastRan;
-  return function(...args) {
-    if (!lastRan) {
-      func.apply(this, args);
-      lastRan = Date.now();
-    } else {
-      clearTimeout(lastFunc);
-      lastFunc = setTimeout(() => {
-        if ((Date.now() - lastRan) >= limit) {
-          func.apply(this, args);
-          lastRan = Date.now();
-        }
-      }, limit - (Date.now() - lastRan));
-    }
-  };
-}
-
 const initRum = (el, data) => {
   window.CANNON = CANNON;
   window.THREE = THREE;
@@ -202,10 +182,6 @@ const initRum = (el, data) => {
           vg.camera.rotation.y = -0.3;
           this.initialRotationSet = true;
         }
-
-        // throttle the proximity check to run every 200ms
-        const throttledCheckProximity = throttle(checkArtworkProximity, 200);
-        throttledCheckProximity(this.object.position);
       }
     };
 
@@ -281,7 +257,6 @@ const initRum = (el, data) => {
         body: body,
         object: object,
         gui: [
-          // ensure the range allows for sufficient movement to the left
           [object.position, 'x', -room.width * 1.5, room.width, 0.1, 'pos x'],
           [object.position, 'y', 0, room.height * 2, 0.1, 'pos y'],
           [object.position, 'z', -room.depth, room.depth, 0.1, 'pos z'],
@@ -290,10 +265,8 @@ const initRum = (el, data) => {
       };
 
       vg.add(leftWall);
-
-      // debugging: log the object to ensure it's being added correctly
-      console.log('Left Wall:', leftWall);
     }
+    
     { // right wall
       let body = new CANNON.Body({
         type: CANNON.Body.STATIC,
@@ -391,7 +364,6 @@ const initRum = (el, data) => {
           [body.position, 'y', 0, 20, 0.1, 'move y'],
           [body.position, 'z', -10, 10, 0.1, 'move z']
         ],
-        // removed zyx property
       };
     
       vg.add(frontWall);
@@ -452,9 +424,6 @@ const initRum = (el, data) => {
       const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 0.2);
       directionalLight.position.set(-40, 50, 50);
     
-      // remove target object
-      // directionalLight.target = target; // comment or remove this line if not needed
-
       const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.2);
     
       vg.add({
@@ -464,7 +433,6 @@ const initRum = (el, data) => {
           [ directionalLight.position, 'x', 'pos x' ],
           [ directionalLight.position, 'y', 'pos y' ],
           [ directionalLight.position, 'z', 'pos z' ]
-          // remove target position controls if target is not used
         ],
       });
     
@@ -479,7 +447,7 @@ const initRum = (el, data) => {
     const loader = new GLTFLoader();
 
     loader.load(
-      '/hangar2.glb',
+      '/smiley.glb',
       function(gltf) {
         console.debug('gltf', gltf);
     
@@ -505,18 +473,17 @@ const initRum = (el, data) => {
         const hangarDepth = boundingBox.max.z - boundingBox.min.z;
         const hangarHeight = boundingBox.max.y - boundingBox.min.y;
     
-        const scaleX = (roomWidth / hangarWidth) * 1.2; // increase width by 20%
+        const scaleX = (roomWidth / hangarWidth) * 1.2;
         const scaleY = roomHeight / hangarHeight;
         const scaleZ = roomDepth / hangarDepth;
     
-        const scale = Math.min(scaleY, scaleZ) * 6.8; // use minimum of height and depth scales
+        const scale = Math.min(scaleY, scaleZ) * 6.8;
     
         for (let i = 0; i < 3; i++) {
           const hangarClone = gltf.scene.clone();
-          hangarClone.scale.set(scale * 1.2, scale, scale); // apply wider scale to x-axis
+          hangarClone.scale.set(scale * 1.2, scale, scale);
           
-          // Adjust z position for each hangar
-          const zOffset = (i - 1) * roomDepth / 3; // Distribute along z-axis
+          const zOffset = (i - 1) * roomDepth / 3;
           hangarClone.position.set(0, 0, zOffset);
     
           vg.add({
@@ -526,13 +493,28 @@ const initRum = (el, data) => {
               [hangarClone.position, 'x', -roomWidth/2, roomWidth/2, 1, 'position x'],
               [hangarClone.position, 'y', -roomHeight/2, roomHeight/2, 1, 'position y'],
               [hangarClone.position, 'z', -roomDepth/2, roomDepth/2, 1, 'position z'],
-              [hangarClone.scale, 'x', 0.1, 3.6, 0.01, 'scale x'], // increased max scale for x
+              [hangarClone.scale, 'x', 0.1, 3.6, 0.01, 'scale x'],
               [hangarClone.scale, 'y', 0.1, 3, 0.01, 'scale y'],
               [hangarClone.scale, 'z', 0.1, 3, 0.01, 'scale z'],
               [hangarClone.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rotation y']
             ]
           });
         }
+
+        // add youtube video in the middle of the hangar
+        const videoElement = createYouTubeVideoElement('SJOz3qjfQXU');
+        const videoTexture = new THREE.VideoTexture(videoElement);
+        const videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
+        
+        const videoPlane = new THREE.Mesh(
+          new THREE.PlaneGeometry(16, 9),  // 16:9 aspect ratio
+          videoMaterial
+        );
+        videoPlane.position.set(0, room.height / 2, 0);
+        videoPlane.scale.multiplyScalar(20);  // adjust size as needed
+        vg.scene.add(videoPlane);
+
+        // no need to modify the render function
       },
       undefined,
       function (error) {
@@ -554,4 +536,15 @@ export const createScene = (el, imageUrl) => {
 export const loadSmileyFaceWrapper = () => {
   console.log('loadSmileyFaceWrapper');
   loadSmileyFace(vg, player, room);
+}
+
+// function to create youtube video element
+function createYouTubeVideoElement(id: string): HTMLVideoElement {
+  const video = document.createElement('video');
+  video.crossOrigin = 'anonymous';
+  video.loop = true;
+  video.muted = true;
+  video.src = `https://www.youtube.com/embed/${id}?rel=0&autoplay=1&mute=1`;
+  video.play();
+  return video;
 }

@@ -1,11 +1,13 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
 import VG from './vg'
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { setupFloor } from './floor';
 import { setupArtwork } from './art-canvas';
 import { loadSmileyFace } from './smiley';
 
 let vg;
+let player;
 
 declare global {
   interface Window {
@@ -14,6 +16,14 @@ declare global {
     VG: typeof VG;
   }
 }
+
+const room = {
+  width: 34 * 3.3,
+  depth: 107 * 3.99,
+  height: 4 * 1.5,
+  opacity: 0.8,
+  thickness: 1
+} 
 
 const initRum = (el, data) => {
   window.CANNON = CANNON;
@@ -29,7 +39,7 @@ const initRum = (el, data) => {
 
   const textureLoader = new THREE.TextureLoader();
 
-  const ground = setupFloor();
+  const ground = setupFloor(room );
   vg.add(ground);
 
   { // general
@@ -38,7 +48,6 @@ const initRum = (el, data) => {
   }
 
   { // world
-    console.log('vg.world', vg.world)
     vg.add({
       name: 'world',
       unremovable: true,
@@ -96,25 +105,18 @@ const initRum = (el, data) => {
       angularDamping: 0.9
     });
 
-    body.position.set(0, 1.5, -70);
+    const xPosition = -room.width * 0.3;
+    const zPosition = -room.depth * 0.46;
+
+    body.position.set(xPosition, 1.5, zPosition);
 
     var object = new THREE.Mesh(
       new THREE.BoxGeometry(1, 3, 2),
       new THREE.MeshBasicMaterial({ color: 0x00ff90 }));
 
-    // Define the room dimensions
-    const roomm = {
-      width: 34 * 2.8,
-      depth: 107 * 3.99,
-      height: 4 * 1.5,
-      opacity: 0.8,
-      thickness: 1
-    };
+    const checkArtworkProximity = setupArtwork(vg, textureLoader, data, room);
 
-    // Pass the artwork data to setupArtwork and get the proximity check function
-    const checkArtworkProximity = setupArtwork(vg, textureLoader, data, roomm);
-
-    var player = {
+    player = {
       name: 'player',
       body: body,
       object: object,
@@ -164,7 +166,7 @@ const initRum = (el, data) => {
         );
         this.body.applyImpulse(moveImpulse);
 
-        // Constrain player movement within the room
+        // constrain player movement within the room
         this.body.position.x = Math.max(-room.width/2 + 1, Math.min(room.width/2 - 1, this.body.position.x));
         this.body.position.z = Math.max(-room.depth/2 + 1, Math.min(room.depth/2 - 1, this.body.position.z));
 
@@ -174,8 +176,12 @@ const initRum = (el, data) => {
         vg.camera.position.copy(this.object.position);
         vg.camera.position.y += 1.2;
 
-        // Check proximity to artwork
-        checkArtworkProximity(this.object.position);
+        // initial camera rotation to look up and to the right
+        if (!this.initialRotationSet) {
+          vg.camera.rotation.x = 0.31;
+          vg.camera.rotation.y = -0.3;
+          this.initialRotationSet = true;
+        }
       }
     };
 
@@ -209,36 +215,24 @@ const initRum = (el, data) => {
     vg.add({
       name: 'background',
       unremovable: true,
-      gui: [
-        [ VG.COLOR, vg.scene, 'background' ]
-      ]
     })
   }
 
   { // room
-    var room = window.room = {
-      width: 34 * 2.8,
-      depth: 107 * 3.99,
-      height: 4 * 1.5,
-      opacity: 0.8,
-      thickness: 1
-    }
 
-    setupArtwork(vg, textureLoader, data, room);
-
-    { // left wall
-      let body = window.lw = new CANNON.Body({
+    { // right wall
+      let body = new CANNON.Body({
         type: CANNON.Body.STATIC,
-        shape: new CANNON.Box(new CANNON.Vec3(room.thickness, room.height, room.depth))
+        shape: new CANNON.Box(new CANNON.Vec3(room.thickness, room.height * 2, room.depth))
       })
 
-      body.position.set(-room.width/2 - room.thickness/2, room.height/2, 0)
+      body.position.set(room.width/2 + room.thickness/2, room.height, 0)
 
       const diffuseTexture = textureLoader.load('/bricks/brick_wall_02_diff_1k.jpg');
       const displacementTexture = textureLoader.load('/bricks/brick_wall_02_disp_1k.png');
 
       const repeatX = room.depth / 3;
-      const repeatY = room.height;
+      const repeatY = room.height * 2;
 
       diffuseTexture.repeat.set(repeatX, repeatY);
       displacementTexture.repeat.set(repeatX, repeatY);
@@ -246,41 +240,32 @@ const initRum = (el, data) => {
       diffuseTexture.wrapS = diffuseTexture.wrapT = THREE.RepeatWrapping;
       displacementTexture.wrapS = displacementTexture.wrapT = THREE.RepeatWrapping;
 
-      const geometry = new THREE.BoxGeometry(room.thickness, room.height * 7, room.depth)
+      const geometry = new THREE.BoxGeometry(room.thickness, room.height * 14, room.depth)
       const material = new THREE.MeshStandardMaterial({
         map: diffuseTexture,
         displacementMap: displacementTexture,
         displacementScale: 0.1,
-        transparent: true,
-        opacity: room.opacity
+        roughness: 0.8,
+        metalness: 0.2,
+        
+        transparent: true
       })
-      const object = new THREE.Mesh(geometry, material)
-
-      var leftWall = {
-        name: 'leftWall',
-        body: body,
-        object: object,
-      }
-
-      vg.add(leftWall)
-    }
-
-    { // right wall
-      let body = new CANNON.Body({
-        type: CANNON.Body.STATIC,
-        shape: new CANNON.Box(new CANNON.Vec3(0.5, 50, 50))
-      })
-
-      body.position.set(room.width/2 + room.thickness/2, room.height/2, 0)
-
-      const geometry = new THREE.BoxGeometry(room.thickness, room.height, room.depth)
-      const material = new THREE.MeshBasicMaterial({ color: 0xFFAAAA, transparent: true, opacity: 0 })
       const object = new THREE.Mesh(geometry, material)
 
       var rightWall = {
         name: 'rightWall',
         body: body,
-        object: object
+        object: object,
+        gui: [
+          [object.position, 'x', -room.width, room.width, 0.1, 'pos x'],
+          [object.position, 'y', 0, room.height * 2, 0.1, 'pos y'],
+          [object.position, 'z', -room.depth, room.depth, 0.1, 'pos z'],
+          [object.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rot y'],
+          [material, 'roughness', 0, 1, 0.01, 'roughness'],
+          [material, 'metalness', 0, 1, 0.01, 'metalness'],
+          [material, 'displacementScale', 0, 1, 0.01, 'displacement'],
+          [material, 'opacity', 0, 1, 0.01, 'opacity']
+        ]
       }
 
       vg.add(rightWall)
@@ -323,52 +308,18 @@ const initRum = (el, data) => {
       var frontWall = {
         name: 'frontWall',
         body: body,
-        object: object
+        object: object,
+        gui: [
+          [material, 'roughness', 0, 1, 0.01, 'roughness'],
+          [material, 'metalness', 0, 1, 0.01, 'metalness'],
+          [material, 'displacementScale', 0, 1, 0.01, 'displacement'],
+          [body.position, 'x', -10, 10, 0.1, 'move x'],
+          [body.position, 'y', 0, 20, 0.1, 'move y'],
+          [body.position, 'z', -10, 10, 0.1, 'move z']
+        ],
       };
     
       vg.add(frontWall);
-    }
-    { // north wall
-      const wallHeight = 100;
-    
-      const textureLoader = new THREE.TextureLoader();
-    
-      const diffuseTexture = textureLoader.load('/bricks/brick_wall_02_diff_1k.jpg');
-      const displacementTexture = textureLoader.load('/bricks/brick_wall_02_disp_1k.png');
-    
-      const repeatX = 5;
-      const repeatY = wallHeight / 10;
-    
-      diffuseTexture.repeat.set(repeatX, repeatY);
-      displacementTexture.repeat.set(repeatX, repeatY);
-    
-      diffuseTexture.wrapS = diffuseTexture.wrapT = THREE.RepeatWrapping;
-      displacementTexture.wrapS = displacementTexture.wrapT = THREE.RepeatWrapping;
-    
-      let body = new CANNON.Body({
-        type: CANNON.Body.STATIC,
-        shape: new CANNON.Box(new CANNON.Vec3(50, wallHeight / 2, 0.5))
-      });
-    
-      body.position.set(0, wallHeight / 2, room.depth / 2 + room.thickness / 2);
-    
-      const geometry = new THREE.BoxGeometry(room.width, wallHeight, room.thickness);
-      const material = new THREE.MeshStandardMaterial({ 
-        map: diffuseTexture,
-        displacementMap: displacementTexture,
-        displacementScale: 0.1,
-        roughness: 0.8,
-        metalness: 0.2
-      });
-      const object = new THREE.Mesh(geometry, material);
-    
-      var northWall = {
-        name: 'northWall',
-        body: body,
-        object: object
-      };
-    
-      vg.add(northWall);
     }
 
     { // light
@@ -377,29 +328,13 @@ const initRum = (el, data) => {
     
       const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.2);
     
-      var target = new THREE.Mesh(
-        new THREE.SphereGeometry(10, 16, 10),
-        new THREE.MeshBasicMaterial({ color: 0xff0000 })
-      );
-      target.position.x = -40;
-    
-      vg.add({
-        object: target,
-        unremovable: true
-      });
-    
-      directionalLight.target = target;
-    
       vg.add({
         name: 'light',
         object: directionalLight,
         gui: [
           [ directionalLight.position, 'x', 'pos x' ],
           [ directionalLight.position, 'y', 'pos y' ],
-          [ directionalLight.position, 'z', 'pos z' ],
-          [ directionalLight.target.position, 'x', 'target pos x' ],
-          [ directionalLight.target.position, 'y', 'target pos y' ],
-          [ directionalLight.target.position, 'z', 'target pos z' ]
+          [ directionalLight.position, 'z', 'pos z' ]
         ],
       });
     
@@ -409,11 +344,7 @@ const initRum = (el, data) => {
       });
     }
   }
-
-  { // smiley face
-    loadSmileyFace(vg);
-  }
-
+ 
   { // skybox
     const loader = new THREE.CubeTextureLoader();
     const skyboxTexture = loader.load([
@@ -427,8 +358,97 @@ const initRum = (el, data) => {
 
     vg.scene.background = skyboxTexture;
   }
+
+  { // video display
+    // Create a div to hold the YouTube iframe
+    const videoContainer = document.createElement('div');
+    videoContainer.style.position = 'absolute';
+    videoContainer.style.width = '1640px';  // Adjust as needed
+    videoContainer.style.height = '1360px'; // Adjust as needed
+    videoContainer.style.pointerEvents = 'none'; // Allow click-through
+
+    // Create the iframe for the YouTube video
+    const iframe = document.createElement('iframe');
+    iframe.width = '100%';
+    iframe.height = '100%';
+    iframe.src = 'https://www.youtube.com/embed/SJOz3qjfQXU?autoplay=1&mute=1&controls=0&loop=1&playlist=SJOz3qjfQXU';
+    iframe.frameBorder = '0';
+    iframe.allow = 'autoplay; encrypted-media';
+    iframe.allowFullscreen = true;
+
+    videoContainer.appendChild(iframe);
+    document.body.appendChild(videoContainer);
+
+    // Create a cube in the 3D scene
+    const cubeSize = 10;
+    const cubeGeometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+    const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.1 });
+    const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+    cube.position.set(0, room.height / 2, -room.depth / 3); // Adjust position as needed
+    vg.scene.add(cube);
+
+    // Function to update video position
+    function updateVideoPosition() {
+      // Get the position of the cube's front face center
+      const cubeFrontCenter = new THREE.Vector3(
+        cube.position.x,
+        cube.position.y,
+        cube.position.z - cubeSize / 2
+      );
+      cubeFrontCenter.project(vg.camera);
+
+      const widthHalf = window.innerWidth / 2;
+      const heightHalf = window.innerHeight / 2;
+
+      videoContainer.style.left = (cubeFrontCenter.x * widthHalf + widthHalf - videoContainer.offsetWidth / 2) + 'px';
+      videoContainer.style.top = (-cubeFrontCenter.y * heightHalf + heightHalf - videoContainer.offsetHeight / 2) + 'px';
+
+      // Scale the video based on the distance from the camera
+      const distance = cube.position.distanceTo(vg.camera.position);
+      const scale = 1 / (distance / 20); // Adjust the divisor to change scaling sensitivity
+      videoContainer.style.transform = `scale(${scale})`;
+    }
+
+    // Add an update function to vg
+    vg.add({
+      name: 'videoPositionUpdater',
+      update: updateVideoPosition
+    });
+
+    // Initial position update
+    updateVideoPosition();
+
+    // Update video position on window resize
+    window.addEventListener('resize', updateVideoPosition);
+
+    // Add cube to vg for potential gui controls
+    vg.add({
+      name: 'videoCube',
+      object: cube,
+      gui: [
+        [cube.position, 'x', -room.width/2, room.width/2, 1, 'position x'],
+        [cube.position, 'y', 0, room.height, 1, 'position y'],
+        [cube.position, 'z', -room.depth/2, room.depth/2, 1, 'position z'],
+        [cube.rotation, 'x', -Math.PI, Math.PI, 0.01, 'rotation x'],
+        [cube.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rotation y'],
+        [cube.rotation, 'z', -Math.PI, Math.PI, 0.01, 'rotation z'],
+        [cube.scale, 'x', 0.1, 5, 0.1, 'scale'],
+        [cubeMaterial, 'opacity', 0, 1, 0.01, 'opacity']
+      ]
+    });
+  }
+
+  //loadSmileyFace(vg, player, room);
+
+  setupArtwork(vg, textureLoader, data, room);
 }
 
 export const createScene = (el, imageUrl) => {
   initRum(el, imageUrl);
 };
+
+export const loadSmileyFaceWrapper = () => {
+  console.log('loadSmileyFaceWrapper');
+  loadSmileyFace(vg, player, room);
+}
+

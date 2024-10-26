@@ -69,7 +69,7 @@ export const actions = {
           title,
           short_description: shortDescription,
           description,
-          wall: position?.toLowerCase(),
+          wall: wall?.toLowerCase(),
           room: room,
           order: order,
           exhibitions_id: slug,
