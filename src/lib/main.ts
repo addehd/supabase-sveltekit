@@ -5,6 +5,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { setupFloor } from './floor';
 import { setupArtwork } from './art-canvas';
 import { loadSmileyFace } from './smiley';
+import { setupVideo } from './video-cube';
 
 let vg;
 let player;
@@ -209,13 +210,6 @@ const initRum = (el, data) => {
     vg.input.whilePressed['ArrowLeft'] = (key) => { vg.camera.rotation.y += 0.05 };
     vg.input.whilePressed['ArrowDown'] = (key) => { vg.camera.rotation.x -= 0.02 };
     vg.input.whilePressed['ArrowUp'] = (key) => { vg.camera.rotation.x += 0.02 };
-  }
-
-  { // background color
-    vg.add({
-      name: 'background',
-      unremovable: true,
-    })
   }
 
   { // room
@@ -447,7 +441,7 @@ const initRum = (el, data) => {
     const loader = new GLTFLoader();
 
     loader.load(
-      '/smiley.glb',
+      '/hangar.glb',
       function(gltf) {
         console.debug('gltf', gltf);
     
@@ -500,21 +494,6 @@ const initRum = (el, data) => {
             ]
           });
         }
-
-        // add youtube video in the middle of the hangar
-        const videoElement = createYouTubeVideoElement('SJOz3qjfQXU');
-        const videoTexture = new THREE.VideoTexture(videoElement);
-        const videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
-        
-        const videoPlane = new THREE.Mesh(
-          new THREE.PlaneGeometry(16, 9),  // 16:9 aspect ratio
-          videoMaterial
-        );
-        videoPlane.position.set(0, room.height / 2, 0);
-        videoPlane.scale.multiplyScalar(20);  // adjust size as needed
-        vg.scene.add(videoPlane);
-
-        // no need to modify the render function
       },
       undefined,
       function (error) {
@@ -536,15 +515,4 @@ export const createScene = (el, imageUrl) => {
 export const loadSmileyFaceWrapper = () => {
   console.log('loadSmileyFaceWrapper');
   loadSmileyFace(vg, player, room);
-}
-
-// function to create youtube video element
-function createYouTubeVideoElement(id: string): HTMLVideoElement {
-  const video = document.createElement('video');
-  video.crossOrigin = 'anonymous';
-  video.loop = true;
-  video.muted = true;
-  video.src = `https://www.youtube.com/embed/${id}?rel=0&autoplay=1&mute=1`;
-  video.play();
-  return video;
 }

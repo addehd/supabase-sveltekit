@@ -5,6 +5,9 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { setupFloor } from './floor';
 import { setupArtwork } from './art-canvas';
 import { loadSmileyFace } from './smiley';
+import { setupVideo } from './video-cube';
+import { videoElement, videoSource } from '$lib/stores/video-store';
+import { get } from 'svelte/store';
 
 let vg;
 let player;
@@ -21,15 +24,10 @@ const room = {
   width: 34 * 3.3,
   depth: 107 * 3.99,
   height: 4 * 1.5,
-  opacity: 0.8,
   thickness: 1
 } 
 
 const initRum = (el, data) => {
-  window.CANNON = CANNON;
-  window.THREE = THREE;
-  window.VG = VG;
-
   vg = new VG(window);
   vg.run();
 
@@ -211,13 +209,6 @@ const initRum = (el, data) => {
     vg.input.whilePressed['ArrowUp'] = (key) => { vg.camera.rotation.x += 0.02 };
   }
 
-  { // background color
-    vg.add({
-      name: 'background',
-      unremovable: true,
-    })
-  }
-
   { // room
 
     { // right wall
@@ -359,88 +350,17 @@ const initRum = (el, data) => {
     vg.scene.background = skyboxTexture;
   }
 
-  { // video display
-    // Create a div to hold the YouTube iframe
-    const videoContainer = document.createElement('div');
-    videoContainer.style.position = 'absolute';
-    videoContainer.style.width = '1640px';  // Adjust as needed
-    videoContainer.style.height = '1360px'; // Adjust as needed
-    videoContainer.style.pointerEvents = 'none'; // Allow click-through
-
-    // Create the iframe for the YouTube video
-    const iframe = document.createElement('iframe');
-    iframe.width = '100%';
-    iframe.height = '100%';
-    iframe.src = 'https://www.youtube.com/embed/SJOz3qjfQXU?autoplay=1&mute=1&controls=0&loop=1&playlist=SJOz3qjfQXU';
-    iframe.frameBorder = '0';
-    iframe.allow = 'autoplay; encrypted-media';
-    iframe.allowFullscreen = true;
-
-    videoContainer.appendChild(iframe);
-    document.body.appendChild(videoContainer);
-
-    // Create a cube in the 3D scene
-    const cubeSize = 10;
-    const cubeGeometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
-    const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.1 });
-    const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-    cube.position.set(0, room.height / 2, -room.depth / 3); // Adjust position as needed
-    vg.scene.add(cube);
-
-    // Function to update video position
-    function updateVideoPosition() {
-      // Get the position of the cube's front face center
-      const cubeFrontCenter = new THREE.Vector3(
-        cube.position.x,
-        cube.position.y,
-        cube.position.z - cubeSize / 2
-      );
-      cubeFrontCenter.project(vg.camera);
-
-      const widthHalf = window.innerWidth / 2;
-      const heightHalf = window.innerHeight / 2;
-
-      videoContainer.style.left = (cubeFrontCenter.x * widthHalf + widthHalf - videoContainer.offsetWidth / 2) + 'px';
-      videoContainer.style.top = (-cubeFrontCenter.y * heightHalf + heightHalf - videoContainer.offsetHeight / 2) + 'px';
-
-      // Scale the video based on the distance from the camera
-      const distance = cube.position.distanceTo(vg.camera.position);
-      const scale = 1 / (distance / 20); // Adjust the divisor to change scaling sensitivity
-      videoContainer.style.transform = `scale(${scale})`;
-    }
-
-    // Add an update function to vg
-    vg.add({
-      name: 'videoPositionUpdater',
-      update: updateVideoPosition
-    });
-
-    // Initial position update
-    updateVideoPosition();
-
-    // Update video position on window resize
-    window.addEventListener('resize', updateVideoPosition);
-
-    // Add cube to vg for potential gui controls
-    vg.add({
-      name: 'videoCube',
-      object: cube,
-      gui: [
-        [cube.position, 'x', -room.width/2, room.width/2, 1, 'position x'],
-        [cube.position, 'y', 0, room.height, 1, 'position y'],
-        [cube.position, 'z', -room.depth/2, room.depth/2, 1, 'position z'],
-        [cube.rotation, 'x', -Math.PI, Math.PI, 0.01, 'rotation x'],
-        [cube.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rotation y'],
-        [cube.rotation, 'z', -Math.PI, Math.PI, 0.01, 'rotation z'],
-        [cube.scale, 'x', 0.1, 5, 0.1, 'scale'],
-        [cubeMaterial, 'opacity', 0, 1, 0.01, 'opacity']
-      ]
-    });
-  }
-
   //loadSmileyFace(vg, player, room);
 
   setupArtwork(vg, textureLoader, data, room);
+
+  // wait for video element to be available
+  const video = get(videoElement);
+  if (video) {
+    setupVideo(room, vg);
+  } else {
+    console.error('Video element not available when creating scene');
+  }
 }
 
 export const createScene = (el, imageUrl) => {

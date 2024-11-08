@@ -1,14 +1,18 @@
-<script>
+<script lang="ts">
   import { onMount } from 'svelte';
   import { createScene, loadSmileyFaceWrapper } from '$lib/main';
   import Loading from '$lib/components/Loading.svelte';
   import { description, audioSource, updateDescription, updateAudioSource } from '$lib/state/art-info';
+  import { videoElement } from '$lib/stores/video-store';
+
+  console.log('videoElement:', $videoElement);
 
   export let data;
 
   let el;
   let showDiv = true;
   let audio;
+  let iframeElement: HTMLIFrameElement;
 
   $: {
     console.log('audioSource:', $audioSource);
@@ -40,6 +44,11 @@
 
     audio = new Audio($audioSource);
   });
+
+  // bind iframe to store
+  $: if (iframeElement) {
+    $videoElement = iframeElement;
+  }
 </script>
 
 <header class="bg-purple-400 fixed bottom-0 w-full p-4 py-1 z-50 flex items-center justify-between">
@@ -74,3 +83,15 @@
 {/if}
 
 <canvas class="w-full h-full fixed top-0 left-0" bind:this={el} />
+
+<iframe
+  id="video"
+  width="320"
+  height="240"
+  src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&controls=0&loop=1&playlist=dQw4w9WgXcQ&enablejsapi=1"
+  style="opacity: 0.01; position: absolute; pointer-events: none;"
+  allow="autoplay"
+  frameborder="0"
+  bind:this={iframeElement}
+></iframe>
+
