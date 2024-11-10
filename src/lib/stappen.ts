@@ -6,19 +6,10 @@ import { setupFloor } from './floor';
 import { setupArtwork } from './art-canvas';
 import { loadSmileyFace } from './smiley';
 import { setupVideo } from './video-cube';
-import { videoElement, videoSource } from '$lib/stores/video-store';
-import { get } from 'svelte/store';
+import { setupBirds } from './birds';
 
 let vg;
 let player;
-
-declare global {
-  interface Window {
-    CANNON: typeof CANNON;
-    THREE: typeof THREE;
-    VG: typeof VG;
-  }
-}
 
 const room = {
   width: 34 * 3.3,
@@ -36,9 +27,10 @@ const initRum = (el, data) => {
   vg.renderer = renderer;
 
   const textureLoader = new THREE.TextureLoader();
-
   const ground = setupFloor(room );
   vg.add(ground);
+
+  vg.gui.show(vg.gui._hidden);
 
   { // general
     vg.input.onDown['c'] = (key) => { vg.gui.show(vg.gui._hidden) }
@@ -112,7 +104,7 @@ const initRum = (el, data) => {
       new THREE.BoxGeometry(1, 3, 2),
       new THREE.MeshBasicMaterial({ color: 0x00ff90 }));
 
-    const checkArtworkProximity = setupArtwork(vg, textureLoader, data, room);
+    //const checkArtworkProximity = setupArtwork(vg, textureLoader, data, room);
 
     player = {
       name: 'player',
@@ -263,7 +255,8 @@ const initRum = (el, data) => {
     }
 
     { // front wall
-      const wallHeight = 50;
+      const wallHeight = 30;
+      const wallOffset = -3;
     
       const textureLoader = new THREE.TextureLoader();
     
@@ -284,7 +277,7 @@ const initRum = (el, data) => {
         shape: new CANNON.Box(new CANNON.Vec3(room.width * 1.2 / 2, wallHeight / 2, room.thickness / 2))
       });
     
-      body.position.set(0, wallHeight / 2.6, -room.depth / 2 - room.thickness / 2);
+      body.position.set(0, wallHeight / 2 + wallOffset, -room.depth / 2 - room.thickness / 2);
     
       const geometry = new THREE.BoxGeometry(room.width * 1.2, wallHeight, room.thickness);
       const material = new THREE.MeshStandardMaterial({
@@ -295,6 +288,8 @@ const initRum = (el, data) => {
         metalness: 0.2
       });
       const object = new THREE.Mesh(geometry, material);
+    
+      object.position.copy(body.position);
     
       var frontWall = {
         name: 'frontWall',
@@ -350,17 +345,9 @@ const initRum = (el, data) => {
     vg.scene.background = skyboxTexture;
   }
 
-  //loadSmileyFace(vg, player, room);
-
   setupArtwork(vg, textureLoader, data, room);
-
-  // wait for video element to be available
-  const video = get(videoElement);
-  if (video) {
-    setupVideo(room, vg);
-  } else {
-    console.error('Video element not available when creating scene');
-  }
+  setupVideo(room, vg);
+  setupBirds(vg, room);
 }
 
 export const createScene = (el, imageUrl) => {

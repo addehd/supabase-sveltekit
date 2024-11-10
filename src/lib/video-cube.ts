@@ -1,39 +1,53 @@
 import * as THREE from 'three';
-import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
-import { get } from 'svelte/store';
-import { videoElement, videoSource } from '$lib/stores/video-store';
 
-export function setupVideo(room, vg) {
-    // create div container for iframe
-    const div = document.createElement('div');
-    div.style.width = '480px';
-    div.style.height = '360px';
-    div.style.backgroundColor = '#000';
+export function setupVideo(room, vg, videoUrl = '/test.mp4') {
+    // create video element
+    const video = document.createElement('video');
+    video.src = videoUrl;
+    video.loop = true;
+    video.muted = true;
+    video.playsInline = true;
 
-    // create iframe
-    const iframe = document.createElement('iframe');
-    iframe.style.width = '480px';
-    iframe.style.height = '360px';
-    iframe.style.border = '0px';
-    iframe.src = get(videoSource);
-    div.appendChild(iframe);
+    
+    // add error handling
+    video.addEventListener('error', (e) => {
+      console.error('Video error:', video.error);
+    });
 
-    // create CSS3D object
-    const videoObject = new CSS3DObject(div);
-    videoObject.position.set(0, room.height / 2, -room.depth / 3);
+    video.addEventListener('loadeddata', () => {
+      console.log('Video loaded successfully');
+    });
+
+    // create video texture
+    const videoTexture = new THREE.VideoTexture(video);
+    videoTexture.minFilter = THREE.LinearFilter;
+    videoTexture.magFilter = THREE.LinearFilter;
+    
+    // create video plane
+    const geometry = new THREE.PlaneGeometry(80, 60);
+    const material = new THREE.MeshBasicMaterial({ 
+        map: videoTexture,
+        side: THREE.DoubleSide 
+    });
+    const videoMesh = new THREE.Mesh(geometry, material);
+    videoMesh.position.set(-room.width * 0.4, room.height / 2, -room.depth / 2 + 0.7  );
     
     // add to scene
-    vg.scene.add(videoObject);
+    vg.scene.add(videoMesh);
+
+    // start video
+    video.load();
+    video.play().catch(e => console.error('Play failed:', e));
 
     vg.add({
         name: 'videoScreen',
-        object: videoObject
+        object: videoMesh
     });
 
     // cleanup function
     return () => {
-        vg.scene.remove(videoObject);
-        div.remove();
+        vg.scene.remove(videoMesh);
+        videoTexture.dispose();
+        video.remove();
     };
 }
-  
