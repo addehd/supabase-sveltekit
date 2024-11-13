@@ -1,7 +1,6 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
 import VG from './vg'
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { setupFloor } from './floor';
 import { setupArtwork } from './art-canvas';
 import { loadSmileyFace } from './smiley';

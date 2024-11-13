@@ -9,7 +9,6 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
     video.playsInline = true;
 
     
-    // add error handling
     video.addEventListener('error', (e) => {
       console.error('Video error:', video.error);
     });
@@ -18,12 +17,10 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
       console.log('Video loaded successfully');
     });
 
-    // create video texture
     const videoTexture = new THREE.VideoTexture(video);
     videoTexture.minFilter = THREE.LinearFilter;
     videoTexture.magFilter = THREE.LinearFilter;
     
-    // create video plane
     const geometry = new THREE.PlaneGeometry(80, 60);
     const material = new THREE.MeshBasicMaterial({ 
         map: videoTexture,

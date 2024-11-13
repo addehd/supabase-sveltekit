@@ -5,7 +5,6 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { setupFloor } from './floor';
 import { setupArtwork } from './art-canvas';
 import { loadSmileyFace } from './smiley';
-import { setupVideo } from './video-cube';
 
 let vg;
 let player;
