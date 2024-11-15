@@ -11,6 +11,8 @@
 
   export let data;
 
+  console.log('data', data);
+  
   let iframeElement;
 
   $: if (iframeElement) {

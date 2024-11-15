@@ -27,7 +27,11 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
         side: THREE.DoubleSide 
     });
     const videoMesh = new THREE.Mesh(geometry, material);
-    videoMesh.position.set(-room.width * 0.4, room.height / 2, -room.depth / 2 + 0.7  );
+    // position video at end of west wall (north end)
+    //videoMesh.position.set(-room.width/2 - 0.5, room.height * 1.2, room.depth/2 - 40);
+
+    videoMesh.position.set(-room.width/2 - 0.5, room.height * 1.2, -room.depth/2 + 40);
+    videoMesh.rotation.y = Math.PI/2;
     
     // add to scene
     vg.scene.add(videoMesh);

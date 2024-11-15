@@ -1,4 +1,4 @@
-import { description, audioSource, updateDescription, updateAudioSource } from './state/art-info';
+import { updateDescription, updateAudioSource } from './state/art-info';
 
 import * as THREE from 'three';
 import VG from './vg';
@@ -19,6 +19,8 @@ export function setupArtwork(
     east: [],
     west: []
   };
+
+  console.log('setupArtwork', data);
 
   const loadingManager = new THREE.LoadingManager();
   const processedTextures = new Map();
@@ -168,6 +170,16 @@ function positionArtwork(wall: string, artworks: THREE.Mesh[], room: { width: nu
                 art.rotation.y = Math.PI / 2;
                 break;
         }
+
+        // console.log(`Artwork on ${wall} wall:`, {
+        //     id: art.userData?.artwork?.artwork_id,
+        //     position: art.position.toArray(),
+        //     dimensions: {
+        //         width: width,
+        //         height: height
+        //     },
+        //     rotation: art.rotation.y
+        // });
 
         startX += width + spacing;
     });
