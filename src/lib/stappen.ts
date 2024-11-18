@@ -7,6 +7,9 @@ import { loadSmileyFace } from './smiley';
 import { setupVideo } from './video-cube';
 import { setupBirds } from './birds';
 import { setupGrass } from './grass';
+import { initVR } from './vr' ;
+import { VRButton } from 'three/addons/webxr/VRButton.js';
+
 let vg;
 let player;
 
@@ -446,6 +449,9 @@ const initRum = (el, data) => {
   setupBirds(vg, room);
 
   setupGrass(vg, room);
+
+  // add vr support after renderer is initialized
+  initVR(vg);
 }
 
 export const createScene = (el, imageUrl) => {

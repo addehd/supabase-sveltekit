@@ -72,7 +72,7 @@ export function setupBirds(vg, room) {
                     z: room.depth * 0.8
                 };
 
-                const minHeight = room.height * 0.5; // minimum height is 40% of room height
+                const minHeight = room.height * 0.5;
                 
                 if (Math.abs(bird.position.x) > bounds.x) {
                     movement.direction.x *= -1;
