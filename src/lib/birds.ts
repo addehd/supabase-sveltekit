@@ -14,7 +14,7 @@ export function setupBirds(vg, room) {
             speed: 0.1,
             direction: new THREE.Vector3(
                 Math.random() - 0.5,
-                Math.random() * 0.2 - 0.1,
+                Math.random() * 0.2 + 0.1,
                 Math.random() - 0.5
             ).normalize(),
             lastDirectionChange: 0,
@@ -28,7 +28,7 @@ export function setupBirds(vg, room) {
         const clips = gltf.animations;
         if (clips.length > 0) {
             const action = mixer.clipAction(clips[0]);
-            action.timeScale = 0.00068;  // adjusted for better wing movement
+            action.timeScale = 0.00069;  // adjusted for better wing movement
             action.play();
         }
 
@@ -72,13 +72,18 @@ export function setupBirds(vg, room) {
                     z: room.depth * 0.8
                 };
 
+                const minHeight = room.height * 0.5; // minimum height is 40% of room height
+                
                 if (Math.abs(bird.position.x) > bounds.x) {
                     movement.direction.x *= -1;
                     bird.position.x = Math.sign(bird.position.x) * bounds.x;
                 }
-                if (Math.abs(bird.position.y) > bounds.y) {
+                if (bird.position.y < minHeight) {
+                    movement.direction.y = Math.abs(movement.direction.y);
+                    bird.position.y = minHeight;
+                } else if (bird.position.y > bounds.y) {
                     movement.direction.y *= -1;
-                    bird.position.y = Math.sign(bird.position.y) * bounds.y;
+                    bird.position.y = bounds.y;
                 }
                 if (Math.abs(bird.position.z) > bounds.z) {
                     movement.direction.z *= -1;
