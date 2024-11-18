@@ -6,7 +6,7 @@ import { setupArtwork } from './art-canvas';
 import { loadSmileyFace } from './smiley';
 import { setupVideo } from './video-cube';
 import { setupBirds } from './birds';
-
+import { setupGrass } from './grass';
 let vg;
 let player;
 
@@ -444,6 +444,8 @@ const initRum = (el, data) => {
   setupArtwork(vg, textureLoader, data, room);
   setupVideo(room, vg);
   setupBirds(vg, room);
+
+  setupGrass(vg, room);
 }
 
 export const createScene = (el, imageUrl) => {
