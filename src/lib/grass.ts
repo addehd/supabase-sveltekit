@@ -1,17 +1,23 @@
 import * as THREE from 'three';
 
-// grass configuration
+// optimize grass configuration
 const BLADE_WIDTH = 0.1;
-const BLADE_HEIGHT = 1.7;
+const BLADE_HEIGHT = 3.7;
 const BLADE_HEIGHT_VARIATION = 0.3;
-const BLADE_COUNT = 50000;
+const BLADE_COUNT = 5000;
+const FIELD_SIZE = 30;
 
-function generateBlade(center, vArrOffset, uv) {
+// pre-calculate values used frequently
+const PI2 = Math.PI * 2;
+const VERTICES_PER_BLADE = 5;
+
+function generateBlade(center, vArrOffset) {
+
   const MID_WIDTH = BLADE_WIDTH * 0.5;
   const TIP_OFFSET = 0.1;
   const height = BLADE_HEIGHT + (Math.random() * BLADE_HEIGHT_VARIATION);
 
-  const yaw = Math.random() * Math.PI * 2;
+  const yaw = Math.random() * PI2;
   const yawUnitVec = new THREE.Vector3(Math.sin(yaw), 0, -Math.cos(yaw));
   const tipBend = Math.random() * Math.PI * 2;
   const tipBendUnitVec = new THREE.Vector3(Math.sin(tipBend), 0, -Math.cos(tipBend));
@@ -38,28 +44,41 @@ function generateBlade(center, vArrOffset, uv) {
 }
 
 function createGrassField() {
-  const positions = [];
-  const indices = [];
-  const uvs = [];
+  // pre-allocate arrays with known size
+  const positions = new Float32Array(BLADE_COUNT * VERTICES_PER_BLADE * 3);
+  const indices = new Uint32Array(BLADE_COUNT * 12);
+  const uvs = new Float32Array(BLADE_COUNT * VERTICES_PER_BLADE * 2);
+  
+  let posIndex = 0;
+  let uvIndex = 0;
+  let indexIndex = 0;
   
   for (let i = 0; i < BLADE_COUNT; i++) {
-    const x = (Math.random() - 0.5) * 30;
-    const z = (Math.random() - 0.5) * 30;
+    const x = (Math.random() - 0.5) * FIELD_SIZE;
+    const z = (Math.random() - 0.5) * FIELD_SIZE;
     const center = new THREE.Vector3(x, 0, z);
     
-    const blade = generateBlade(center, i * 5, [Math.random(), Math.random()]);
-    positions.push(...blade.positions);
-    indices.push(...blade.indices);
+    const blade = generateBlade(center, i * VERTICES_PER_BLADE);
     
-    for (let j = 0; j < 5; j++) {
-      uvs.push(Math.random(), Math.random());
+    // directly set array values instead of pushing
+    blade.positions.forEach(pos => {
+      positions[posIndex++] = pos;
+    });
+    
+    blade.indices.forEach(index => {
+      indices[indexIndex++] = index;
+    });
+    
+    // simplified UV assignment
+    for (let j = 0; j < VERTICES_PER_BLADE * 2; j++) {
+      uvs[uvIndex++] = Math.random();
     }
   }
 
   const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
-  geometry.setIndex(indices);
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+  geometry.setIndex(new THREE.BufferAttribute(indices, 1));
   geometry.computeVertexNormals();
   
   return geometry;
@@ -75,7 +94,10 @@ export function setupGrass(vg, room) {
       void main() {
         vUv = uv;
         vec3 pos = position;
-        float wind = sin(time * 2.0 + position.x * 0.5 + position.z * 0.5) * 0.2;
+  
+        // Adjusted wind speed multiplier
+        float wind = sin(time * 0.01 + position.x * 0.5 + position.z * 0.5) * 0.05;
+  
         pos.x += wind * pow(position.y, 2.0);
         gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
       }
@@ -110,6 +132,7 @@ export function setupGrass(vg, room) {
   // create and add grass
   const grassGeometry = createGrassField();
   const grassField = new THREE.Mesh(grassGeometry, grassMaterial);
+  grassField.position.y = -3.0;
   
   // add to scene with animation
   vg.add({
