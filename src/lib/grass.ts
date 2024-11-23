@@ -4,12 +4,53 @@ import * as THREE from 'three';
 const BLADE_WIDTH = 0.1;
 const BLADE_HEIGHT = 3.7;
 const BLADE_HEIGHT_VARIATION = 0.3;
-const BLADE_COUNT = 5000;
+const BLADE_COUNT = 11000;
 const FIELD_SIZE = 30;
 
 // pre-calculate values used frequently
 const PI2 = Math.PI * 2;
 const VERTICES_PER_BLADE = 5;
+
+const room = {
+  width: 64 * 2,
+  depth: 107 * 2,
+  height: 4 * 1.5,
+  thickness: 1,
+  wallHeight: 50
+} 
+
+
+// add grass area configuration
+const GRASS_AREAS = {
+  rightStrip: {
+    x: [room.width/2 - 10, room.width/2], // 10 units wide strip on right
+    z: [-room.depth/2, room.depth/2]
+  },
+  bottomStrip: {
+    x: [0, room.width/2], // right half of room
+    z: [-room.depth/2, -room.depth/2 + 10] // 10 units deep strip
+  }
+};
+
+function isInGrassArea(x: number, z: number): boolean {
+  // check if point is in right strip
+  const inRightStrip = (
+    x >= GRASS_AREAS.rightStrip.x[0] && 
+    x <= GRASS_AREAS.rightStrip.x[1] && 
+    z >= GRASS_AREAS.rightStrip.z[0] && 
+    z <= GRASS_AREAS.rightStrip.z[1]
+  );
+
+  // check if point is in bottom strip
+  const inBottomStrip = (
+    x >= GRASS_AREAS.bottomStrip.x[0] && 
+    x <= GRASS_AREAS.bottomStrip.x[1] && 
+    z >= GRASS_AREAS.bottomStrip.z[0] && 
+    z <= GRASS_AREAS.bottomStrip.z[1]
+  );
+
+  return inRightStrip || inBottomStrip;
+}
 
 function generateBlade(center, vArrOffset) {
 
@@ -52,26 +93,34 @@ function createGrassField() {
   let posIndex = 0;
   let uvIndex = 0;
   let indexIndex = 0;
+  let validBladeCount = 0;
   
-  for (let i = 0; i < BLADE_COUNT; i++) {
-    const x = (Math.random() - 0.5) * FIELD_SIZE;
-    const z = (Math.random() - 0.5) * FIELD_SIZE;
-    const center = new THREE.Vector3(x, 0, z);
+  // keep trying until we get enough valid grass blades
+  while (validBladeCount < BLADE_COUNT) {
+    // generate position within room bounds
+    const x = (Math.random() * room.width) - room.width/2;
+    const z = (Math.random() * room.depth) - room.depth/2;
     
-    const blade = generateBlade(center, i * VERTICES_PER_BLADE);
-    
-    // directly set array values instead of pushing
-    blade.positions.forEach(pos => {
-      positions[posIndex++] = pos;
-    });
-    
-    blade.indices.forEach(index => {
-      indices[indexIndex++] = index;
-    });
-    
-    // simplified UV assignment
-    for (let j = 0; j < VERTICES_PER_BLADE * 2; j++) {
-      uvs[uvIndex++] = Math.random();
+    // only create blade if position is in grass area
+    if (isInGrassArea(x, z)) {
+      const center = new THREE.Vector3(x, 0, z);
+      const blade = generateBlade(center, validBladeCount * VERTICES_PER_BLADE);
+      
+      // directly set array values
+      blade.positions.forEach(pos => {
+        positions[posIndex++] = pos;
+      });
+      
+      blade.indices.forEach(index => {
+        indices[indexIndex++] = index;
+      });
+      
+      // simplified UV assignment
+      for (let j = 0; j < VERTICES_PER_BLADE * 2; j++) {
+        uvs[uvIndex++] = Math.random();
+      }
+      
+      validBladeCount++;
     }
   }
 
