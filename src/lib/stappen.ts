@@ -6,9 +6,9 @@ import { setupArtwork } from './art-canvas';
 import { loadSmileyFace } from './smiley';
 import { setupVideo } from './video-cube';
 import { setupBirds } from './birds';
-import { setupGrass } from './grass';
 import { initVR } from './vr' ;
 import { VRButton } from 'three/addons/webxr/VRButton.js';
+import { setupGrass } from './grass';
 
 let vg;
 let player;
@@ -17,7 +17,8 @@ const room = {
   width: 64 * 2,
   depth: 107 * 2,
   height: 4 * 1.5,
-  thickness: 1
+  thickness: 1,
+  wallHeight: 50
 } 
 
 const initRum = (el, data) => {
@@ -32,7 +33,7 @@ const initRum = (el, data) => {
   const ground = setupFloor(room );
   vg.add(ground);
 
-  vg.gui.show(vg.gui._hidden);
+  //vg.gui.show(vg.gui._hidden);
 
   { // general
     vg.input.onDown['c'] = (key) => { vg.gui.show(vg.gui._hidden) }
@@ -205,16 +206,16 @@ const initRum = (el, data) => {
 
   { // room
     { // west
-      const wallHeight = 10;
+      const wallHeight = room.wallHeight;
 
       let body = new CANNON.Body({
         type: CANNON.Body.STATIC,
-        shape: new CANNON.Box(new CANNON.Vec3(room.thickness, room.height * 2, room.depth))
+        shape: new CANNON.Box(new CANNON.Vec3(room.thickness, wallHeight / 2, room.depth))
       });
 
       // define position constants
       const xPos = -room.width / 2 - room.thickness - 1;
-      const yPos = wallHeight / 2;
+      const yPos = wallHeight / 4;
       const zPos = 0;
       // set body position using constants
       body.position.set(xPos, yPos, zPos);
@@ -231,7 +232,7 @@ const initRum = (el, data) => {
       diffuseTexture.wrapS = diffuseTexture.wrapT = THREE.RepeatWrapping;
       displacementTexture.wrapS = displacementTexture.wrapT = THREE.RepeatWrapping;
 
-      const geometry = new THREE.BoxGeometry(room.thickness, room.height * 7, room.depth);
+      const geometry = new THREE.BoxGeometry(room.thickness, wallHeight, room.depth);
       const material = new THREE.MeshStandardMaterial({
         map: diffuseTexture,
         displacementMap: displacementTexture,
@@ -380,7 +381,7 @@ const initRum = (el, data) => {
     
       // lowered position of north wall
       const wallPosition = wallHeight / 4;
-      body.position.set(0, wallPosition, room.depth / 2 + room.thickness / 2);
+      body.position.set(-5, wallPosition, room.depth / 2 + room.thickness / 2);
     
       const geometry = new THREE.BoxGeometry(room.width, wallHeight, room.thickness);
       const material = new THREE.MeshStandardMaterial({ 
@@ -447,11 +448,8 @@ const initRum = (el, data) => {
   setupArtwork(vg, textureLoader, data, room);
   setupVideo(room, vg);
   setupBirds(vg, room);
+  setupGrass(vg, textureLoader);
 
-  setupGrass(vg, room);
-
-  // add vr support after renderer is initialized
-  initVR(vg);
 }
 
 export const createScene = (el, imageUrl) => {
@@ -459,7 +457,6 @@ export const createScene = (el, imageUrl) => {
 };
 
 export const loadSmileyFaceWrapper = () => {
-  console.log('loadSmileyFaceWrapper');
   loadSmileyFace(vg, player, room);
 }
 

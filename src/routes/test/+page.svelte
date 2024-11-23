@@ -1,113 +1,154 @@
-<script lang="ts">
+<script>
   import { onMount } from 'svelte';
   import * as THREE from 'three';
-  import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-  let container: HTMLDivElement;
+  let canvas;
+
+  // add constants for grass blade configuration
+  const BLADE_WIDTH = 0.1;
+  const BLADE_HEIGHT = 1.7;
+  const BLADE_HEIGHT_VARIATION = 0.3;
+  const BLADE_COUNT = 50000;
 
   onMount(() => {
-    // setup scene
+    // Scene and Camera
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, 5, 10);
     camera.lookAt(0, 0, 0);
 
-    // setup renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    container.appendChild(renderer.domElement);
 
-    // add orbit controls
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-
-    // add lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-    dirLight.position.set(5, 5, 5);
-    scene.add(dirLight);
-
-    // add ground plane
-    const ground = new THREE.Mesh(
-      new THREE.PlaneGeometry(40, 40),
-      new THREE.MeshStandardMaterial({ color: 0x553311 })
-    );
-    ground.rotation.x = -Math.PI / 2;
-    scene.add(ground);
-
-    // setup grass
-    const bladeGeometry = new THREE.SphereGeometry(1, 24, 24, -0.2, 0.2, Math.PI/2, Math.PI/2);
-    const grassMaterial = new THREE.ShaderMaterial({
-      vertexShader: `
+    // Grass Shader
+    const grassShader = {
+      vert: `
+        varying vec2 vUv;
         uniform float time;
+        
         void main() {
+          vUv = uv;
+          // add more pronounced wind movement
           vec3 pos = position;
-          float wave = sin(time * 2.0 + position.y * 0.5);
-          pos.x += wave * 0.2;
-          pos.z += wave * 0.1;
+          float wind = sin(time * 2.0 + position.x * 0.5 + position.z * 0.5) * 0.2;
+          // apply wind only to upper vertices
+          pos.x += wind * pow(position.y, 2.0);
           gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
         }
       `,
-      fragmentShader: `void main() { gl_FragColor = vec4(0.1, 0.6, 0.1, 1.0); }`,
-      uniforms: { time: { value: 0 } },
+      frag: `
+        varying vec2 vUv;
+        uniform sampler2D grassTexture;
+        uniform float time;
+        
+        void main() {
+          // add color variation
+          vec4 grassColor = texture2D(grassTexture, vUv);
+          // float noise = fract(sin(vUv.x * 100.0 + vUv.y * 100.0 + time) * 1000.0);
+          // grassColor.rgb *= 0.8 + noise * 0.4;
+          gl_FragColor = grassColor;
+        }
+      `
+    };
+
+    // Grass Material
+    const grassTexture = new THREE.TextureLoader().load('/grass.jpg');
+    grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping;
+    grassTexture.repeat.set(10, 10); // add more texture repetition
+    const grassMaterial = new THREE.ShaderMaterial({
+      uniforms: { 
+        grassTexture: { value: grassTexture },
+        time: { value: 0.0 }
+      },
+      vertexShader: grassShader.vert,
+      fragmentShader: grassShader.frag,
       side: THREE.DoubleSide
     });
 
-    const grassField = new THREE.InstancedMesh(bladeGeometry, grassMaterial, 200);
-    const dummy = new THREE.Object3D();
+    // grass blade generation function
+    function generateBlade(center, vArrOffset, uv) {
+      const MID_WIDTH = BLADE_WIDTH * 0.5;
+      const TIP_OFFSET = 0.1;
+      const height = BLADE_HEIGHT + (Math.random() * BLADE_HEIGHT_VARIATION);
 
-    for (let i = 0; i < 200; i++) {
-      const row = Math.floor(i / 20);
-      const col = i % 20;
-      
-      dummy.position.set(
-        col * 2 - 20 + Math.random(),
-        0,
-        row * 2 - 20 + Math.random()
-      );
-      
-      dummy.scale.set(0.05, 0.1 + Math.random() * 0.1, 0.04);
-      dummy.rotation.set(Math.PI, Math.random() * Math.PI * 2, 0);
-      
-      dummy.updateMatrix();
-      grassField.setMatrixAt(i, dummy.matrix);
+      const yaw = Math.random() * Math.PI * 2;
+      const yawUnitVec = new THREE.Vector3(Math.sin(yaw), 0, -Math.cos(yaw));
+      const tipBend = Math.random() * Math.PI * 2;
+      const tipBendUnitVec = new THREE.Vector3(Math.sin(tipBend), 0, -Math.cos(tipBend));
+
+      // create blade vertices
+      const bl = new THREE.Vector3().addVectors(center, new THREE.Vector3().copy(yawUnitVec).multiplyScalar(BLADE_WIDTH / 2));
+      const br = new THREE.Vector3().addVectors(center, new THREE.Vector3().copy(yawUnitVec).multiplyScalar(-BLADE_WIDTH / 2));
+      const tl = new THREE.Vector3().addVectors(center, new THREE.Vector3().copy(yawUnitVec).multiplyScalar(MID_WIDTH / 2));
+      const tr = new THREE.Vector3().addVectors(center, new THREE.Vector3().copy(yawUnitVec).multiplyScalar(-MID_WIDTH / 2));
+      const tc = new THREE.Vector3().addVectors(center, new THREE.Vector3().copy(tipBendUnitVec).multiplyScalar(TIP_OFFSET));
+
+      tl.y += height / 2;
+      tr.y += height / 2;
+      tc.y += height;
+
+      return {
+        positions: [...bl.toArray(), ...br.toArray(), ...tr.toArray(), ...tl.toArray(), ...tc.toArray()],
+        indices: [
+          vArrOffset, vArrOffset + 1, vArrOffset + 2,
+          vArrOffset, vArrOffset + 2, vArrOffset + 3,
+          vArrOffset + 3, vArrOffset + 2, vArrOffset + 4
+        ]
+      };
     }
-    scene.add(grassField);
 
-    // animation loop
+    // create grass field geometry
+    function createGrassField() {
+      const positions = [];
+      const indices = [];
+      const uvs = [];
+      
+      for (let i = 0; i < BLADE_COUNT; i++) {
+        const x = (Math.random() - 0.5) * 30;
+        const z = (Math.random() - 0.5) * 30;
+        const center = new THREE.Vector3(x, 0, z);
+        
+        const blade = generateBlade(center, i * 5, [Math.random(), Math.random()]);
+        positions.push(...blade.positions);
+        indices.push(...blade.indices);
+        
+        // add uvs for each vertex of the blade
+        for (let j = 0; j < 5; j++) {
+          uvs.push(Math.random(), Math.random());
+        }
+      }
+
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+      geometry.setIndex(indices);
+      geometry.computeVertexNormals();
+      
+      return geometry;
+    }
+
+    // replace plane geometry with grass field
+    const grassGeometry = createGrassField();
+    const grassPlane = new THREE.Mesh(grassGeometry, grassMaterial);
+    scene.add(grassPlane);
+
+    // Animation Loop
     function animate() {
-      requestAnimationFrame(animate);
-      grassMaterial.uniforms.time.value += 0.016;
-      controls.update();
+      // update time uniform for wind animation
+      grassMaterial.uniforms.time.value += 0.01;
       renderer.render(scene, camera);
+      requestAnimationFrame(animate);
     }
     animate();
 
-    // handle resize
-    const handleResize = () => {
+    // Handle Resizing
+    window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
-    };
-    window.addEventListener('resize', handleResize);
-
-    // cleanup
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      container.removeChild(renderer.domElement);
-    };
+    });
   });
 </script>
 
-<div bind:this={container} />
-
-<style>
-  div {
-    width: 100%;
-    height: 100vh;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-  }
-</style>
+<canvas bind:this={canvas} style="width: 100%; height: 100%;"></canvas>
