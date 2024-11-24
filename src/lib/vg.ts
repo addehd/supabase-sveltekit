@@ -1,6 +1,7 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
 import GUI from 'lil-gui'
+import { VRButton } from 'three/addons/webxr/VRButton.js';
 
 export default class VG {
   COLOR = {}
@@ -23,6 +24,7 @@ export default class VG {
   width = 800
   world
   yaw = 0
+  vrEnabled = false
 
   constructor(window) {
     if (window) {
@@ -37,6 +39,7 @@ export default class VG {
     this.initGui()
     this.initInput()
     this.initMouse()
+    this.initVR()
   }
 
   add = function(thing) {
@@ -210,6 +213,27 @@ export default class VG {
       gravity: new CANNON.Vec3(0, -30, 0) })
   }
 
+  initVR = function() {
+    if (this.renderer) {
+      // enable vr support
+      this.renderer.xr.enabled = true
+      document.body.appendChild(VRButton.createButton(this.renderer))
+      
+      // use vr animation loop
+      this.renderer.setAnimationLoop(() => {
+        this.world.fixedStep()
+        this.update(16) // assuming ~60fps, using fixed timestep
+        this.renderer.render(this.scene, this.camera)
+
+        if (this.hudEnabled && typeof this.hud === 'function') {
+          this.hud(16)
+        }
+      })
+      
+      this.vrEnabled = true
+    }
+  }
+
   onMouseMove = function(e) {
     this.yaw -= e.movementX * this.mouseSensitivity
     this.pitch -= e.movementY * this.mouseSensitivity
@@ -234,25 +258,28 @@ export default class VG {
   }
 
   run = function() {
-    let _this = this
-    let time = Date.now()
+    // only run the standard animation loop if we're not in vr
+    if (!this.vrEnabled) {
+      let _this = this
+      let time = Date.now()
 
-    function tick() {
-      const currentTime = Date.now()
-      const delta = currentTime - time
-      time = currentTime
+      function tick() {
+        const currentTime = Date.now()
+        const delta = currentTime - time
+        time = currentTime
 
-      _this.world.fixedStep()
-      _this.update(delta)
-      _this.renderer.render(_this.scene, _this.camera)
+        _this.world.fixedStep()
+        _this.update(delta)
+        _this.renderer.render(_this.scene, _this.camera)
 
-      if (_this.hudEnabled && typeof _this.hud === 'function')
-        _this.hud(delta)
+        if (_this.hudEnabled && typeof _this.hud === 'function')
+          _this.hud(delta)
 
-      window.requestAnimationFrame(tick)
+        window.requestAnimationFrame(tick)
+      }
+
+      tick()
     }
-
-    tick()
   }
 
   update = function(delta) {

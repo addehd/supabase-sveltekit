@@ -6,8 +6,6 @@ import { setupArtwork } from './art-canvas';
 import { loadSmileyFace } from './smiley';
 import { setupVideo } from './video-cube';
 import { setupBirds } from './birds';
-import { initVR } from './vr' ;
-import { VRButton } from 'three/addons/webxr/VRButton.js';
 import { setupGrass } from './grass';
 
 let vg;
@@ -18,7 +16,16 @@ const room = {
   depth: 107 * 2,
   height: 4 * 1.5,
   thickness: 1,
-  wallHeight: 50
+  wallHeight: 50,
+  player: {
+    x: -(64 ) * 0.3,
+    y: 1.5,
+    z: -(107 ) * 0.46,
+    look: {
+      x: 0,    // rotation up/down
+      y: -0.3     // rotation left/right
+    }
+  }
 } 
 
 const initRum = (el, data) => {
@@ -98,10 +105,7 @@ const initRum = (el, data) => {
       angularDamping: 0.9
     });
 
-    const xPosition = -room.width * 0.3;
-    const zPosition = -room.depth * 0.46;
-
-    body.position.set(xPosition, 1.5, zPosition);
+    body.position.set(room.player.x, room.player.y, room.player.z);
 
     var object = new THREE.Mesh(
       new THREE.BoxGeometry(1, 3, 2),
@@ -171,8 +175,8 @@ const initRum = (el, data) => {
 
         // initial camera rotation to look up and to the right
         if (!this.initialRotationSet) {
-          vg.camera.rotation.x = 0.31;
-          vg.camera.rotation.y = -0.3;
+          vg.camera.rotation.x = room.player.look.x;
+          vg.camera.rotation.y = room.player.look.y;
           this.initialRotationSet = true;
         }
       }

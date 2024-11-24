@@ -1,10 +1,13 @@
 import * as THREE from 'three';
 
+// add speed configuration
+const WIND_SPEED = 0.001;
+
 // optimize grass configuration
-const BLADE_WIDTH = 0.1;
+const BLADE_WIDTH = 0.08;
 const BLADE_HEIGHT = 3.7;
 const BLADE_HEIGHT_VARIATION = 0.3;
-const BLADE_COUNT = 11000;
+const BLADE_COUNT = 31000;
 const FIELD_SIZE = 30;
 
 // pre-calculate values used frequently
@@ -27,7 +30,7 @@ const GRASS_AREAS = {
     z: [-room.depth/2, room.depth/2]
   },
   bottomStrip: {
-    x: [0, room.width/2], // right half of room
+    x: [-room.width/2, room.width/2], // full room width
     z: [-room.depth/2, -room.depth/2 + 10] // 10 units deep strip
   }
 };
@@ -133,19 +136,21 @@ function createGrassField() {
   return geometry;
 }
 
+
 export function setupGrass(vg, room) {
   // grass shader
   const grassShader = {
     vert: `
       varying vec2 vUv;
       uniform float time;
+      uniform float windSpeed;
       
       void main() {
         vUv = uv;
         vec3 pos = position;
   
-        // Adjusted wind speed multiplier
-        float wind = sin(time * 0.01 + position.x * 0.5 + position.z * 0.5) * 0.05;
+        // use windSpeed uniform for movement
+        float wind = sin(time * windSpeed + position.x * 0.5 + position.z * 0.5) * 0.05;
   
         pos.x += wind * pow(position.y, 2.0);
         gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
@@ -171,7 +176,8 @@ export function setupGrass(vg, room) {
   const grassMaterial = new THREE.ShaderMaterial({
     uniforms: { 
       grassTexture: { value: grassTexture },
-      time: { value: 0.0 }
+      time: { value: 0.0 },
+      windSpeed: { value: WIND_SPEED }
     },
     vertexShader: grassShader.vert,
     fragmentShader: grassShader.frag,
