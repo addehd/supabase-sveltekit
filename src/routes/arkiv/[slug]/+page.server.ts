@@ -122,7 +122,7 @@ export const actions = {
         return { success: false, error: 'Failed to generate audio' };
       }
 
-      console.log('exhibitionsId:', exhibitionsId, "wall:", wall);
+      //console.log('exhibitionsId:', exhibitionsId, "wall:", wall);
 
         //return { "hi": "hii",exhibitionsId, wall }
 
@@ -156,18 +156,40 @@ export const actions = {
       console.error('Error during artwork update:', error);
       return { success: false, error: error.message };
     }
+  },
+
+  update_order: async ({ request, locals }) => {
+    try {
+      const { supabaseClient, user } = await checkAuthentication(locals);
+      const { updates } = await request.json();
+
+      console.log('updates:', updates);
+
+      // call the postgres function with the updates array
+      const { data, error } = await supabaseClient
+        .rpc('update_artwork_orders', {
+          order_updates: updates // pass the array directly
+        });
+
+      if (error) {
+        console.error('Error updating artwork orders:', error);
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error updating artwork orders:', error);
+      return { success: false, error: error.message };
+    }
   }
 };
 
 export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
-
-  console.log('params.slug:', params.slug);
-
   const { data: artworks, error } = await supabase
     .from('artworks')
     .select('*')
     .eq('exhibitions_id', params.slug)
-    .order('artwork_id', { ascending: true });
+    .order('order', { ascending: true });
 
   const { data: artists } = await supabase
     .from('artists')

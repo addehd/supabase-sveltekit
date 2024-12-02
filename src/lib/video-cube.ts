@@ -5,8 +5,9 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
     const video = document.createElement('video');
     video.src = videoUrl;
     video.loop = true;
-    video.muted = true;
     video.playsInline = true;
+    video.width = 1820;
+    video.height = 820;
 
     
     video.addEventListener('error', (e) => {
@@ -21,7 +22,7 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
     videoTexture.minFilter = THREE.LinearFilter;
     videoTexture.magFilter = THREE.LinearFilter;
     
-    const geometry = new THREE.PlaneGeometry(80, 60);
+    const geometry = new THREE.PlaneGeometry(52, 45.5);
     const material = new THREE.MeshBasicMaterial({ 
         map: videoTexture,
         side: THREE.DoubleSide 

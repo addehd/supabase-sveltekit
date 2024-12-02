@@ -5,19 +5,8 @@
   import Loading from '$lib/components/Loading.svelte';
   import { videoElement, videoSource } from '$lib/stores/video-store';
 
-  console.log('video source', $videoSource);
-
-  
-
   export let data;
 
-  console.log('data', data);
-  
-  let iframeElement;
-
-  $: if (iframeElement) {
-    videoElement.set(iframeElement);
-  }
 
   let el;
   let showDiv = true;
@@ -38,14 +27,14 @@
   });
 </script>
 
-<header class="bg-purple-400 fixed bottom-0 w-full  p-4 z-50">
+<header class="bg-green-400 fixed bottom-0 w-full  p-4 z-50">
   <nav class="flex space-x-[20rem] justify-around">
-    <div class="text-white font-bold text-xl left-20">
-      Hangaren/CFUK 
-    </div>
+    <!-- <div class="text-white font-bold text-xl left-20">
+
+    </div> -->
 
     <div class="text-white font-bold text-xl">
-      PROTOTYP - GALLERIHELG
+      STÄPPEN
     </div>
   </nav>
 </header>

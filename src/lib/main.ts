@@ -5,6 +5,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { setupFloor } from './floor';
 import { setupArtwork } from './art-canvas';
 import { loadSmileyFace } from './smiley';
+import { setupViracocha } from './viracocha';
 
 let vg;
 let player;
@@ -505,6 +506,7 @@ const initRum = (el, data) => {
   //loadSmileyFace(vg, player, room);
 
   setupArtwork(vg, textureLoader, data, room);
+  setupViracocha(vg, room);
 }
 
 export const createScene = (el, imageUrl) => {

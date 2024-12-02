@@ -16,7 +16,7 @@ const room = {
   depth: 107 * 2,
   height: 4 * 1.5,
   thickness: 1,
-  wallHeight: 50,
+  wallHeight: 40,
   player: {
     x: -(64 ) * 0.3,
     y: 1.5,
@@ -362,7 +362,7 @@ const initRum = (el, data) => {
     // }
 
     { // north
-      const wallHeight = 50;
+      const wallHeight = room.wallHeight;
     
       const textureLoader = new THREE.TextureLoader();
     
@@ -448,6 +448,8 @@ const initRum = (el, data) => {
 
     vg.scene.background = skyboxTexture;
   }
+
+  
 
   setupArtwork(vg, textureLoader, data, room);
   setupVideo(room, vg);
