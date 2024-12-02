@@ -183,6 +183,8 @@ const initRum = (el, data) => {
           vg.camera.rotation.y = -0.3;
           this.initialRotationSet = true;
         }
+
+        checkArtworkProximity(this.object.position);
       }
     };
 
@@ -443,12 +445,10 @@ const initRum = (el, data) => {
     loader.load(
       '/hangar.glb',
       function(gltf) {
-        console.debug('gltf', gltf);
-    
         const material = new THREE.MeshStandardMaterial({
           color: 0xC0C0C0,
-          roughness: 0.3,
-          metalness: 0.9
+          roughness: 0.7,
+          metalness: 1
         });
     
         gltf.scene.traverse(function(child) {

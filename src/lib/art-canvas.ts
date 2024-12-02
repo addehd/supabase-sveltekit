@@ -20,8 +20,6 @@ export function setupArtwork(
     west: []
   };
 
-  console.log('setupArtwork', data);
-
   const loadingManager = new THREE.LoadingManager();
   const processedTextures = new Map();
 
@@ -62,15 +60,24 @@ export function setupArtwork(
 
   return (playerPosition: THREE.Vector3) => {
     const now = performance.now();
+
     if (now - lastCheckTime > checkInterval) {
       vg.scene.children.forEach((child) => {
         if (child.userData && child.userData.artwork) {
           const boundingSphere = child.userData.boundingSphere;
+          boundingSphere.center.copy(child.position);
+          
           if (boundingSphere.containsPoint(playerPosition) && child !== lastUpdatedArtwork) {
-            updateDescription(child.userData.artwork.description);
-            updateAudioSource(child.userData.artwork.audio);
+            // check if description or audio needs updating
+            if (child.userData.artwork.description) {
+              updateDescription(child.userData.artwork.description);
+            }
+            if (child.userData.artwork.audio && 
+                (!lastUpdatedArtwork?.userData.artwork.audio || 
+                 lastUpdatedArtwork.userData.artwork.audio !== child.userData.artwork.audio)) {
+              updateAudioSource(child.userData.artwork.audio);
+            }
             lastUpdatedArtwork = child;
-            console.log('updated artwork:', child.userData);
           }
         }
       });

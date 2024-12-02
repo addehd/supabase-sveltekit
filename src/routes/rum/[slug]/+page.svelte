@@ -19,6 +19,8 @@
     }
   }
 
+  // log audioSource when it changes
+
   function playAndLoad() {
     loadSmileyFaceWrapper();
     if (audio) {
