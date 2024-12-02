@@ -68,7 +68,6 @@ export function setupArtwork(
           boundingSphere.center.copy(child.position);
           
           if (boundingSphere.containsPoint(playerPosition) && child !== lastUpdatedArtwork) {
-            // check if description or audio needs updating
             if (child.userData.artwork.description) {
               updateDescription(child.userData.artwork.description);
             }
