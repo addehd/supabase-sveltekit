@@ -28,7 +28,7 @@
 </script>
 
 <header class="bg-green-400 fixed bottom-0 w-full  p-4 z-50">
-  <nav class="flex space-x-[20rem] justify-around">
+  <nav class="flex space-x-[20rem] justify-end">
     <!-- <div class="text-white font-bold text-xl left-20">
 
     </div> -->

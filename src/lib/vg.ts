@@ -195,7 +195,8 @@ export default class VG {
   initRenderer = function() {
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas })
-
+    
+    //this.renderer.xr.enabled = true  // enable webxr
     this.renderer.setSize(this.width, this.height)
   }
 
@@ -237,22 +238,18 @@ export default class VG {
     let _this = this
     let time = Date.now()
 
-    function tick() {
-      const currentTime = Date.now()
-      const delta = currentTime - time
-      time = currentTime
+    this.renderer.setAnimationLoop(function() {
+        const currentTime = Date.now()
+        const delta = currentTime - time
+        time = currentTime
 
-      _this.world.fixedStep()
-      _this.update(delta)
-      _this.renderer.render(_this.scene, _this.camera)
+        _this.world.fixedStep()
+        _this.update(delta)
+        _this.renderer.render(_this.scene, _this.camera)
 
-      if (_this.hudEnabled && typeof _this.hud === 'function')
-        _this.hud(delta)
-
-      window.requestAnimationFrame(tick)
-    }
-
-    tick()
+        if (_this.hudEnabled && typeof _this.hud === 'function')
+            _this.hud(delta)
+    })
   }
 
   update = function(delta) {

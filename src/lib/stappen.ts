@@ -7,6 +7,7 @@ import { loadSmileyFace } from './smiley';
 import { setupVideo } from './video-cube';
 import { setupBirds } from './birds';
 import { setupGrass } from './grass';
+import { VRButton } from 'three/addons/webxr/VRButton.js';
 
 let vg;
 let player;
@@ -34,6 +35,8 @@ const initRum = (el, data) => {
 
   const renderer = new THREE.WebGLRenderer({ canvas: el });
   renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.xr.enabled = true;
+  document.body.appendChild(VRButton.createButton(renderer));
   vg.renderer = renderer;
 
   const textureLoader = new THREE.TextureLoader();
