@@ -16,7 +16,7 @@ const room = {
   depth: 107 * 2,
   height: 4 * 1.5,
   thickness: 1,
-  wallHeight: 40,
+  wallHeight: 36,
   player: {
     x: -(64 ) * 0.3,
     y: 1.5,

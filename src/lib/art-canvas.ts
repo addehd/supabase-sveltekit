@@ -149,9 +149,14 @@ function positionArtwork(wall: string, artworks: THREE.Mesh[], room: { width: nu
     const heightAboveFloor = -0.4;
     const artworkYOffset = -1.5;
     const spacing = 0;
-
-    const totalWidth = artworks.reduce((sum, art) => sum + art.geometry.parameters.width, 0) + (artworks.length - 1) * spacing;
-    let startX = -totalWidth / 2;
+    
+    // calculate total width of all artworks
+    const totalWidth = artworks.reduce((sum, art) => sum + art.geometry.parameters.width, 0);
+    
+    // start from the end of each wall
+    let startX = wall === 'north' || wall === 'south' 
+        ? room.width / 2 
+        : room.depth / 2;
 
     artworks.forEach((art) => {
         const width = art.geometry.parameters.width;
@@ -160,33 +165,35 @@ function positionArtwork(wall: string, artworks: THREE.Mesh[], room: { width: nu
 
         switch (wall) {
             case 'north':
-                art.position.set(startX + 10 + width / 2, yPosition, -room.depth / 2 + 0.5);
+                // x: right side of room
+                // y: height on wall
+                // z: front wall (-depth)
+                art.position.set(startX - width/2, yPosition, -room.depth / 2 + 0.5);
                 art.rotation.y = 0;
                 break;
             case 'south':
-                art.position.set(startX + width / 2, yPosition, room.depth / 2 - 0.5);
+                // x: right side of room
+                // y: height on wall
+                // z: back wall (+depth)
+                art.position.set(startX - width/2, yPosition, room.depth / 2 - 0.5);
                 art.rotation.y = Math.PI;
                 break;
             case 'east':
-                art.position.set(room.width / 2 - 0.1, yPosition, (startX - 7.5) + width / 2);
+                // x: right wall (+width)
+                // y: height on wall
+                // z: position along wall
+                art.position.set(room.width / 2 - 0.1, yPosition, startX - width/2);
                 art.rotation.y = -Math.PI / 2;
                 break;
             case 'west':
-                art.position.set(-room.width / 2 + 0.1, yPosition, startX + width / 2 + 15.5);
+                // x: left wall (-width)
+                // y: height on wall
+                // z: position along wall
+                art.position.set(-room.width / 2 + 0.1, yPosition, startX - width/2);
                 art.rotation.y = Math.PI / 2;
                 break;
         }
 
-        // console.log(`Artwork on ${wall} wall:`, {
-        //     id: art.userData?.artwork?.artwork_id,
-        //     position: art.position.toArray(),
-        //     dimensions: {
-        //         width: width,
-        //         height: height
-        //     },
-        //     rotation: art.rotation.y
-        // });
-
-        startX += width + spacing;
+        startX -= width + spacing;
     });
 }
