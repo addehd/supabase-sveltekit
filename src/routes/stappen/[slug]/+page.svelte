@@ -7,28 +7,32 @@
 
   export let data;
 
-
   let el;
   let showDiv = true;
 
+  const handleClick = async (event) => {
+    await el.requestPointerLock({
+      unadjustedMovement: true,
+    });
+  };
+
   onMount(() => {
-    if (Array.isArray(data.artworks)) {
-      createScene(el, data.artworks);
-    }
-    
+    createScene(el, data.artworks);
     setTimeout(() => {
       showDiv = false;
     }, 100);
-
-    const svg = document.querySelector('svg');
-    if (svg) {
-      svg.classList.add('active');
-    }
   });
 </script>
 
-<header class="bg-green-400 fixed bottom-0 w-full  p-4 z-50">
-  <nav class="flex space-x-[20rem] justify-end">
+
+<canvas 
+  class="w-full h-full fixed top-0 left-0" 
+  bind:this={el}
+  on:click|preventDefault|stopPropagation={handleClick}
+/>
+
+<header class="bg-green-400 fixed bottom-0 w-full p-4 z-50 pointer-events-none">
+  <nav class="flex space-x-[20rem] justify-end pointer-events-auto">
     <!-- <div class="text-white font-bold text-xl left-20">
 
     </div> -->
@@ -48,5 +52,3 @@
     </div>
   </div>
 {/if}
-
-<canvas class="w-full h-full fixed top-0 left-0" bind:this={el} />

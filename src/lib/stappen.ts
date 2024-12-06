@@ -30,7 +30,8 @@ const room = {
 } 
 
 const initRum = (el, data) => {
-  vg = new VG(window);
+  console.log('initRum called with canvas:', el);
+  vg = new VG(window, el);
   vg.run();
 
   const renderer = new THREE.WebGLRenderer({ canvas: el });

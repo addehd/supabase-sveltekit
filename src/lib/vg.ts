@@ -24,15 +24,19 @@ export default class VG {
   world
   yaw = 0
 
-  constructor(window) {
+  constructor(window, canvas) {
     if (window) {
       this.width = window.innerWidth
       this.height = window.innerHeight
     }
+    this.canvas = canvas
+    if (!this.canvas.id) {
+      this.canvas.id = 'vg'
+    }
+    
     this.initWorld()
     this.initScene()
     this.initCamera()
-    this.initCanvas()
     this.initRenderer()
     this.initGui()
     this.initInput()
@@ -168,27 +172,26 @@ export default class VG {
 
   initMouse = function() {
     var _this = this
-    this.canvas.addEventListener("click", async () => {
-      await _this.canvas.requestPointerLock({
-        unadjustedMovement: true,
-      })
-
-      var handler = function(e) {
-        _this.onMouseMove(e) }
-
-      document.addEventListener(
-        "pointerlockchange",
-        function() {
-          if (window.document.pointerLockElement === _this.canvas)
-            window.addEventListener('mousemove', handler)
-          else
-            window.removeEventListener('mousemove', handler)
-        })
-    })
-
-    window.addEventListener('blur', function() {
-      console.log('blur release keysDown', _this.input.keysDown)
-      _this.input.keysDown = []
+    
+    if (!this.canvas) {
+        return
+    }
+    
+    // initialize properties
+    this.yaw = 0
+    this.pitch = 0
+    this.mouseSensitivity = 0.002
+    
+    document.removeEventListener("pointerlockchange", () => {})
+    
+    document.addEventListener("pointerlockchange", () => {
+        if (document.pointerLockElement === _this.canvas) {
+            window.addEventListener('mousemove', _this.onMouseMove.bind(_this))
+        } else {
+            window.removeEventListener('mousemove', _this.onMouseMove.bind(_this))
+            _this.yaw = 0
+            _this.pitch = 0
+        }
     })
   }
 
@@ -212,6 +215,10 @@ export default class VG {
   }
 
   onMouseMove = function(e) {
+    if (document.pointerLockElement !== this.canvas) {
+        return
+    }
+    
     this.yaw -= e.movementX * this.mouseSensitivity
     this.pitch -= e.movementY * this.mouseSensitivity
     this.pitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, this.pitch))
