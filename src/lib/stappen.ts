@@ -69,10 +69,6 @@ const initRum = (el, data) => {
     }
 
     vg.add(settings)
-
-    var mouse = settings._gui.addFolder('mouse')
-
-    mouse.add(vg, 'mouseSensitivity', 0.0001, 0.1, 0.0001).name('sensitivity')
   }
 
   { // camera
@@ -87,16 +83,6 @@ const initRum = (el, data) => {
         [ vg.camera.quaternion, 'y', -1, 1, 0.01, "q y" ],
         [ vg.camera.quaternion, 'z', -1, 1, 0.01, "q z" ],
         [ vg.camera.quaternion, 'w', -1, 1, 0.01, "q w" ]
-      ]
-    })
-  }
-
-  { // mouse
-    vg.add({
-      name: 'mouse',
-      unremovable: true,
-      gui: [
-        [ vg, 'mouseSensitivity', 0.0001, 0.1, 0.0001, "sensitivity" ]
       ]
     })
   }

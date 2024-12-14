@@ -3,7 +3,6 @@
   import { fade } from 'svelte/transition';
   import { createScene } from '$lib/stappen';
   import Loading from '$lib/components/Loading.svelte';
-  import { videoElement, videoSource } from '$lib/stores/video-store';
 
   export let data;
 

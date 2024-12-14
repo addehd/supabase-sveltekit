@@ -49,6 +49,13 @@
   $: if (iframeElement) {
     $videoElement = iframeElement;
   }
+
+  const handleClick = async (event) => {
+    await el.requestPointerLock({
+      unadjustedMovement: true,
+    });
+  };
+
 </script>
 
 <header class="bg-purple-400 fixed bottom-0 w-full p-4 py-1 z-50 flex items-center justify-between">
@@ -82,7 +89,11 @@
   </div>
 {/if}
 
-<canvas class="" bind:this={el} />
+<canvas 
+  class="w-full h-full fixed top-0 left-0" 
+  bind:this={el}
+  on:click|preventDefault|stopPropagation={handleClick}
+/>
 
 <footer class="bg-gray-800 text-white p-6">
   <div class="container mx-auto">

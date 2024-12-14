@@ -60,7 +60,6 @@ function addExhibition() {
             </button>
           </form>
         </div>
-  
       </div>
 
       <form method="POST" action="?/edit_exhibition" class="mt-4">
@@ -78,9 +77,8 @@ function addExhibition() {
           Save Changes
         </button>
 
-
       <!-- button edit -->
-      <a href={`/exhibitions/${exhibition.exhibition_id}`}>
+      <a href={`/arkiv/${exhibition.exhibition_id}`}>
         <button type="button" on:click={() => console.log('edit')} class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 mt-4">
           edit Exhibition
         </button>
@@ -88,13 +86,10 @@ function addExhibition() {
 
       <a href={`/rum/${exhibition.exhibition_id}`}>
         <button type="button" on:click={() => console.log('edit')} class="bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 mt-4">
-        
             go to exhibition   <span class="rounded-full bg-purple-200 bg-opacity-50 px-1 ml-1 py-1">{exhibition.exhibition_id}</span>
         </button>
       </a>
       </form>
-
-
     </form>
   {/each}
 </div>

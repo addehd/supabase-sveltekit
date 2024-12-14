@@ -12,6 +12,7 @@ export async function checkAuthentication(locals) {
   return { supabaseClient, user };
 }
 
+// cloudways: functions/audio.php
 export async function postAudioData(name: string, text: string): Promise<any> {
   const url = 'https://phpstack-863910-3043731.cloudwaysapps.com/audio.php';
   const headers = {
