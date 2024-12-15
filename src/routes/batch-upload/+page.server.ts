@@ -6,6 +6,8 @@ export const actions = {
         try {
             const formData = await request.formData();
             const files = formData.getAll('files');
+            const wallName = formData.get('wallName');
+            const exhibitionNumber = formData.get('exhibitionNumber');
             
             console.log('Checking authentication...');
             const { supabaseClient, user } = await checkAuthentication(locals);
@@ -26,11 +28,10 @@ export const actions = {
                 }
 
                 const [artist, artworkWithUnderscores, exhibitionWithExt] = parts;
-                const exhibition_number = exhibitionWithExt.split('.')[0];
                 const artwork = artworkWithUnderscores.replace(/_/g, ' ');
 
                 // upload to storage with upsert behavior
-                const filePath = `exhibitions/${exhibition_number}/${fileName}`;
+                const filePath = `exhibitions/${exhibitionNumber}/${fileName}`;
                 
                 // first try to delete existing file if it exists
                 await supabaseClient.storage
@@ -108,3 +109,24 @@ export const actions = {
         }
     }
 } satisfies Actions;
+
+export const load = async ({ locals }) => {
+    const { supabaseClient, user } = await checkAuthentication(locals);
+    
+    // fetch artists from supabase
+    const { data: artists, error } = await supabaseClient
+        .from('artists')
+        .select('*')
+        .order('name');
+
+    if (error) {
+        // handle error appropriately
+        console.error('Error fetching artists:', error);
+        return { user, artists: [] };
+    }
+
+    return { 
+        user,
+        artists 
+    };
+};
