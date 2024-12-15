@@ -4,11 +4,14 @@
     let selectedFiles: File[] = []; // Array to hold selected files
     let exhibitionNumber: number = 0;
     let wallName: string = '';
-    let artistId
+    let room: string = ''; // Add room variable
+
+
 
     $: artists = data.artists;
 
     const handleFileChange = (event: Event) => {
+      console.log('ex nr', exhibitionNumber);
       const input = event.target as HTMLInputElement;
       if (input.files) {
         selectedFiles = Array.from(input.files); // Convert FileList to Array
@@ -16,14 +19,15 @@
     };
 
     const handleUpload = async () => {
+      console.log('handleUpload');
       if (selectedFiles.length > 0) {
         const formData = new FormData();
         formData.append('exhibitionNumber', exhibitionNumber.toString());
         formData.append('wallName', wallName);
+        formData.append('room', room); // Add room to formData
         
         selectedFiles.forEach(file => {
           formData.append('files', file);
-          formData.append('artistId', artistId.toString());
         });
         
         try {
@@ -43,8 +47,9 @@
     };
   </script>
 
-  <div class="min-h-screen bg-gray-900 text-white flex flex-col items-center py-10 px-4">
+  <div class="min-h-screen bg-gray-900 text-white flex flex-col items-center py-10 px-4 w-72">
     <h1 class="text-2xl font-bold mb-6">Batch Upload</h1>
+    <p class="text-sm text-gray-400 mb-6">Upload multiple files at once, file names should be in the format of "artistId-artname-order.jpg"</p>
 
     <div class="w-full max-w-md space-y-4">
       
@@ -54,19 +59,26 @@
         class="w-full bg-gray-800 text-white rounded-lg p-2 border border-gray-700"
         placeholder="Enter order number"
       />
-
-      <select bind:value={artistId}>
-        {#each artists as artist}
-          <option value={artist.id}>{artist.name}</option>
-        {/each}
-      </select>
       
-      <input
-        type="text"
+      <select
         bind:value={wallName}
         class="w-full bg-gray-800 text-white rounded-lg p-2 border border-gray-700"
-        placeholder="Enter wall name"
-      />
+      >
+        <option value="">Select wall</option>
+        <option value="north">North</option>
+        <option value="east">East</option>
+        <option value="south">South</option>
+        <option value="west">West</option>
+      </select>
+      
+      <select
+        bind:value={room}
+        class="w-full bg-gray-800 text-white rounded-lg p-2 border border-gray-700"
+      >
+        <option value="">Select room</option>
+        <option value="stappen">Stappen</option>
+        <option value="hangaren">Hangaren</option>
+      </select>
       
       <input
         type="file"
