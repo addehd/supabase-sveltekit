@@ -72,7 +72,7 @@ export const actions = {
                         short_description: '',
                         description: null,
                         wall: null,
-                        room: 'TBD',
+                        room: 'stappen',
                         order: 0,
                         artist_id: null,
                         audio: ''

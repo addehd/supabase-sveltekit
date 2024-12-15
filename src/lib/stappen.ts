@@ -7,6 +7,7 @@ import { loadSmileyFace } from './smiley';
 import { setupVideo } from './video-cube';
 import { setupBirds } from './birds';
 import { setupGrass } from './grass';
+import { setupMark } from './mark';
 import { VRButton } from 'three/addons/webxr/VRButton.js';
 
 let vg;
@@ -27,7 +28,13 @@ const room = {
       y: -0.3     // rotation left/right
     }
   }
-} 
+}
+
+const markMatrix = [
+  [0, 0, 0],
+  [0, 1, 0],
+  [0, 0, 0]
+];
 
 const initRum = (el, data) => {
   console.log('initRum called with canvas:', el);
@@ -41,9 +48,14 @@ const initRum = (el, data) => {
   vg.renderer = renderer;
 
   const textureLoader = new THREE.TextureLoader();
-  const ground = setupFloor(room );
-  vg.add(ground);
+  const matrix = [
+    [0, 0, 0],
+    [0, 1, 0], // x in middle
+    [0, 0, 0]
+  ];
 
+  const ground = setupFloor(room);
+  vg.add(ground);
   //vg.gui.show(vg.gui._hidden);
 
   { // general
@@ -439,13 +451,11 @@ const initRum = (el, data) => {
     vg.scene.background = skyboxTexture;
   }
 
-  
-
   setupArtwork(vg, textureLoader, data, room);
   setupVideo(room, vg);
   setupBirds(vg, room);
   setupGrass(vg, textureLoader);
-
+  setupMark(vg, room, markMatrix);
 }
 
 export const createScene = (el, imageUrl) => {
