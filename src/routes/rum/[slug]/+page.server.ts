@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({params, locals: { supabase } }) => {
     .from('artworks')
     .select()
     .eq('exhibitions_id', exhibitionId)
-    .order('artwork_id', { ascending: true })
+    .order('order', { ascending: true })
 
   return { 
     exibitions: exhibition ?? [],

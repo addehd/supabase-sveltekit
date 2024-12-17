@@ -181,6 +181,30 @@ export const actions = {
       console.error('Error updating artwork orders:', error);
       return { success: false, error: error.message };
     }
+  },
+
+  delete_artwork: async ({ request, locals }) => {
+    try {
+      const { supabaseClient, user } = await checkAuthentication(locals);
+      const formData = await request.formData();
+      const artworkId = formData.get('artwork_id');
+
+      // delete the artwork from the database
+      const { error } = await supabaseClient
+        .from('artworks')
+        .delete()
+        .eq('artwork_id', artworkId);
+
+      if (error) {
+        console.error('error deleting artwork:', error);
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('error during artwork deletion:', error);
+      return { success: false, error: error.message };
+    }
   }
 };
 

@@ -20,6 +20,8 @@ export function setupArtwork(
     west: []
   };
 
+  console.log(data);
+
   const loadingManager = new THREE.LoadingManager();
   const processedTextures = new Map();
 
@@ -41,15 +43,21 @@ export function setupArtwork(
         }, undefined, (error) => {
           console.error(`Error loading texture for artwork: ${artwork.image_url}`, error);
           reject(error);
-        });
+        }); 
       }
     });
   });
 
+
+  console.log(loadPromises);
+
   // wait for all textures to load before positioning
   Promise.all(loadPromises).then(() => {
     Object.entries(wallArtwork).forEach(([wall, artworks]) => {
-      artworks.sort((a, b) => a.artwork_id - b.artwork_id);
+      artworks.sort((a, b) => {
+        console.log(a.order, b.order);
+        return a.order - b.order;
+      });
       positionArtwork(wall, artworks.map(art => art.object) as THREE.Mesh[], room);
     });
   });
@@ -138,7 +146,11 @@ function createGeometry(image: HTMLImageElement, scaleFactor: number): THREE.Pla
 function addArtworkToWall(wallArtwork: any, artwork: any, object: THREE.Mesh) {
   const wall = artwork.wall.toLowerCase();
   if (wallArtwork[wall]) {
-    wallArtwork[wall].push({ object, artwork_id: artwork.artwork_id });
+    wallArtwork[wall].push({ 
+      object, 
+      artwork_id: artwork.artwork_id,
+      order: artwork.order 
+    });
   } else {
     //console.error(`Invalid wall specified for artwork ${artwork.artwork_id}: ${artwork.wall}`);
   }

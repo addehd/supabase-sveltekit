@@ -69,6 +69,24 @@
                  }}
                  animate:flip={{ duration: 300 }}>
               <div class="artwork-number">{formIndex + 1}</div>
+              <button 
+                class="absolute top-2 left-2 text-red-500 hover:text-red-700"
+                on:click={async () => {
+                  if (confirm('Are you sure you want to delete this artwork?')) {
+                    const formData = new FormData();
+                    formData.append('artwork_id', form.artwork_id);
+                    const response = await fetch('?/delete_artwork', {
+                      method: 'POST',
+                      body: formData
+                    });
+                    if (response.ok) {
+                      sections[sectionName][wallPosition] = sections[sectionName][wallPosition]
+                        .filter(a => a.artwork_id !== form.artwork_id);
+                    }
+                  }
+                }}>
+                ×
+              </button>
               <div class="flex flex-col">
                 {wallPosition}
                 <ArtPieceForm

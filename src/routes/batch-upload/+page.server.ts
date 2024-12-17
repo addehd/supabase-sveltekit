@@ -72,7 +72,7 @@ export const actions = {
                 });
 
                 const { data, error } = await supabaseClient
-                    .from('artworks_test')
+                    .from('artworks')
                     .upsert({
                         title: artwork,
                         exhibitions_id: parseInt(exhibitionNumber),
