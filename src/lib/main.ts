@@ -6,6 +6,7 @@ import { setupFloor } from './floor';
 import { setupArtwork } from './art-canvas';
 import { loadSmileyFace } from './smiley';
 import { setupViracocha } from './viracocha';
+import { setupVideo } from './video-cube';
 
 let vg;
 let player;
@@ -493,6 +494,7 @@ const initRum = (el, data) => {
 
   setupArtwork(vg, textureLoader, data, room);
   setupViracocha(vg, room);
+  setupVideo(room, vg);
 }
 
 export const createScene = (el, imageUrl) => {

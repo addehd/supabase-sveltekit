@@ -20,8 +20,6 @@ export function setupArtwork(
     west: []
   };
 
-  console.log(data);
-
   const loadingManager = new THREE.LoadingManager();
   const processedTextures = new Map();
 
@@ -48,14 +46,10 @@ export function setupArtwork(
     });
   });
 
-
-  console.log(loadPromises);
-
   // wait for all textures to load before positioning
   Promise.all(loadPromises).then(() => {
     Object.entries(wallArtwork).forEach(([wall, artworks]) => {
       artworks.sort((a, b) => {
-        console.log(a.order, b.order);
         return a.order - b.order;
       });
       positionArtwork(wall, artworks.map(art => art.object) as THREE.Mesh[], room);
@@ -162,50 +156,51 @@ function positionArtwork(wall: string, artworks: THREE.Mesh[], room: { width: nu
     const artworkYOffset = -1.5;
     const spacing = 0;
     
-    // calculate total width of all artworks
-    const totalWidth = artworks.reduce((sum, art) => sum + art.geometry.parameters.width, 0);
+    // wall direction configuration
+    const wallDirections = {
+        north: 'ltr', // left to right
+        south: 'rtl', // right to left
+        east: 'rtl',  // right to left (back to front)
+        west: 'rt-l'   // left to right (front to back)
+    };
     
-    // start from the end of each wall
-    let startX = wall === 'north' || wall === 'south' 
-        ? room.width / 2 
-        : room.depth / 2;
+    // determine start position and increment based on direction
+    const direction = wallDirections[wall];
+    const startX = direction === 'ltr'
+        ? (wall === 'north' || wall === 'south' ? -room.width / 2 : -room.depth / 2)
+        : (wall === 'north' || wall === 'south' ? room.width / 2 : room.depth / 2);
+    
+    const increment = direction === 'ltr' ? 1 : -1;
+    let currentX = startX;
 
     artworks.forEach((art) => {
         const width = art.geometry.parameters.width;
         const height = art.geometry.parameters.height;
         const yPosition = floorY + heightAboveFloor + height / 2 + artworkYOffset;
+        
+        // calculate position offset based on direction
+        const xOffset = direction === 'ltr' ? width/2 : -width/2;
 
         switch (wall) {
             case 'north':
-                // x: right side of room
-                // y: height on wall
-                // z: front wall (-depth)
-                art.position.set(startX - width/2, yPosition, -room.depth / 2 + 0.5);
+                art.position.set(currentX + xOffset, yPosition, -room.depth / 2 + 0.5);
                 art.rotation.y = 0;
                 break;
             case 'south':
-                // x: right side of room
-                // y: height on wall
-                // z: back wall (+depth)
-                art.position.set(startX - width/2, yPosition, room.depth / 2 - 0.5);
+                art.position.set(currentX + xOffset, yPosition, room.depth / 2 - 0.5);
                 art.rotation.y = Math.PI;
                 break;
             case 'east':
-                // x: right wall (+width)
-                // y: height on wall
-                // z: position along wall
-                art.position.set(room.width / 2 - 0.1, yPosition, startX - width/2);
+                art.position.set(room.width / 2 - 0.1, yPosition, currentX + xOffset);
                 art.rotation.y = -Math.PI / 2;
                 break;
             case 'west':
-                // x: left wall (-width)
-                // y: height on wall
-                // z: position along wall
-                art.position.set(-room.width / 2 + 0.1, yPosition, startX - width/2);
+                art.position.set(-room.width / 2 + 0.1, yPosition, currentX + xOffset);
                 art.rotation.y = Math.PI / 2;
                 break;
         }
 
-        startX -= width + spacing;
+        // increment based on direction
+        currentX += (width + spacing) * increment;
     });
 }
