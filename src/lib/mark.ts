@@ -1,8 +1,6 @@
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
 
-
-
 // in mark.ts, modify the function signature and add vg.add:
 export const setupMark = (
   vg: any,
@@ -23,7 +21,7 @@ export const setupMark = (
     }
   }
 
-  const geometry = new THREE.PlaneGeometry(5, 5);
+  const geometry = new THREE.PlaneGeometry(11,11);
   const material = new THREE.MeshBasicMaterial({
     map: markTexture,
     transparent: true,
@@ -34,6 +32,7 @@ export const setupMark = (
   
   const matrix = new THREE.Matrix4();
   matrix.makeRotationX(-Math.PI / 2);
+  matrix.multiply(new THREE.Matrix4().makeRotationZ(Math.PI / 2));
   matrix.setPosition(markX, -room.height / 2 + 1.1, markZ);
   object.applyMatrix4(matrix);
 

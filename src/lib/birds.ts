@@ -6,9 +6,10 @@ export function setupBirds(vg, room) {
 
     // create bird with custom parameters
     const createBird = (params) => {
-        loader.load('/Parrot.glb', (gltf) => {
+        loader.load('/seagull.glb', (gltf) => {
             const bird = gltf.scene.children[0];
-            bird.scale.set(0.1, 0.1, 0.1);
+            bird.scale.set(0.9, 0.9, 0.9);
+            bird.position.set(10, 9, 0);
             
             // setup movement state
             const movement = {
@@ -16,12 +17,14 @@ export function setupBirds(vg, room) {
                 radius: params.radius,
                 rotationSpeed: params.rotationSpeed,
                 verticalSpeed: 0.2,
-                height: room.height * 20,
-                centerPoint: new THREE.Vector3(0, room.height * 4, 0),
+                height: params.flyHeight || room.height * 30,
+                centerPoint: new THREE.Vector3(0, params.flyHeight || room.height * 4, 0),
                 lastDirection: new THREE.Vector3(),
-                rotationOffset: Math.PI / 0.64
+                rotationOffset: 0.2,
+                zRotation: 1.0,
+                xRotation: 0.733
             };
-
+ 
             // animation mixer setup
             const mixer = new THREE.AnimationMixer(bird);
             const clips = gltf.animations;
@@ -42,7 +45,7 @@ export function setupBirds(vg, room) {
                     let y = movement.centerPoint.y + Math.sin(movement.angle * 0.5) * 40;
                     
                     // prevent bird from going below floor level
-                    const minHeight = 3; // minimum height above floor
+                    const minHeight =13; // minimum height above floor
                     y = Math.max(y, minHeight);
 
                     // store current position before update
@@ -59,7 +62,9 @@ export function setupBirds(vg, room) {
                     
                     // update bird orientation
                     bird.lookAt(bird.position.clone().add(movement.lastDirection));
-                    bird.rotateY(Math.PI / 2 + movement.rotationOffset);
+                    bird.rotateY(movement.rotationOffset * Math.PI * 2);
+                    bird.rotateZ(movement.zRotation * Math.PI * 2);
+                    bird.rotateX(movement.xRotation * Math.PI * 2);
 
                     mixer.update(delta);
                 }
@@ -72,20 +77,47 @@ export function setupBirds(vg, room) {
         id: 1,
         startAngle: 0,
         radius: 50,
-        rotationSpeed: 0.0005
+        rotationSpeed: 0.0005,
+        flyHeight: 40
     });
 
     createBird({
         id: 2,
         startAngle: Math.PI, // start on opposite side
         radius: 65,          // slightly larger radius
-        rotationSpeed: 0.0004 // slightly slower
+        rotationSpeed: 0.0004, // slightly slower
+        flyHeight: 60
     });
     createBird({
         id: 3,
         startAngle: Math.PI / 2, // start on opposite side
-        radius: 25,          // slightly larger radius
-        rotationSpeed: 0.0004 // slightly slower
+        radius: 105,          // slightly larger radius
+        rotationSpeed: 0.00026, // slightly slower
+        flyHeight: 80
+    });
+
+    // create audio button and controls
+    const audioButton = document.createElement('button');
+    audioButton.innerHTML = '🔊 Play Sound';
+    audioButton.style.position = 'absolute';
+    audioButton.style.bottom = '40px';
+    audioButton.style.left = '260px'; 
+    audioButton.style.color = 'white';
+    audioButton.style.zIndex = '1000';
+    document.body.appendChild(audioButton);
+
+    const audio = new Audio('/seagull.mp3'); // replace with your audio file path
+    audio.loop = true; // enable audio looping
+    
+    audioButton.addEventListener('click', () => {
+        if (audio.paused) {
+            audio.currentTime = 0; // reset audio to start
+            audio.play().catch(e => console.error('Audio play failed:', e));
+            audioButton.innerHTML = '🔇 Mute';
+        } else {
+            audio.pause();
+            audioButton.innerHTML = '🔊 Play Sound';
+        }
     });
 }
 

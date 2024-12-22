@@ -6,18 +6,19 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
     video.src = videoUrl;
     video.loop = true;
     video.playsInline = true;
-    video.width = 1800;
-    video.height = 740;
+    video.width = 1400;
+    video.height = 640;
     // start paused
     video.autoplay = false;
     
-    // create play button
+    // create play buttona
     const playButton = document.createElement('button');
     playButton.innerHTML = '▶️ Play';
     playButton.style.position = 'fixed';
-    playButton.style.bottom = '20px';
-    playButton.style.left = '20px';
+    playButton.style.bottom = '40px';
+    playButton.style.left = '80px';
     playButton.style.zIndex = '1000';
+    playButton.style.color = 'white';
     
     playButton.addEventListener('click', () => {
         if (video.paused) {
@@ -43,16 +44,14 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
     videoTexture.minFilter = THREE.LinearFilter;
     videoTexture.magFilter = THREE.LinearFilter;
     
-    const geometry = new THREE.PlaneGeometry(52, 39.7);
+    const geometry = new THREE.PlaneGeometry(42, 20);
     const material = new THREE.MeshBasicMaterial({ 
         map: videoTexture,
         side: THREE.DoubleSide 
     });
     const videoMesh = new THREE.Mesh(geometry, material);
-    // position video at end of west wall (north end)
-    // videoMesh.position.set(-room.width/2 - 0.5, room.height * 1.2, room.depth/2 - 40);
-
-    videoMesh.position.set(-room.width/2 - 0.5, room.height * 1.2, -room.depth/2 + 25 );
+    // position video higher on wall
+    videoMesh.position.set(-room.width/2 + 0.2, room.height * 1.7, -room.depth/2 + 25 );
     videoMesh.rotation.y = Math.PI/2;
     
     // add to scene

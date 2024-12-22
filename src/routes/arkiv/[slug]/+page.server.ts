@@ -122,10 +122,6 @@ export const actions = {
         return { success: false, error: 'Failed to generate audio' };
       }
 
-      //console.log('exhibitionsId:', exhibitionsId, "wall:", wall);
-
-        //return { "hi": "hii",exhibitionsId, wall }
-
       const { data, error } = await supabaseClient
         .from('artworks')
         .update({
@@ -143,8 +139,6 @@ export const actions = {
         })
         .eq('artwork_id', artworkId)
         .select();
-
-      console.log('data:', data);
 
       if (error) {
         console.error('Error updating artwork:', error);

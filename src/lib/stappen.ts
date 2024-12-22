@@ -44,7 +44,7 @@ const initRum = (el, data) => {
   const renderer = new THREE.WebGLRenderer({ canvas: el });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.xr.enabled = true;
-  document.body.appendChild(VRButton.createButton(renderer));
+  //document.body.appendChild(VRButton.createButton(renderer));
   vg.renderer = renderer;
 
   const textureLoader = new THREE.TextureLoader();
@@ -452,7 +452,7 @@ const initRum = (el, data) => {
   }
 
   setupArtwork(vg, textureLoader, data, room);
-  setupVideo(room, vg);
+  //setupVideo(room, vg);
   setupBirds(vg, room);
   setupGrass(vg, textureLoader);
   setupMark(vg, room, markMatrix);

@@ -30,24 +30,21 @@
   on:click|preventDefault|stopPropagation={handleClick}
 />
 
-<header class="bg-green-400 fixed bottom-0 w-full p-4 z-50 pointer-events-none">
-  <nav class="flex space-x-[20rem] justify-end pointer-events-auto">
-    <!-- <div class="text-white font-bold text-xl left-20">
-
-    </div> -->
-
+<header class="fixed bottom-0 w-full p-9 z-50 pointer-events-none">
+  <div class="bg-gray-900/25 absolute inset-0"></div>
+  <nav class="flex space-x-[20rem] justify-end pointer-events-auto relative">
     <div class="text-white font-bold text-xl">
-      STÄPPEN
+      <a href="/rum/34">Hangaren</a>
     </div>
   </nav>
 </header>
 
-{#if showDiv}
+<!-- {#if showDiv}
   <div
     class="fixed inset-0 bg-black flex items-center justify-center z-50"
-    transition:fade="{{ duration: 500 }}">
+    transition:fade="{{ duration: 0 }}">
     <div class="w-[20rem] h-[10rem]">
       <Loading />
     </div>
   </div>
-{/if}
+{/if} -->

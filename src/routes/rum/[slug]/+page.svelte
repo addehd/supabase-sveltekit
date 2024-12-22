@@ -58,10 +58,10 @@
 
 </script>
 
-<header class="bg-purple-400 fixed bottom-0 w-full p-4 py-1 z-50 flex items-center justify-between">
+<header class="bg-purple-600/90 fixed bottom-0 h-[6rem] w-full p-9 py-1 z-50 flex items-center justify-between">
   <nav class="flex  space-x-[20rem] justify-around w-full">
     <div class="text-white font-bold text-xl left-20 py-3">
-      Hangaren 
+      <a href="/stappen/34">till Stäppen</a>
     </div>
 
     <div class="flex space-x-2">

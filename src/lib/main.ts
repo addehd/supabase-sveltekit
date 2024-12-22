@@ -493,7 +493,7 @@ const initRum = (el, data) => {
   //loadSmileyFace(vg, player, room);
 
   setupArtwork(vg, textureLoader, data, room);
-  setupViracocha(vg, room);
+  //setupViracocha(vg, room);
   setupVideo(room, vg);
 }
 

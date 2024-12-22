@@ -160,14 +160,16 @@ function positionArtwork(wall: string, artworks: THREE.Mesh[], room: { width: nu
     const wallDirections = {
         north: 'ltr', // left to right
         south: 'rtl', // right to left
-        east: 'rtl',  // right to left (back to front)
-        west: 'rt-l'   // left to right (front to back)
+        east: 'ltr',  // right to left (back to front)
+        west: 'rtl'   // left to right (front to back)
     };
     
     // determine start position and increment based on direction
     const direction = wallDirections[wall];
     const startX = direction === 'ltr'
-        ? (wall === 'north' || wall === 'south' ? -room.width / 2 : -room.depth / 2)
+        ? (wall === 'north' ? (-room.width / 2) + 10 : // moved north wall start position further left
+          wall === 'south' ? -room.width / 2 : 
+          -room.depth / 2)
         : (wall === 'north' || wall === 'south' ? room.width / 2 : room.depth / 2);
     
     const increment = direction === 'ltr' ? 1 : -1;
