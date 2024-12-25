@@ -19,19 +19,22 @@
     createScene(el, data.artworks);
     setTimeout(() => {
       showDiv = false;
-    }, 100);
+    }, 3000);
+
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach(svg => {
+      svg.classList.add('active');
+    });
   });
 </script>
-
 
 <canvas 
   class="w-full h-full fixed top-0 left-0" 
   bind:this={el}
-  on:click|preventDefault|stopPropagation={handleClick}
-/>
+  on:click|preventDefault|stopPropagation={handleClick} />
 
 <header class="fixed bottom-0 w-full p-9 z-50 pointer-events-none">
-  <div class="bg-gray-900/25 absolute inset-0"></div>
+  <div class="bg-gray-900/25 backdrop-blur-lg absolute inset-0"></div>
   <nav class="flex space-x-[20rem] justify-end pointer-events-auto relative">
     <div class="text-white font-bold text-xl">
       <a href="/rum/34">Hangaren</a>
@@ -39,7 +42,7 @@
   </nav>
 </header>
 
-<!-- {#if showDiv}
+{#if showDiv}
   <div
     class="fixed inset-0 bg-black flex items-center justify-center z-50"
     transition:fade="{{ duration: 0 }}">
@@ -47,4 +50,4 @@
       <Loading />
     </div>
   </div>
-{/if} -->
+{/if}

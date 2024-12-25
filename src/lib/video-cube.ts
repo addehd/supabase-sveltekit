@@ -1,36 +1,52 @@
 import * as THREE from 'three';
+import { videoSource, videoIsPlaying } from './state/art-info';
 
 export function setupVideo(room, vg, videoUrl = '/test.mp4') {
-    // create video element
+    // create video element first
     const video = document.createElement('video');
     video.src = videoUrl;
     video.loop = true;
     video.playsInline = true;
     video.width = 1400;
     video.height = 640;
-    // start paused
     video.autoplay = false;
-    
-    // create play buttona
-    const playButton = document.createElement('button');
-    playButton.innerHTML = '▶️ Play';
-    playButton.style.position = 'fixed';
-    playButton.style.bottom = '40px';
-    playButton.style.left = '80px';
-    playButton.style.zIndex = '1000';
-    playButton.style.color = 'white';
-    
-    playButton.addEventListener('click', () => {
-        if (video.paused) {
+
+    // subscribe to video source changes after video element is created
+    const unsubscribe = videoSource.subscribe(url => {
+        console.log('Video source changed:', url);
+        video.src = url;
+        video.load();
+    });
+
+    // add subscription to videoIsPlaying store
+    const unsubscribeVideo = videoIsPlaying.subscribe(isPlaying => {
+        if (isPlaying) {
             video.play().catch(e => console.error('Play failed:', e));
-            playButton.innerHTML = '⏸️ Pause';
         } else {
             video.pause();
-            playButton.innerHTML = '▶️ Play';
         }
     });
+
+    // create play buttona
+    const playButton = document.createElement('button');
+    // playButton.innerHTML = '▶️ Play';
+    // playButton.style.position = 'fixed';
+    // playButton.style.bottom = '40px';
+    // playButton.style.left = '80px';
+    // playButton.style.zIndex = '1000';
+    // playButton.style.color = 'white';
     
-    document.body.appendChild(playButton);
+    // playButton.addEventListener('click', () => {
+    //     if (video.paused) {
+    //         video.play().catch(e => console.error('Play failed:', e));
+    //         playButton.innerHTML = '⏸️ Pause';
+    //     } else {
+    //         video.pause();
+    //         playButton.innerHTML = '▶️ Play';
+    //     }
+    // });
+    
+    //document.body.appendChild(playButton);
 
     video.addEventListener('error', (e) => {
       console.error('Video error:', video.error);
@@ -68,6 +84,8 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
 
     // cleanup function
     return () => {
+        unsubscribe();
+        unsubscribeVideo();
         vg.scene.remove(videoMesh);
         videoTexture.dispose();
         video.remove();

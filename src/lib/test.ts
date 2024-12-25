@@ -9,6 +9,9 @@ import { setupBirds } from './birds';
 import { setupGrass } from './grass';
 import { setupMark } from './mark';
 import { VRButton } from 'three/addons/webxr/VRButton.js';
+const renderer = new THREE.WebGLRenderer();
+
+
 
 let vg;
 let player;
@@ -465,3 +468,12 @@ export const createScene = (el, imageUrl) => {
 export const loadSmileyFaceWrapper = () => {
   loadSmileyFace(vg, player, room);
 }
+
+// After rendering
+// console.log('Memory usage:', renderer.info.memory);
+// console.log('Geometries:', renderer.info.memory.geometries);
+// console.log('Textures:', renderer.info.memory.textures);
+
+// // Render statistics
+// console.log('Render calls:', renderer.info.render.calls);
+// console.log('Triangles:', renderer.info.render.triangles);
