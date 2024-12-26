@@ -1,22 +1,10 @@
 <script lang="ts">
-  import {
-    onMount
-  } from 'svelte';
-  import {
-    createScene,
-    loadSmileyFaceWrapper
-  } from '$lib/main';
+  import { onMount } from 'svelte';
+  import { createScene, loadSmileyFaceWrapper } from '$lib/main';
   import Loading from '$lib/components/Loading.svelte';
-  import {
-    description,
-    audioSource,
-    updateDescription,
-    updateAudioSource,
-    videoIsPlaying
-  } from '$lib/state/art-info';
-  import {
-    videoElement
-  } from '$lib/stores/video-store';
+  import { description, audioSource, updateDescription, updateAudioSource, videoIsPlaying } from '$lib/state/art-info';
+  import { videoElement } from '$lib/stores/video-store';
+  import Footer from '$lib/components/Footer.svelte';
 
   export let data;
 
@@ -41,14 +29,12 @@
     }
   }
 
-  function toggleVideo() {
-    $videoIsPlaying = !$videoIsPlaying;
-  }
+  // function toggleVideo() {
+  //   $videoIsPlaying = !$videoIsPlaying;
+  // }
 
   onMount(() => {
-    if (Array.isArray(data.artworks)) {
-      createScene(el, data.artworks);
-    }
+    createScene(el, data.artworks);
 
     setTimeout(() => {
       showDiv = false;
@@ -74,11 +60,26 @@
   };
 </script>
 
-<header
-  class="bg-blue-300/10 fixed backdrop-blur-lg bottom-0  w-full z-50 flex items-center justify-between">
+<header class="fixed backdrop-blur-lg top-0 w-full z-50 flex items-center justify-between border-b-[1px] border-white/20">
+  <nav class="flex  space-x-[20rem] justify-between w-full items-center">
+    <div class="flex space-x-2">
+    </div>
+    <div class="text-white font-bold text-xl py-7 left-0">
+      <a class="px-11 flex items-center gap-1" href="/stappen/34">
+        CFUK Centrum för konst och kultur
+        <svg class="w-9 h-9" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path stroke="currentColor" fill="none" stroke-width="1.5" d="M14 6l6 6-6 6"/>
+        </svg>
+      </a>
+    </div>
+  </nav>
+</header>
+
+<div
+  class="fixed backdrop-blur-lg bottom-0 w-full z-50 flex items-center justify-between border-t-[1px] border-white/20">
   <nav class="flex  space-x-[20rem] justify-between w-full items-center">
 
-    <div class="flex space-x-2">
+   <div class="flex space-x-2">
       <button class="text-white font-bold text-xl h-[3rem] pl-44 hover:cursor-pointer smile" on:click={playAndLoad}
         on:keydown={(e)=> e.key === 'Enter' && playAndLoad()}>
         <svg class="h-[3rem] inline-block ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
@@ -91,22 +92,6 @@
         </svg>
       </button>
 
-      <label
-        class="w-9 h-10 cursor-pointer flex flex-col items-center justify-center"
-        on:click={toggleVideo}
-        on:keydown={(e)=> e.key === 'Enter' && toggleVideo()}
-      >
-        <input class="hidden peer" type="checkbox" checked={$videoIsPlaying} />
-        <div
-          class="w-[50%] h-[2px] bg-white rounded-sm transition-all duration-300 origin-center rotate-90 -translate-x-[0.3rem] translate-y-[0.1rem] peer-checked:translate-y-[0.1rem]"
-        ></div>
-        <div
-          class="w-[50%] h-[2px] bg-white rounded-md transition-all duration-300 origin-center rotate-90 translate-x-[0.3rem] -translate-y-[0.05rem] peer-checked:rotate-[-30deg] peer-checked:translate-y-[0.22rem] peer-checked:translate-x-[0.15rem]"
-        ></div>
-        <div
-          class="w-[50%] h-[2px] bg-white rounded-md transition-all duration-300 origin-center rotate-90 translate-x-[0.3rem] -translate-y-[0.16rem] peer-checked:rotate-[30deg] peer-checked:translate-y-[-0.4rem] peer-checked:translate-x-[0.15rem]"
-        ></div>
-      </label>
     </div>
     <div class="text-white bg-green-600 font-bold text-xl py-7 left-0">
       <a class="px-11 flex items-center gap-1" href="/stappen/34">
@@ -117,8 +102,15 @@
       </a>
     </div>
   </nav>
-</header>
+</div>
 
+<canvas 
+  class="w-full h-full fixed top-0 left-0" 
+  bind:this={el}
+  on:click|preventDefault|stopPropagation={handleClick} />
+  
+<Footer />
+  
 {#if showDiv}
   <div class="fixed inset-0 bg-black flex items-center justify-center z-50">
     <div class="w-[20rem] h-[10rem]">
@@ -126,48 +118,6 @@
     </div>
   </div>
 {/if}
-
-<canvas 
-  class="w-full h-full fixed top-0 left-0" 
-  bind:this={el}
-  on:click|preventDefault|stopPropagation={handleClick}
-/>
-
-<footer class="bg-gray-800 text-white p-6">
-  <div class="container mx-auto">
-      <div class="mb-4">
-          <h2 class="text-lg font-bold">Kontakt & info</h2>
-          <ul class="mt-2 space-y-1">
-              <li>Telefon: +46(0)707 666 122</li>
-              <li>Email: <a href="mailto:info@cfuk.nu" class="text-blue-400 hover:underline">info@cfuk.nu</a></li>
-              <li>
-                  Instagram: <a href="https://instagram.com/Urbankonsthallen_Hangaren" target="_blank" class="text-blue-400 hover:underline">
-                      Urbankonsthallen_Hangaren
-                  </a>
-              </li>
-          </ul>
-      </div>
-      <div class="mb-4">
-          <h2 class="text-lg font-bold">Öppettider</h2>
-          <ul class="mt-2 space-y-1">
-              <li>Inne i Hangaren:</li>
-              <li>MÅN-FRE 07:00 – 15:00 öppnar M&M portarna.</li>
-              <li>Stäppen utanför Hangaren: Alltid öppet 06.00–23.00</li>
-          </ul>
-      </div>
-      <div class="mt-6 flex space-x-4">
-          <a href="https://facebook.com" target="_blank" class="hover:text-blue-500">
-              Facebook
-          </a>
-          <a href="https://youtube.com" target="_blank" class="hover:text-red-500">
-              YouTube
-          </a>
-          <a href="https://instagram.com" target="_blank" class="hover:text-pink-500">
-              Instagram
-          </a>
-      </div>
-  </div>
-</footer>
 
 <style>
   .glow {

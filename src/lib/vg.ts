@@ -9,7 +9,7 @@ export default class VG {
   camera
   cameraTarget
   canvas
-  fov = 100
+  fov = 75
   height = 600
   hud
   hudEnabled
