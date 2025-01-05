@@ -29,24 +29,24 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
 
     // create play buttona
     const playButton = document.createElement('button');
-    // playButton.innerHTML = '▶️ Play';
-    // playButton.style.position = 'fixed';
-    // playButton.style.bottom = '40px';
-    // playButton.style.left = '80px';
-    // playButton.style.zIndex = '1000';
-    // playButton.style.color = 'white';
+    playButton.innerHTML = '▶️ Play';
+    playButton.style.position = 'fixed';
+    playButton.style.bottom = '40px';
+    playButton.style.left = '80px';
+    playButton.style.zIndex = '1000';
+    playButton.style.color = 'white';
     
-    // playButton.addEventListener('click', () => {
-    //     if (video.paused) {
-    //         video.play().catch(e => console.error('Play failed:', e));
-    //         playButton.innerHTML = '⏸️ Pause';
-    //     } else {
-    //         video.pause();
-    //         playButton.innerHTML = '▶️ Play';
-    //     }
-    // });
+    playButton.addEventListener('click', () => {
+        if (video.paused) {
+            video.play().catch(e => console.error('Play failed:', e));
+            playButton.innerHTML = '⏸️ Pause';
+        } else {
+            video.pause();
+            playButton.innerHTML = '▶️ Play';
+        }
+    });
     
-    //document.body.appendChild(playButton);
+    document.body.appendChild(playButton);
 
     video.addEventListener('error', (e) => {
       console.error('Video error:', video.error);

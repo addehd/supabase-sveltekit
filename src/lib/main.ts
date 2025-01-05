@@ -430,7 +430,7 @@ const initRum = (el, data) => {
     const loader = new GLTFLoader();
 
     loader.load(
-      '/hangar.glb',
+      '/hangar-light.glb',
       function(gltf) {
         const material = new THREE.MeshStandardMaterial({
           color: 0xC0C0C0,
@@ -493,8 +493,8 @@ const initRum = (el, data) => {
   //loadSmileyFace(vg, player, room);
 
   setupArtwork(vg, textureLoader, data, room);
-  //setupViracocha(vg, room);
-  //setupVideo(room, vg);
+  setupViracocha(vg, room);
+  setupVideo(room, vg);
 }
 
 export const createScene = (el, imageUrl) => {

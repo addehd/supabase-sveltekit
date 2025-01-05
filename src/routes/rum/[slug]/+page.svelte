@@ -1,9 +1,22 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { createScene, loadSmileyFaceWrapper } from '$lib/main';
+  import {
+    onMount
+  } from 'svelte';
+  import {
+    createScene,
+    loadSmileyFaceWrapper
+  } from '$lib/main';
   import Loading from '$lib/components/Loading.svelte';
-  import { description, audioSource, updateDescription, updateAudioSource, videoIsPlaying } from '$lib/state/art-info';
-  import { videoElement } from '$lib/stores/video-store';
+  import {
+    description,
+    audioSource,
+    updateDescription,
+    updateAudioSource,
+    videoIsPlaying
+  } from '$lib/state/art-info';
+  import {
+    videoElement
+  } from '$lib/stores/video-store';
   import Footer from '$lib/components/Footer.svelte';
 
   export let data;
@@ -60,26 +73,42 @@
   };
 </script>
 
-<header class="fixed backdrop-blur-lg top-0 w-full z-50 flex items-center justify-between border-b-[1px] border-white/20">
+<header
+  class="fixed backdrop-blur-lg top-0 w-full z-50 flex items-center justify-between border-b-[1px] border-white/20">
   <nav class="flex  space-x-[20rem] justify-between w-full items-center">
-    <div class="flex space-x-2">
+    <div class="flex space-x-2 h-[2rem]">
+      <!-- <p class="text-white marquee">{ $description }</p> -->
+      <img src="/logo.svg" alt="logo" class="mt-[-0.5rem] ml-[3rem] h-[3rem] text-center" />
     </div>
     <div class="text-white font-bold text-xl py-7 left-0">
       <a class="px-11 flex items-center gap-1" href="/stappen/34">
         CFUK Centrum för konst och kultur
         <svg class="w-9 h-9" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path stroke="currentColor" fill="none" stroke-width="1.5" d="M14 6l6 6-6 6"/>
+          <path stroke="currentColor" fill="none" stroke-width="1.5" d="M14 6l6 6-6 6" />
         </svg>
       </a>
     </div>
   </nav>
 </header>
 
-<div
-  class="fixed backdrop-blur-lg bottom-0 w-full z-50 flex items-center justify-between border-t-[1px] border-white/20">
+<!-- bottom nav -->
+<div class="fixed backdrop-blur-lg bottom-0 w-full z-50 flex items-center justify-between border-t-[1px] border-white/20">
   <nav class="flex  space-x-[20rem] justify-between w-full items-center">
+    /* toggle play */
+    <label class="w-9 h-10 cursor-pointer flex flex-col items-center justify-center">
+      <input class="hidden peer" type="checkbox" />
+      <div
+        class="w-[50%] h-[2px] bg-white rounded-sm transition-all duration-300 origin-center rotate-90 -translate-x-[0.3rem] translate-y-[0.1rem] peer-checked:translate-y-[0.1rem]">
+      </div>
+      <div
+        class="w-[50%] h-[2px] bg-white rounded-md transition-all duration-300 origin-center rotate-90 translate-x-[0.3rem] -translate-y-[0.05rem] peer-checked:rotate-[-30deg] peer-checked:translate-y-[0.22rem] peer-checked:translate-x-[0.15rem]">
+      </div>
+      <div
+        class="w-[50%] h-[2px] bg-white rounded-md transition-all duration-300 origin-center rotate-90 translate-x-[0.3rem] -translate-y-[0.16rem] peer-checked:rotate-[30deg] peer-checked:translate-y-[-0.4rem] peer-checked:translate-x-[0.15rem]">
+      </div>
+    </label>
 
-   <div class="flex space-x-2">
+    <div class="flex space-x-2">
       <button class="text-white font-bold text-xl h-[3rem] pl-44 hover:cursor-pointer smile" on:click={playAndLoad}
         on:keydown={(e)=> e.key === 'Enter' && playAndLoad()}>
         <svg class="h-[3rem] inline-block ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
@@ -97,20 +126,17 @@
       <a class="px-11 flex items-center gap-1" href="/stappen/34">
         till Stäppen
         <svg class="w-9 h-9" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path stroke="currentColor" fill="none" stroke-width="1.5" d="M14 6l6 6-6 6"/>
+          <path stroke="currentColor" fill="none" stroke-width="1.5" d="M14 6l6 6-6 6" />
         </svg>
       </a>
     </div>
   </nav>
 </div>
 
-<canvas 
-  class="w-full h-full fixed top-0 left-0" 
-  bind:this={el}
-  on:click|preventDefault|stopPropagation={handleClick} />
-  
+<canvas class="w-full h-full fixed top-0 left-0" bind:this={el} on:click|preventDefault|stopPropagation={handleClick} />
+
 <Footer />
-  
+
 {#if showDiv}
   <div class="fixed inset-0 bg-black flex items-center justify-center z-50">
     <div class="w-[20rem] h-[10rem]">
@@ -122,5 +148,19 @@
 <style>
   .glow {
     filter: drop-shadow(0 0 4px currentColor);
+  }
+
+  .marquee {
+    white-space: nowrap;
+    animation: scroll-text 230s linear infinite;
+  }
+
+  @keyframes scroll-text {
+    from {
+      transform: translateX(0%);
+    }
+    to {
+      transform: translateX(-100%);
+    }
   }
 </style>

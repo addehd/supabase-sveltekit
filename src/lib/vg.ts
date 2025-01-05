@@ -241,7 +241,7 @@ export default class VG {
       currentPanel((current + 1) % 3) // cycle through 3 panels
     })
     
-    document.body.appendChild(this.stats.dom)
+    //document.body.appendChild(this.stats.dom)
   }
 
   onMouseMove = function(e) {
