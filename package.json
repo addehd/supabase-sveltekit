@@ -29,6 +29,7 @@
 		"@sveltejs/adapter-vercel": "^5.4.4",
 		"cannon-es": "^0.20.0",
 		"lil-gui": "^0.19.2",
+		"stats-js": "^1.0.1",
 		"three": "^0.163.0"
 	}
 }

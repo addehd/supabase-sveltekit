@@ -494,7 +494,7 @@ const initRum = (el, data) => {
 
   setupArtwork(vg, textureLoader, data, room);
   //setupViracocha(vg, room);
-  setupVideo(room, vg);
+  //setupVideo(room, vg);
 }
 
 export const createScene = (el, imageUrl) => {

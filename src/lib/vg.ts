@@ -1,6 +1,7 @@
 import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
 import GUI from 'lil-gui'
+import Stats from 'stats-js'
 
 export default class VG {
   COLOR = {}
@@ -23,6 +24,7 @@ export default class VG {
   width = 800
   world
   yaw = 0
+  stats: Stats
 
   constructor(window, canvas) {
     if (window) {
@@ -34,6 +36,7 @@ export default class VG {
       this.canvas.id = 'vg'
     }
     
+    this.initStats()
     this.initWorld()
     this.initScene()
     this.initCamera()
@@ -214,6 +217,33 @@ export default class VG {
       gravity: new CANNON.Vec3(0, -30, 0) })
   }
 
+  initStats = function() {
+    this.stats = new Stats()
+    
+    // create multiple stats panels
+    this.stats.addPanel(new Stats.Panel('MS', '#0f0', '#020')) // add MS panel
+    this.stats.addPanel(new Stats.Panel('MB', '#f08', '#201')) // add MB panel
+    
+    this.stats.showPanel(0) // start with FPS panel (0: fps, 1: ms, 2: mb)
+    
+    this.stats.dom.style.position = 'absolute'
+    this.stats.dom.style.left = '0px'
+    this.stats.dom.style.top = '0px'
+    this.stats.dom.style.transform = 'scale(3.5)' // make it bigger
+    this.stats.dom.style.transformOrigin = 'top left'
+    
+    // add click handler to cycle through panels
+    this.stats.dom.addEventListener('click', () => {
+      const currentPanel = this.stats.showPanel.bind(this.stats)
+      const current = this.stats.dom.children[0].classList.contains('fps') ? 0 
+                   : this.stats.dom.children[0].classList.contains('ms') ? 1 
+                   : 2
+      currentPanel((current + 1) % 3) // cycle through 3 panels
+    })
+    
+    document.body.appendChild(this.stats.dom)
+  }
+
   onMouseMove = function(e) {
     if (document.pointerLockElement !== this.canvas) {
         return
@@ -246,6 +276,8 @@ export default class VG {
     let time = Date.now()
 
     this.renderer.setAnimationLoop(function() {
+        _this.stats.begin()
+        
         const currentTime = Date.now()
         const delta = currentTime - time
         time = currentTime
@@ -256,6 +288,8 @@ export default class VG {
 
         if (_this.hudEnabled && typeof _this.hud === 'function')
             _this.hud(delta)
+            
+        _this.stats.end()
     })
   }
 
