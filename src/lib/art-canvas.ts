@@ -88,13 +88,14 @@ export function setupArtwork(
 }
 
 function processImage(image: HTMLImageElement): THREE.CanvasTexture {
+  const scaleFactor = 0.1; // scale down to 50% of original size
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
-  canvas.width = image.width;
-  canvas.height = image.height;
+  canvas.width = image.width * scaleFactor;
+  canvas.height = image.height * scaleFactor;
 
   ctx.filter = 'contrast(130%) brightness(70%)';
-  ctx.drawImage(image, 0, 0);
+  ctx.drawImage(image, 0, 0, canvas.width, canvas.height); // draw scaled image
 
   const processedTexture = new THREE.CanvasTexture(canvas);
   processedTexture.encoding = THREE.sRGBEncoding;

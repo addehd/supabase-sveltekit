@@ -48,6 +48,9 @@ const initRum = async (el, data) => {
 
       gltf.scene.scale.multiplyScalar(scaleFactor);
 
+      // set controls target to the center of the object
+      controls.target.copy(center);
+
       // calculate position in front of the player
       const direction = new THREE.Vector3();
       direction.y = 0; // keep it on the same horizontal plane

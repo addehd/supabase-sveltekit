@@ -106,9 +106,10 @@ export default class VG {
   initCamera = function() {
     this.camera = new THREE.PerspectiveCamera(
       this.fov,
-      this.width / this.height)
-    this.camera.lookAt(0, 0, 0)
-    this.scene.add(this.camera)
+      this.width / this.height
+    );
+    this.camera.lookAt(0, 0, 0);
+    this.scene.add(this.camera);
   }
 
   initCanvas = function() {

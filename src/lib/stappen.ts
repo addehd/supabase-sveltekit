@@ -101,8 +101,8 @@ const initRum = (el, data) => {
 
   { // player
     var body = new CANNON.Body({
-      mass: 30,
-      shape: new CANNON.Box(new CANNON.Vec3(1, 1, 1)),
+      mass:57,
+      shape: new CANNON.Sphere(1),
       linearDamping: 0.9,
       angularDamping: 0.9
     });
@@ -121,7 +121,7 @@ const initRum = (el, data) => {
       object: object,
       moveSpeed: 2,
       lookSpeed: 0.1,
-      jumpSpeed: 10,
+      jumpSpeed: 1,
       crouchSpeed: 0.1,
       unremovable: true,
       moveDirection: new THREE.Vector3(),

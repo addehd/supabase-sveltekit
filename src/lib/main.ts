@@ -88,7 +88,7 @@ const initRum = (el, data) => {
   { // player
     var body = new CANNON.Body({
       mass: 30,
-      shape: new CANNON.Box(new CANNON.Vec3(1, 1, 1)),
+      shape: new CANNON.Sphere(1),
       linearDamping: 0.9,
       angularDamping: 0.9
     });
