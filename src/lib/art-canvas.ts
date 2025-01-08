@@ -3,6 +3,8 @@ import { updateDescription, updateAudioSource } from './state/art-info';
 import * as THREE from 'three';
 import VG from './vg';
 
+const scaleFactor = 0.1; // scale down to 10% of original size
+
 export function setupArtwork(
     vg: VG, 
     textureLoader: THREE.TextureLoader, 
@@ -88,7 +90,6 @@ export function setupArtwork(
 }
 
 function processImage(image: HTMLImageElement): THREE.CanvasTexture {
-  const scaleFactor = 0.1; // scale down to 50% of original size
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   canvas.width = image.width * scaleFactor;
@@ -103,8 +104,7 @@ function processImage(image: HTMLImageElement): THREE.CanvasTexture {
 }
 
 function createAndAddArtwork(vg: VG, wallArtwork: any, artwork: any, processedTexture: THREE.CanvasTexture) {
-  const scaleFactor = artwork.wall.toLowerCase() === 'south' ? 0.97 : 1.03;
-  const geometry = createGeometry(processedTexture.image as HTMLImageElement, scaleFactor);
+  const geometry = createGeometry(processedTexture.image as HTMLImageElement, 1);
 
   const material = new THREE.MeshBasicMaterial({
     map: processedTexture,
@@ -130,11 +130,12 @@ function createAndAddArtwork(vg: VG, wallArtwork: any, artwork: any, processedTe
   });
 }
 
-function createGeometry(image: HTMLImageElement, scaleFactor: number): THREE.PlaneGeometry {
+function createGeometry(image: HTMLImageElement): THREE.PlaneGeometry {
   const widthScalingFactor = 1;
+  console.log(scaleFactor, scaleFactor * 100);
   return new THREE.PlaneGeometry(
-    (image.width / 100) * widthScalingFactor * scaleFactor,
-    (image.height / 100) * scaleFactor
+    (image.width / (scaleFactor * 100)) ,
+    (image.height / (scaleFactor * 100)) 
   );
 }
 
