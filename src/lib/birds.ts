@@ -98,12 +98,13 @@ export function setupBirds(vg, room) {
 
     // create audio button and controls
     const audioButton = document.createElement('button');
-    audioButton.innerHTML = '🔊 Play Sound';
+    audioButton.innerHTML = '🔊 Sound';
     audioButton.style.position = 'absolute';
-    audioButton.style.bottom = '40px';
-    audioButton.style.left = '260px'; 
+    audioButton.style.bottom = '30px';
+    audioButton.style.left = '40px'; 
     audioButton.style.color = 'white';
     audioButton.style.zIndex = '1000';
+    audioButton.style.fontSize = '1.3rem';
     document.body.appendChild(audioButton);
 
     const audio = new Audio('/seagull.mp3'); // replace with your audio file path
@@ -113,10 +114,10 @@ export function setupBirds(vg, room) {
         if (audio.paused) {
             audio.currentTime = 0; // reset audio to start
             audio.play().catch(e => console.error('Audio play failed:', e));
-            audioButton.innerHTML = '🔇 Mute';
+            audioButton.innerHTML = '🖕 Seagulls';
         } else {
             audio.pause();
-            audioButton.innerHTML = '🔊 Play Sound';
+            audioButton.innerHTML = '� Play Sound';
         }
     });
 }

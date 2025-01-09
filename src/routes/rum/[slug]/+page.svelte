@@ -71,22 +71,27 @@
       unadjustedMovement: true,
     });
   };
+
+  function toggleVideo() {
+    $videoIsPlaying = !$videoIsPlaying;
+  }
 </script>
 
 <header
   class="fixed backdrop-blur-lg top-0 w-full z-50 flex items-center justify-between border-b-[1px] border-white/20">
   <nav class="flex  space-x-[20rem] justify-between w-full items-center">
-    <div class="flex space-x-2 h-[2rem]">
+    <div></div>
+    <div class="flex space-x-2">
       <!-- <p class="text-white marquee">{ $description }</p> -->
-      <img src="/logo.svg" alt="logo" class="mt-[-0.5rem] ml-[3rem] h-[3rem] text-center" />
+      <img src="/logo.svg" alt="logo" class="my-5 h-[3rem] text-center" />
     </div>
     <div class="text-white font-bold text-xl py-7 left-0">
-      <a class="px-11 flex items-center gap-1" href="/stappen/34">
+      <!-- <a class="px-11 flex items-center gap-1" href="/stappen/34">
         CFUK Centrum för konst och kultur
-        <svg class="w-9 h-9" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <!-- <svg class="w-9 h-9" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
           <path stroke="currentColor" fill="none" stroke-width="1.5" d="M14 6l6 6-6 6" />
-        </svg>
-      </a>
+        </svg> 
+      </a> -->
     </div>
   </nav>
 </header>
@@ -94,8 +99,8 @@
 <!-- bottom nav -->
 <div class="fixed backdrop-blur-lg bottom-0 w-full z-50 flex items-center justify-between border-t-[1px] border-white/20">
   <nav class="flex  space-x-[20rem] justify-between w-full items-center">
-    /* toggle play */
-    <label class="w-9 h-10 cursor-pointer flex flex-col items-center justify-center">
+   
+    <!-- <label on:click={toggleVideo} class="w-9 h-10 cursor-pointer flex flex-col items-center justify-center">
       <input class="hidden peer" type="checkbox" />
       <div
         class="w-[50%] h-[2px] bg-white rounded-sm transition-all duration-300 origin-center rotate-90 -translate-x-[0.3rem] translate-y-[0.1rem] peer-checked:translate-y-[0.1rem]">
@@ -106,9 +111,9 @@
       <div
         class="w-[50%] h-[2px] bg-white rounded-md transition-all duration-300 origin-center rotate-90 translate-x-[0.3rem] -translate-y-[0.16rem] peer-checked:rotate-[30deg] peer-checked:translate-y-[-0.4rem] peer-checked:translate-x-[0.15rem]">
       </div>
-    </label>
+    </label> -->
 
-    <div class="flex space-x-2">
+    <div class="flex space-x-2 ml-32">
       <button class="text-white font-bold text-xl h-[3rem] pl-44 hover:cursor-pointer smile" on:click={playAndLoad}
         on:keydown={(e)=> e.key === 'Enter' && playAndLoad()}>
         <svg class="h-[3rem] inline-block ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">

@@ -3,7 +3,7 @@ import { updateDescription, updateAudioSource } from './state/art-info';
 import * as THREE from 'three';
 import VG from './vg';
 
-const scaleFactor = 0.1; // scale down to 10% of original size
+const scaleFactor = 0.5;
 
 export function setupArtwork(
     vg: VG, 

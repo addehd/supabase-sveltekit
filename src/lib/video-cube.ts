@@ -22,19 +22,22 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
     const unsubscribeVideo = videoIsPlaying.subscribe(isPlaying => {
         if (isPlaying) {
             video.play().catch(e => console.error('Play failed:', e));
+            console.log('video is playing');
         } else {
+            console.log('video is paused');
             video.pause();
         }
     });
 
     // create play buttona
     const playButton = document.createElement('button');
-    playButton.innerHTML = '▶️ Play';
+    playButton.innerHTML = '▶️ Play video';
     playButton.style.position = 'fixed';
-    playButton.style.bottom = '40px';
-    playButton.style.left = '80px';
+    playButton.style.bottom = '30px';
+    playButton.style.left = '40px';
     playButton.style.zIndex = '1000';
     playButton.style.color = 'white';
+    playButton.style.fontSize = '1.3rem';
     
     playButton.addEventListener('click', () => {
         if (video.paused) {
