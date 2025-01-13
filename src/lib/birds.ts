@@ -45,7 +45,7 @@ export function setupBirds(vg, room) {
                     let y = movement.centerPoint.y + Math.sin(movement.angle * 0.5) * 40;
                     
                     // prevent bird from going below floor level
-                    const minHeight =13; // minimum height above floor
+                    const minHeight =37; // minimum height above floor
                     y = Math.max(y, minHeight);
 
                     // store current position before update
@@ -117,8 +117,7 @@ export function setupBirds(vg, room) {
             audioButton.innerHTML = '🖕 Seagulls';
         } else {
             audio.pause();
-            audioButton.innerHTML = '� Play Sound';
+            audioButton.innerHTML = '🔊 Play Sound';
         }
     });
 }
-

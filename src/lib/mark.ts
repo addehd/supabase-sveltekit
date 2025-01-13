@@ -5,7 +5,8 @@ import * as CANNON from "cannon-es";
 export const setupMark = (
   vg: any,
   room: { width: number; depth: number; height: number },
-  markMatrix: number[][]
+  markMatrix: number[][],
+  player: { position: THREE.Vector3 }
 ) => {
   const textureLoader = new THREE.TextureLoader();
   const markTexture = textureLoader.load("/x.webp");
@@ -47,4 +48,17 @@ export const setupMark = (
   };
 
   vg.add(mark);
+
+
+  const checkPlayerAboveMark = (playerPosition: THREE.Vector3) => {
+    const markX = object.position.x;
+    const markZ = object.position.z;
+
+    if (Math.abs(playerPosition.x - markX) < 1 && Math.abs(playerPosition.z - markZ) < 1) {
+      console.log("Player is above the mark");
+    }
+  };
+
+  // return the check function for external use
+  return checkPlayerAboveMark;
 };

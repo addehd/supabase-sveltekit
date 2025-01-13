@@ -67,6 +67,7 @@ export function setupArtwork(
 
     if (now - lastCheckTime > checkInterval) {
       vg.scene.children.forEach((child) => {
+        console.log(child.userData);
         if (child.userData && child.userData.artwork) {
           const boundingSphere = child.userData.boundingSphere;
           boundingSphere.center.copy(child.position);
@@ -195,7 +196,7 @@ function positionArtwork(wall: string, artworks: THREE.Mesh[], room: { width: nu
                 art.rotation.y = Math.PI;
                 break;
             case 'east':
-                art.position.set(room.width / 2 - 0.1, yPosition, currentX + xOffset);
+                art.position.set(room.width / 2 - 0.3, yPosition, currentX + xOffset);
                 art.rotation.y = -Math.PI / 2;
                 break;
             case 'west':

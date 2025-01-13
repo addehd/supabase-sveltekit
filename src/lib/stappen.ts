@@ -455,7 +455,12 @@ const initRum = (el, data) => {
   //setupVideo(room, vg);
   setupBirds(vg, room);
   setupGrass(vg, textureLoader);
-  setupMark(vg, room, markMatrix);
+  const checkPlayerAboveMark = setupMark(vg, room, markMatrix, player);
+
+  //todo move this to vg.update / loop
+  setInterval(() => {
+    checkPlayerAboveMark(player.body.position);
+  }, 2000);
 }
 
 export const createScene = (el, imageUrl) => {
