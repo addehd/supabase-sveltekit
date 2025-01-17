@@ -2,8 +2,8 @@
   import { onMount } from 'svelte';
   import { createScene, loadSmileyFaceWrapper } from '$lib/main';
   import Loading from '$lib/components/Loading.svelte';
-  import { description, audioSource, updateDescription, updateAudioSource, videoIsPlaying } from '$lib/state/art-info';
-  import { videoElement } from '$lib/stores/video-store';
+  import { description, audioSource, name, updateDescription, updateAudioSource, updateName, videoIsPlaying } from '$lib/state/art-info';
+  import { videoElement } from '$lib/state/video-store';
   import Footer from '$lib/components/Footer.svelte';
 
   export let data;
@@ -13,20 +13,17 @@
   let audio;
   let iframeElement: HTMLIFrameElement;
 
-  $: {
-    console.log('audioSource: page', $audioSource);
-    if (audio) {
-      audio.src = $audioSource;
-    }
-  }
-  // log audioSource when it changes
+ 
+  $: { if (audio) { audio.src = $audioSource; } }
+  
   function playAndLoad() {
     loadSmileyFaceWrapper();
     if (audio) {
-      if (!audio.paused) {
-        audio.pause(); // pause if already playing
+      if (audio.paused) {
+        audio.play();
+      } else {
+        audio.pause();
       }
-      audio.play(); // play again
     }
   }
   // function toggleVideo() {
@@ -73,6 +70,9 @@
       </svg>
     </button>
   </div>
+
+  <p class="text-white text-xl">{ $name ? 'Art by ' + $name : ''}</p>
+
   <div class="text-white bg-gradient-to-r from-green-500 to-green-700 font-bold text-xl py-7 left-0">
     <a class="px-11 flex items-center gap-1" href="/stappen/34">
       till Stäppen

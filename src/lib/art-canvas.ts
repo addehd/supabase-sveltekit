@@ -1,4 +1,4 @@
-import { updateDescription, updateAudioSource } from './state/art-info';
+import { updateDescription, updateAudioSource, updateName } from './state/art-info';
 
 import * as THREE from 'three';
 import VG from './vg';
@@ -58,33 +58,51 @@ export function setupArtwork(
     });
   });
 
+  // update artwork description and audio url when player is near
   let lastUpdatedArtwork = null;
   let lastCheckTime = 0;
+  const proximityThreshold = 30;
   const checkInterval = 1000;
 
   return (playerPosition: THREE.Vector3) => {
     const now = performance.now();
-
     if (now - lastCheckTime > checkInterval) {
+      let playerNearArtwork = false;
+      
       vg.scene.children.forEach((child) => {
-        console.log(child.userData);
         if (child.userData && child.userData.artwork) {
-          const boundingSphere = child.userData.boundingSphere;
-          boundingSphere.center.copy(child.position);
           
-          if (boundingSphere.containsPoint(playerPosition) && child !== lastUpdatedArtwork) {
-            if (child.userData.artwork.description) {
-              updateDescription(child.userData.artwork.description);
+          const distance = playerPosition.distanceTo(child.position);
+          
+          if (distance < proximityThreshold) {
+            console.log(`Player is near artwork: ${child.userData.artwork.title}`);
+            playerNearArtwork = true;
+            if (child !== lastUpdatedArtwork) {
+              if (child.userData.artwork.description) {
+                updateDescription(child.userData.artwork.description);
+              }
+              if (child.userData.artwork.audio && 
+                  (!lastUpdatedArtwork?.userData.artwork.audio || 
+                   lastUpdatedArtwork.userData.artwork.audio !== child.userData.artwork.audio)) {
+                updateAudioSource(child.userData.artwork.audio);
+              }
+              
+              if (child.userData.artwork.title) {
+                updateName(child.userData.artwork.title);
+              }
+
+              lastUpdatedArtwork = child;
             }
-            if (child.userData.artwork.audio && 
-                (!lastUpdatedArtwork?.userData.artwork.audio || 
-                 lastUpdatedArtwork.userData.artwork.audio !== child.userData.artwork.audio)) {
-              updateAudioSource(child.userData.artwork.audio);
-            }
-            lastUpdatedArtwork = child;
           }
         }
       });
+
+      if (!playerNearArtwork && lastUpdatedArtwork) {
+        updateDescription('');
+        updateAudioSource('');
+        lastUpdatedArtwork = null;
+      }
+
       lastCheckTime = now;
     }
   };
@@ -116,9 +134,15 @@ function createAndAddArtwork(vg: VG, wallArtwork: any, artwork: any, processedTe
   const object = new THREE.Mesh(geometry, material);
   addArtworkToWall(wallArtwork, artwork, object);
 
+  // create bounding box with larger interaction area
+  const width = processedTexture.image.width * scaleFactor;
+  const height = processedTexture.image.height * scaleFactor;
+  const boundingBox = new THREE.Box3();
+  
   object.userData = {
     artwork: artwork,
-    boundingSphere: new THREE.Sphere(object.position, Math.max(processedTexture.image.width, processedTexture.image.height) / 200 * scaleFactor)
+    boundingBox: boundingBox,
+    dimensions: { width, height }
   };
 
   vg.add({
@@ -133,7 +157,7 @@ function createAndAddArtwork(vg: VG, wallArtwork: any, artwork: any, processedTe
 
 function createGeometry(image: HTMLImageElement): THREE.PlaneGeometry {
   const widthScalingFactor = 1;
-  console.log(scaleFactor, scaleFactor * 100);
+
   return new THREE.PlaneGeometry(
     (image.width / (scaleFactor * 100)) ,
     (image.height / (scaleFactor * 100)) 
