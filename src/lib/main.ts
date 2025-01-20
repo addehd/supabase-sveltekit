@@ -10,6 +10,7 @@ import { setupVideo } from './video-cube';
 
 let vg;
 let player;
+let videoCleanup;
 
 declare global {
   interface Window {
@@ -339,14 +340,14 @@ const initRum = (el, data) => {
         name: 'frontWall',
         body: body,
         object: object,
-        gui: [
-          [material, 'roughness', 0, 1, 0.01, 'roughness'],
-          [material, 'metalness', 0, 1, 0.01, 'metalness'],
-          [material, 'displacementScale', 0, 1, 0.01, 'displacement'],
-          [body.position, 'x', -10, 10, 0.1, 'move x'],
-          [body.position, 'y', 0, 20, 0.1, 'move y'],
-          [body.position, 'z', -10, 10, 0.1, 'move z']
-        ],
+        // gui: [
+        //   [material, 'roughness', 0, 1, 0.01, 'roughness'],
+        //   [material, 'metalness', 0, 1, 0.01, 'metalness'],
+        //   [material, 'displacementScale', 0, 1, 0.01, 'displacement'],
+        //   [body.position, 'x', -10, 10, 0.1, 'move x'],
+        //   [body.position, 'y', 0, 20, 0.1, 'move y'],
+        //   [body.position, 'z', -10, 10, 0.1, 'move z']
+        // ],
       };
     
       vg.add(frontWall);
@@ -412,11 +413,11 @@ const initRum = (el, data) => {
       vg.add({
         name: 'light',
         object: directionalLight,
-        gui: [
-          [ directionalLight.position, 'x', 'pos x' ],
-          [ directionalLight.position, 'y', 'pos y' ],
-          [ directionalLight.position, 'z', 'pos z' ]
-        ],
+        // gui: [
+        //   [ directionalLight.position, 'x', 'pos x' ],
+        //   [ directionalLight.position, 'y', 'pos y' ],
+        //   [ directionalLight.position, 'z', 'pos z' ]
+        // ],
       });
     
       vg.add({
@@ -470,15 +471,15 @@ const initRum = (el, data) => {
           vg.add({
             name: `hangar_${i + 1}`,
             object: hangarClone,
-            gui: [
-              [hangarClone.position, 'x', -roomWidth/2, roomWidth/2, 1, 'position x'],
-              [hangarClone.position, 'y', -roomHeight/2, roomHeight/2, 1, 'position y'],
-              [hangarClone.position, 'z', -roomDepth/2, roomDepth/2, 1, 'position z'],
-              [hangarClone.scale, 'x', 0.1, 3.6, 0.01, 'scale x'],
-              [hangarClone.scale, 'y', 0.1, 3, 0.01, 'scale y'],
-              [hangarClone.scale, 'z', 0.1, 3, 0.01, 'scale z'],
-              [hangarClone.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rotation y']
-            ]
+            // gui: [
+            //   [hangarClone.position, 'x', -roomWidth/2, roomWidth/2, 1, 'position x'],
+            //   [hangarClone.position, 'y', -roomHeight/2, roomHeight/2, 1, 'position y'],
+            //   [hangarClone.position, 'z', -roomDepth/2, roomDepth/2, 1, 'position z'],
+            //   [hangarClone.scale, 'x', 0.1, 3.6, 0.01, 'scale x'],
+            //   [hangarClone.scale, 'y', 0.1, 3, 0.01, 'scale y'],
+            //   [hangarClone.scale, 'z', 0.1, 3, 0.01, 'scale z'],
+            //   [hangarClone.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rotation y']
+            // ]
           });
         }
       },

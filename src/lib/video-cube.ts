@@ -85,13 +85,14 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
         object: videoMesh
     });
 
-    // cleanup function
-    return () => {
-        unsubscribe();
-        unsubscribeVideo();
-        vg.scene.remove(videoMesh);
-        videoTexture.dispose();
-        video.remove();
-        playButton.remove();
-    };
+    // // cleanup function
+    // return () => {
+    //     unsubscribe();
+    //     unsubscribeVideo();
+    //     vg.scene.remove(videoMesh);
+    //     videoTexture.dispose();
+    //     video.remove();
+    //     playButton.remove();
+        
+    // };
 }

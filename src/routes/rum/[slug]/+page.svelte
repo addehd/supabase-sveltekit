@@ -1,14 +1,16 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { createScene, loadSmileyFaceWrapper } from '$lib/main';
   import Loading from '$lib/components/Loading.svelte';
   import { description, audioSource, name, updateDescription, updateAudioSource, updateName, videoIsPlaying } from '$lib/state/art-info';
   import { videoElement } from '$lib/state/video-store';
   import Footer from '$lib/components/Footer.svelte';
+  import { getSystemInfo } from '$lib/helpers';
+  import { resetStores } from '$lib/state/art-info';
 
   export let data;
 
-  let el;
+  let canvas;
   let showDiv = true;
   let audio;
   let iframeElement: HTMLIFrameElement;
@@ -26,11 +28,9 @@
       }
     }
   }
-  // function toggleVideo() {
-  //   $videoIsPlaying = !$videoIsPlaying;
-  // }
+  
   onMount(() => {
-    createScene(el, data.artworks);
+    createScene(canvas, data.artworks);
     setTimeout(() => {
       showDiv = false;
     }, 1000);
@@ -39,19 +39,24 @@
       svg.classList.add('active');
     });
     audio = new Audio($audioSource);
+    
+    // log system info
+    const systemInfo = getSystemInfo();
+    console.log('System Information:', systemInfo);
   });
   // bind iframe to store
   $: if (iframeElement) {
     $videoElement = iframeElement;
   }
   const handleClick = async (event) => {
-    await el.requestPointerLock({
+    await canvas.requestPointerLock({
       unadjustedMovement: true,
     });
   };
   function toggleVideo() {
     $videoIsPlaying = !$videoIsPlaying;
   }
+
 </script>
 
 <!-- bottom nav -->
@@ -71,10 +76,10 @@
     </button>
   </div>
 
-  <p class="text-white text-xl">{ $name ? 'Art by ' + $name : ''}</p>
+  <p class="text-white text-xl fade-in">{ $name && $name !== 'Welcome' ? 'by ' + $name : ''}</p>
 
   <div class="text-white bg-gradient-to-r from-green-500 to-green-700 font-bold text-xl py-7 left-0">
-    <a class="px-11 flex items-center gap-1" href="/stappen/34">
+    <a class="px-11 flex items-center gap-1" href="/stappen/32">
       till Stäppen
       <svg class="w-9 h-9" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <path stroke="currentColor" fill="none" stroke-width="1.5" d="M14 6l6 6-6 6" />
@@ -83,7 +88,7 @@
   </div>
 </nav>
 </div>
-<canvas class="w-full h-full fixed top-0 left-0" bind:this={el} on:click|preventDefault|stopPropagation={handleClick} />
+<canvas class="w-full h-full fixed top-0 left-0" bind:this={canvas} on:click|preventDefault|stopPropagation={handleClick} />
 <Footer />
 {#if showDiv}
 <div class="fixed inset-0 bg-black flex items-center justify-center z-50">

@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { writable, get } from 'svelte/store';
 
 export const name = writable('');
 export const description = writable('');
@@ -7,25 +7,27 @@ export const videoSource = writable('/test.mp4');
 export const videoIsPlaying = writable(false);
 
 export const updateName = (newName) => {
-  let currentName;
-  name.subscribe(value => currentName = value)();
-  if (currentName !== newName) {
+  if (get(name) !== newName) {
     name.set(newName);
   }
 };
 
 export const updateDescription = (newDescription) => {
-  let currentDescription;
-  description.subscribe(value => currentDescription = value)();
-  if (currentDescription !== newDescription) {
+  if (get(description) !== newDescription) {
     description.set(newDescription);
   }
 };
 
 export const updateAudioSource = (newAudioSource) => {
-  let currentAudioSource;
-  audioSource.subscribe(value => currentAudioSource = value)();
-  if (currentAudioSource !== newAudioSource) {
+  if (get(audioSource) !== newAudioSource) {
     audioSource.set(newAudioSource);
   }
+};
+
+export const resetStores = () => {
+  name.set('');
+  description.set('');
+  audioSource.set('');
+  videoSource.set('');
+  videoIsPlaying.set(false);
 };

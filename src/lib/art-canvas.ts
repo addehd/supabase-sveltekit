@@ -100,6 +100,7 @@ export function setupArtwork(
       if (!playerNearArtwork && lastUpdatedArtwork) {
         updateDescription('');
         updateAudioSource('');
+        updateName('');
         lastUpdatedArtwork = null;
       }
 

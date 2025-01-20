@@ -72,6 +72,12 @@ export function loadSmileyFace(vg, player, room) {
       vg.add({
         name: 'smiley',
         object: gltf.scene,
+        update: () => {
+          // update smiley rotation to face player
+          const playerPos = player.object.position.clone();
+          playerPos.y = gltf.scene.position.y;
+          gltf.scene.lookAt(playerPos);
+        },
         gui: [
           [gltf.scene.position, 'x', -50, 50, 0.1, 'position x'],
           [gltf.scene.position, 'y', -50, 50, 0.1, 'position y'],

@@ -96,7 +96,7 @@ function showOutlineIcon() {
   </nav>
 </header>
 
-<main class="dark:bg-gray-900 min-h-[100vh]">
+<main class="dark:bg-gray-900 bg-slate-800 min-h-[100vh]">
 	<slot />
 </main>
 

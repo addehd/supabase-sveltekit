@@ -67,9 +67,9 @@ const initRum = (el, data) => {
     vg.add({
       name: 'world',
       unremovable: true,
-      gui: [
-        [ vg.world.gravity, 'y', -100, 10, 0.1, 'gravity' ]
-      ]
+      // gui: [
+      //   [ vg.world.gravity, 'y', -100, 10, 0.1, 'gravity' ]
+      // ]
     })
   }
 
@@ -77,7 +77,7 @@ const initRum = (el, data) => {
     var settings = {
       name: 'settings',
       unremovable: true,
-      gui: []
+      // gui: []
     }
 
     vg.add(settings)
@@ -87,15 +87,15 @@ const initRum = (el, data) => {
     vg.add({
       name: 'camera',
       unremovable: true,
-      gui: [
-        [ vg.camera.rotation, 'x', -10, 10 ],
-        [ vg.camera.rotation, 'y', -10, 10 ],
-        [ vg.camera.rotation, 'z', -10, 10 ],
-        [ vg.camera.quaternion, 'x', -1, 1, 0.01, "q x" ],
-        [ vg.camera.quaternion, 'y', -1, 1, 0.01, "q y" ],
-        [ vg.camera.quaternion, 'z', -1, 1, 0.01, "q z" ],
-        [ vg.camera.quaternion, 'w', -1, 1, 0.01, "q w" ]
-      ]
+      // gui: [
+      //   [ vg.camera.rotation, 'x', -10, 10 ],
+      //   [ vg.camera.rotation, 'y', -10, 10 ],
+      //   [ vg.camera.rotation, 'z', -10, 10 ],
+      //   [ vg.camera.quaternion, 'x', -1, 1, 0.01, "q x" ],
+      //   [ vg.camera.quaternion, 'y', -1, 1, 0.01, "q y" ],
+      //   [ vg.camera.quaternion, 'z', -1, 1, 0.01, "q z" ],
+      //   [ vg.camera.quaternion, 'w', -1, 1, 0.01, "q w" ]
+      // ]
     })
   }
 
@@ -125,24 +125,24 @@ const initRum = (el, data) => {
       crouchSpeed: 0.1,
       unremovable: true,
       moveDirection: new THREE.Vector3(),
-      gui: [
-        [ object.position, 'x', -100, 100, 10, 'object x' ],
-        [ object.position, 'y', -100, 100, 10, 'y' ],
-        [ object.position, 'z', -100, 100, 10, 'z' ],
-        [ object.rotation, 'x', -10, 10, 0.1, "r x" ],
-        [ object.rotation, 'y', -10, 10, 0.1, "r y" ],
-        [ object.rotation, 'z', -10, 10, 0.1, "r z" ],
-        [ body.position, 'x', -100, 100, 10, 'body x' ],
-        [ body.position, 'y', -100, 100, 10, 'y' ],
-        [ body.position, 'z', -100, 100, 10, 'z' ],
-        [ body.velocity, 'x', -10, 10, 0.1, "v x" ],
-        [ body.velocity, 'y', -10, 10, 0.1, "v y" ],
-        [ body.velocity, 'z', -10, 10, 0.1, "v z" ],
-        [ body.quaternion, 'x', -1, 1, 0.01, "q x" ],
-        [ body.quaternion, 'y', -1, 1, 0.01, "q y" ],
-        [ body.quaternion, 'z', -1, 1, 0.01, "q z" ],
-        [ body.quaternion, 'w', -1, 1, 0.01, "q w" ]
-      ],
+      // gui: [
+      //   [ object.position, 'x', -100, 100, 10, 'object x' ],
+      //   [ object.position, 'y', -100, 100, 10, 'y' ],
+      //   [ object.position, 'z', -100, 100, 10, 'z' ],
+      //   [ object.rotation, 'x', -10, 10, 0.1, "r x" ],
+      //   [ object.rotation, 'y', -10, 10, 0.1, "r y" ],
+      //   [ object.rotation, 'z', -10, 10, 0.1, "r z" ],
+      //   [ body.position, 'x', -100, 100, 10, 'body x' ],
+      //   [ body.position, 'y', -100, 100, 10, 'y' ],
+      //   [ body.position, 'z', -100, 100, 10, 'z' ],
+      //   [ body.velocity, 'x', -10, 10, 0.1, "v x" ],
+      //   [ body.velocity, 'y', -10, 10, 0.1, "v y" ],
+      //   [ body.velocity, 'z', -10, 10, 0.1, "v z" ],
+      //   [ body.quaternion, 'x', -1, 1, 0.01, "q x" ],
+      //   [ body.quaternion, 'y', -1, 1, 0.01, "q y" ],
+      //   [ body.quaternion, 'z', -1, 1, 0.01, "q z" ],
+      //   [ body.quaternion, 'w', -1, 1, 0.01, "q w" ]
+      // ],
       keysDown: {},
       update: function(delta) {
         this.moveDirection.set(0, 0, 0);
