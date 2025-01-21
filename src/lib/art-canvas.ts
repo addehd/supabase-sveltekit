@@ -75,7 +75,6 @@ export function setupArtwork(
           const distance = playerPosition.distanceTo(child.position);
           
           if (distance < proximityThreshold) {
-            console.log(`Player is near artwork: ${child.userData.artwork.title}`);
             playerNearArtwork = true;
             if (child !== lastUpdatedArtwork) {
               if (child.userData.artwork.description) {

@@ -76,23 +76,49 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
     // add to scene
     vg.scene.add(videoMesh);
 
-    // start video
-    //video.load();
-    //video.play().catch(e => console.error('Play failed:', e));
+    // add proximity check to video mesh
+    const proximityThreshold = 20; // adjust this value as needed
+    let wasVisible = false;
+    const raycaster = new THREE.Raycaster();
+    
+    videoMesh.userData.checkProximity = (playerPosition, camera) => {
+        const distance = videoMesh.position.distanceTo(playerPosition);
+        
+        // update raycaster from camera
+        raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+        
+        // check for intersection with video mesh
+        const intersects = raycaster.intersectObject(videoMesh);
+        
+        // add debug logs
+        console.log('Distance to video:', distance);
+        console.log('Intersections:', intersects.length);
+        
+        // visible if within range and ray hits the video
+        const isVisible = distance < proximityThreshold && intersects.length > 0;
+        
+        if (isVisible && !wasVisible) {
+            console.log('video is now visible');
+            wasVisible = true;
+        } else if (!isVisible && wasVisible) {
+            console.log('video is no longer visible');
+            wasVisible = false;
+        }
+    };
 
     vg.add({
         name: 'videoScreen',
-        object: videoMesh
+        object: videoMesh,
+        update: function(delta) {
+            // check proximity if player exists in the scene
+            const player = vg.things.find(thing => thing.name === 'player');
+            if (player && player.object) {
+                this.object.userData.checkProximity(
+                    player.object.position,
+                    vg.camera // pass camera to check view angle
+                );
+            }
+        }
     });
 
-    // // cleanup function
-    // return () => {
-    //     unsubscribe();
-    //     unsubscribeVideo();
-    //     vg.scene.remove(videoMesh);
-    //     videoTexture.dispose();
-    //     video.remove();
-    //     playButton.remove();
-        
-    // };
 }
