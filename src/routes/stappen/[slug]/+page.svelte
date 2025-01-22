@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { fade } from 'svelte/transition';
   import { createScene } from '$lib/stappen';
   import Loading from '$lib/components/Loading.svelte';
@@ -33,6 +33,19 @@
   function playAndLoad() {
     console.log('playAndLoad');
   }
+
+  onDestroy(() => {
+    // cleanup webgl context
+    const context = el?.getContext('webgl2') || el?.getContext('webgl');
+    if (context) {
+      context.getExtension('WEBGL_lose_context')?.loseContext();
+    }
+    console.log('onDestroy');
+    // remove canvas element
+    el?.remove();
+  });
+
+  
 </script>
 
 <canvas class="w-full h-full fixed top-0 left-0" 
@@ -56,7 +69,7 @@
       </button>
     </div>
     <div class="text-white bg-gradient-to-r from-orange-500 to-orange-700 font-bold text-xl py-7 left-0">
-      <a class="px-11 flex items-center gap-1" href="/rum/32">
+      <a class="px-11 flex items-center gap-1" href="/rum/32" data-sveltekit-reload>
           Hangaren
         <svg class="w-9 h-9" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
           <path stroke="currentColor" fill="none" stroke-width="1.5" d="M14 6l6 6-6 6" />

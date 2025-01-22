@@ -76,8 +76,7 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
     // add to scene
     vg.scene.add(videoMesh);
 
-    // add proximity check to video mesh
-    const proximityThreshold = 20; // adjust this value as needed
+    const proximityThreshold = 100;
     let wasVisible = false;
     const raycaster = new THREE.Raycaster();
     
@@ -93,6 +92,13 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
         // add debug logs
         console.log('Distance to video:', distance);
         console.log('Intersections:', intersects.length);
+
+        if (intersects.length > 0 && distance < proximityThreshold) {
+            playButton.style.display = 'block';
+        } else {
+            playButton.style.display = 'none';
+        }
+
         
         // visible if within range and ray hits the video
         const isVisible = distance < proximityThreshold && intersects.length > 0;
@@ -110,15 +116,17 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
         name: 'videoScreen',
         object: videoMesh,
         update: function(delta) {
-            // check proximity if player exists in the scene
+            if (this.frameCount === undefined) this.frameCount = 0;
+            this.frameCount++;
+            if (this.frameCount % 5 !== 0) return;
+
             const player = vg.things.find(thing => thing.name === 'player');
-            if (player && player.object) {
+            if (player?.object) {
                 this.object.userData.checkProximity(
                     player.object.position,
-                    vg.camera // pass camera to check view angle
+                    vg.camera
                 );
             }
         }
     });
-
 }
