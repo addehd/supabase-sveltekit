@@ -49,15 +49,15 @@ export const setupViracocha = (vg, room) => {
       vg.add({
         name: 'viracocha',
         object: gltf.scene,
-        gui: [
-          [gltf.scene.position, 'x', -room.width/2, room.width/2, 1, 'pos x'],
-          [gltf.scene.position, 'y', -10, 10, 0.1, 'pos y'], 
-          [gltf.scene.position, 'z', -room.depth/2, room.depth/2, 1, 'pos z'],
-          [gltf.scene.scale, 'x', 0.1, 5, 0.1, 'scale x'],
-          [gltf.scene.scale, 'y', 0.1, 5, 0.1, 'scale y'],
-          [gltf.scene.scale, 'z', 0.1, 5, 0.1, 'scale z'],
-          [gltf.scene.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rot y']
-        ]
+        // gui: [
+        //   [gltf.scene.position, 'x', -room.width/2, room.width/2, 1, 'pos x'],
+        //   [gltf.scene.position, 'y', -10, 10, 0.1, 'pos y'], 
+        //   [gltf.scene.position, 'z', -room.depth/2, room.depth/2, 1, 'pos z'],
+        //   [gltf.scene.scale, 'x', 0.1, 5, 0.1, 'scale x'],
+        //   [gltf.scene.scale, 'y', 0.1, 5, 0.1, 'scale y'],
+        //   [gltf.scene.scale, 'z', 0.1, 5, 0.1, 'scale z'],
+        //   [gltf.scene.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rot y']
+        // ]
       })
     },
     undefined,

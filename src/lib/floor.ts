@@ -72,20 +72,20 @@ export const setupFloor = (room: { width: number; depth: number; height: number 
     object: object,
     ambientLight: ambientLight,
     directionalLight: directionalLight,
-    gui: [
-      [ body.position, 'x', -10, 10, 1, 'x' ],
-      [ body.position, 'y', -10, 10, 1, 'y' ],
-      [ body.position, 'z', -10, 10, 1, 'z' ],
-      [ material, 'roughness', 0, 1, 0.01, 'roughness' ],
-      [ material, 'metalness', 0, 1, 0.01, 'metalness' ],
-      [ material.color, 'r', 0, 1, 0.01, 'color r' ],
-      [ material.color, 'g', 0, 1, 0.01, 'color g' ],
-      [ material.color, 'b', 0, 1, 0.01, 'color b' ],
-      [ material.emissive, 'r', 0, 1, 0.01, 'emissive r' ],
-      [ material.emissive, 'g', 0, 1, 0.01, 'emissive g' ],
-      [ material.emissive, 'b', 0, 1, 0.01, 'emissive b' ],
-      [ ambientLight, 'intensity', 0, 2, 0.01, 'ambient light' ],
-      [ directionalLight, 'intensity', 0, 2, 0.01, 'directional light' ],
-    ]
+    // gui: [
+    //   [ body.position, 'x', -10, 10, 1, 'x' ],
+    //   [ body.position, 'y', -10, 10, 1, 'y' ],
+    //   [ body.position, 'z', -10, 10, 1, 'z' ],
+    //   [ material, 'roughness', 0, 1, 0.01, 'roughness' ],
+    //   [ material, 'metalness', 0, 1, 0.01, 'metalness' ],
+    //   [ material.color, 'r', 0, 1, 0.01, 'color r' ],
+    //   [ material.color, 'g', 0, 1, 0.01, 'color g' ],
+    //   [ material.color, 'b', 0, 1, 0.01, 'color b' ],
+    //   [ material.emissive, 'r', 0, 1, 0.01, 'emissive r' ],
+    //   [ material.emissive, 'g', 0, 1, 0.01, 'emissive g' ],
+    //   [ material.emissive, 'b', 0, 1, 0.01, 'emissive b' ],
+    //   [ ambientLight, 'intensity', 0, 2, 0.01, 'ambient light' ],
+    //   [ directionalLight, 'intensity', 0, 2, 0.01, 'directional light' ],
+    // ]
   };
 };

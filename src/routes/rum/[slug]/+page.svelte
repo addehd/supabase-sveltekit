@@ -33,7 +33,7 @@
     createScene(canvas, data.artworks);
     setTimeout(() => {
       showDiv = false;
-    }, 1000);
+    }, 3000);
     const svgs = document.querySelectorAll('svg');
     svgs.forEach(svg => {
       svg.classList.add('active');
@@ -62,8 +62,8 @@
 <!-- bottom nav -->
 <div class="fixed backdrop-blur-lg bottom-0 w-full z-50 flex items-center justify-between border-t-[1px] border-white/20">
 <nav class="flex  space-x-[20rem] justify-between w-full items-center">
-  <div class="flex space-x-2 ml-32">
-    <button class="text-white font-bold text-xl h-[3rem] pl-44 hover:cursor-pointer smile" on:click={playAndLoad}
+  <div class="flex space-x-2 ml-11">
+    <button class="text-white font-bold text-xl h-[3rem] hover:cursor-pointer smile" on:click={playAndLoad}
       on:keydown={(e)=> e.key === 'Enter' && playAndLoad()}>
       <svg class="h-[3rem] inline-block ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
         <circle fill="white" cx="36" cy="40.2" r="5" />

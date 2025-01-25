@@ -34,18 +34,6 @@
     console.log('playAndLoad');
   }
 
-  onDestroy(() => {
-    // cleanup webgl context
-    const context = el?.getContext('webgl2') || el?.getContext('webgl');
-    if (context) {
-      context.getExtension('WEBGL_lose_context')?.loseContext();
-    }
-    console.log('onDestroy');
-    // remove canvas element
-    el?.remove();
-  });
-
-  
 </script>
 
 <canvas class="w-full h-full fixed top-0 left-0" 

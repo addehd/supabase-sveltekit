@@ -41,7 +41,7 @@ export default class VG {
     this.initScene()
     this.initCamera()
     this.initRenderer()
-    this.initGui()
+    //this.initGui()
     this.initInput()
     this.initMouse()
   }
@@ -59,31 +59,31 @@ export default class VG {
     if (thing.object)
       this.scene.add(thing.object)
 
-    // Check if GUI should be added, based on `showGui` property
-    if (thing.gui instanceof Array && thing.showGui !== false) {
-      thing._gui = this.gui.addFolder(thing.name || '')
-      for (var g of thing.gui) {
-        if (g[0] === VG.COLOR) {
-          var l = thing._gui.addColor(g[1], g[2])
-          .listen()
-          continue
-        }
+    // // Check if GUI should be added, based on `showGui` property
+    // if (thing.gui instanceof Array && thing.showGui !== false) {
+    //   thing._gui = this.gui.addFolder(thing.name || '')
+    //   for (var g of thing.gui) {
+    //     if (g[0] === VG.COLOR) {
+    //       var l = thing._gui.addColor(g[1], g[2])
+    //       .listen()
+    //       continue
+    //     }
 
-        var l = thing._gui.add(g[0], g[1], g[2], g[3], g[4])
-        .listen()
+    //     var l = thing._gui.add(g[0], g[1], g[2], g[3], g[4])
+    //     .listen()
 
-        if (g.length === 3) l.name(g[2])
-        else if (g.length === 6) l.name(g[5])
-      }
+    //     if (g.length === 3) l.name(g[2])
+    //     else if (g.length === 6) l.name(g[5])
+    //   }
 
-      var _this = this
-      if (!thing.unremovable)
-        thing._gui.add(
-          { remove: function() {
-            console.log('remove', this)
-            _this.remove(thing) } },
-          'remove')
-    }
+    //   var _this = this
+    //   if (!thing.unremovable)
+    //     thing._gui.add(
+    //       { remove: function() {
+    //         console.log('remove', this)
+    //         _this.remove(thing) } },
+    //       'remove')
+    // }
 
     if (thing.body && thing.object && !thing.update) {
       thing.update = this.defaultThingUpdate
@@ -126,10 +126,10 @@ export default class VG {
     }
   }
 
-  initGui = function() {
-    this.gui = new GUI({
-      closeFolders: true })
-  }
+  // initGui = function() {
+  //   this.gui = new GUI({
+  //     closeFolders: true })
+  // }
 
   initInput = function() {
     var _this = this
