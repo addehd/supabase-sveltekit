@@ -34,7 +34,7 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
     playButton.innerHTML = '▶️ Play video';
     playButton.style.position = 'fixed';
     playButton.style.bottom = '30px';
-    playButton.style.left = '40px';
+    playButton.style.left = '240px';
     playButton.style.zIndex = '1000';
     playButton.style.color = 'white';
     playButton.style.fontSize = '1.3rem';
@@ -42,10 +42,10 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
     playButton.addEventListener('click', () => {
         if (video.paused) {
             video.play().catch(e => console.error('Play failed:', e));
-            playButton.innerHTML = '⏸️ Pause';
+            playButton.innerHTML = 'Pause ⏸️ ';
         } else {
             video.pause();
-            playButton.innerHTML = '▶️ Play';
+            playButton.innerHTML = 'Play ▶️';
         }
     });
     
@@ -89,10 +89,6 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
         // check for intersection with video mesh
         const intersects = raycaster.intersectObject(videoMesh);
         
-        // add debug logs
-        console.log('Distance to video:', distance);
-        console.log('Intersections:', intersects.length);
-
         if (intersects.length > 0 && distance < proximityThreshold) {
             playButton.style.display = 'block';
         } else {
