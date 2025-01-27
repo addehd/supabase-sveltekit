@@ -357,7 +357,6 @@ const initRum = (el, data) => {
       const wallHeight = 150; // increased wall height
     
       const textureLoader = new THREE.TextureLoader();
-    
       const diffuseTexture = textureLoader.load('/bricks/brick_wall_02_diff_1k.jpg');
       const displacementTexture = textureLoader.load('/bricks/brick_wall_02_disp_1k.png');
     
