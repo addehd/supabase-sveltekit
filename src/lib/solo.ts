@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { VRButton } from 'three/addons/webxr/VRButton.js';
 
 let scene, camera, renderer;
 let controls;
@@ -17,6 +18,9 @@ const initRum = async (el, data) => {
   renderer = new THREE.WebGLRenderer({ canvas: el });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.xr.enabled = true;
+
+  // add vr button
+  document.body.appendChild(VRButton.createButton(renderer));
 
   // lights
   const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 0.2);
@@ -84,7 +88,9 @@ const initRum = async (el, data) => {
     if (controls) controls.update();
     renderer.render(scene, camera);
   };
-  animate();
+  
+  // use setAnimationLoop for vr compatibility
+  renderer.setAnimationLoop(animate);
 }
 
 export const createScene = async (el, imageUrl) => {
