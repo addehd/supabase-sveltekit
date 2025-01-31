@@ -125,31 +125,14 @@ const initRum = (el, data) => {
       crouchSpeed: 0.1,
       unremovable: true,
       moveDirection: new THREE.Vector3(),
-      // gui: [
-      //   [ object.position, 'x', -100, 100, 10, 'object x' ],
-      //   [ object.position, 'y', -100, 100, 10, 'y' ],
-      //   [ object.position, 'z', -100, 100, 10, 'z' ],
-      //   [ object.rotation, 'x', -10, 10, 0.1, "r x" ],
-      //   [ object.rotation, 'y', -10, 10, 0.1, "r y" ],
-      //   [ object.rotation, 'z', -10, 10, 0.1, "r z" ],
-      //   [ body.position, 'x', -100, 100, 10, 'body x' ],
-      //   [ body.position, 'y', -100, 100, 10, 'y' ],
-      //   [ body.position, 'z', -100, 100, 10, 'z' ],
-      //   [ body.velocity, 'x', -10, 10, 0.1, "v x" ],
-      //   [ body.velocity, 'y', -10, 10, 0.1, "v y" ],
-      //   [ body.velocity, 'z', -10, 10, 0.1, "v z" ],
-      //   [ body.quaternion, 'x', -1, 1, 0.01, "q x" ],
-      //   [ body.quaternion, 'y', -1, 1, 0.01, "q y" ],
-      //   [ body.quaternion, 'z', -1, 1, 0.01, "q z" ],
-      //   [ body.quaternion, 'w', -1, 1, 0.01, "q w" ]
-      // ],
       keysDown: {},
+      touchControls: {},
       update: function(delta) {
         this.moveDirection.set(0, 0, 0);
-        if (this.keysDown['s']) this.moveDirection.z -= 1;
-        if (this.keysDown['w']) this.moveDirection.z += 1;
-        if (this.keysDown['a']) this.moveDirection.x -= 1;
-        if (this.keysDown['d']) this.moveDirection.x += 1;
+        if (this.keysDown['s'] || this.touchControls['backward']) this.moveDirection.z -= 1;
+        if (this.keysDown['w'] || this.touchControls['forward']) this.moveDirection.z += 1;
+        if (this.keysDown['a'] || this.touchControls['left']) this.moveDirection.x -= 1;
+        if (this.keysDown['d'] || this.touchControls['right']) this.moveDirection.x += 1;
         this.moveDirection.normalize();
 
         let cameraDirection = new THREE.Vector3();
@@ -208,6 +191,163 @@ const initRum = (el, data) => {
     vg.input.whilePressed['ArrowLeft'] = (key) => { vg.camera.rotation.y += 0.05 };
     vg.input.whilePressed['ArrowDown'] = (key) => { vg.camera.rotation.x -= 0.02 };
     vg.input.whilePressed['ArrowUp'] = (key) => { vg.camera.rotation.x += 0.02 };
+
+    // check if buttons already exist before creating new ones
+    if (!document.querySelector('.movement-button')) {
+        // add touch controls
+        const createMoveButton = (text, position, control) => {
+            const button = document.createElement('button');
+            button.textContent = text;
+            button.style.position = 'fixed';
+            button.style.zIndex = '1000';
+            button.className = 'movement-button'; // add class for identification
+            Object.assign(button.style, position);
+            
+            // handle touch/mouse events
+            const startMove = () => { player.touchControls[control] = true; };
+            const stopMove = () => { player.touchControls[control] = false; };
+            
+            button.addEventListener('mousedown', startMove);
+            button.addEventListener('mouseup', stopMove);
+            button.addEventListener('mouseleave', stopMove);
+            button.addEventListener('touchstart', startMove);
+            button.addEventListener('touchend', stopMove);
+            
+            document.body.appendChild(button);
+        };
+
+        // create movement buttons
+        createMoveButton('↑', { bottom: '120px', left: '50%', transform: 'translateX(-50%)' }, 'forward');
+        createMoveButton('↓', { bottom: '40px', left: '50%', transform: 'translateX(-50%)' }, 'backward');
+        createMoveButton('←', { bottom: '80px', left: 'calc(50% - 60px)' }, 'left');
+        createMoveButton('→', { bottom: '80px', left: 'calc(50% + 60px)' }, 'right');
+
+        // add styles only if they don't exist
+        if (!document.querySelector('#movement-button-styles')) {
+            const style = document.createElement('style');
+            style.id = 'movement-button-styles';
+            style.textContent = `
+                .movement-button {
+                    width: 50px;
+                    height: 50px;
+                    background: rgba(255, 255, 255, 0.3);
+                    border: 2px solid white;
+                    border-radius: 25px;
+                    color: white;
+                    font-size: 24px;
+                    cursor: pointer;
+                    touch-action: none;
+                    user-select: none;
+                }
+                .movement-button:active {
+                    background: rgba(255, 255, 255, 0.5);
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+
+    // after the movement buttons code, add the look stick
+    if (!document.querySelector('.look-stick')) {
+        // create look stick container
+        const lookStick = document.createElement('div');
+        lookStick.className = 'look-stick';
+        
+        // create the inner stick element
+        const stick = document.createElement('div');
+        stick.className = 'stick';
+        lookStick.appendChild(stick);
+        
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        
+        const handleStart = (e) => {
+            isDragging = true;
+            const pos = e.type.includes('mouse') ? e : e.touches[0];
+            // get the center position of the stick
+            const rect = lookStick.getBoundingClientRect();
+            startX = rect.left + rect.width / 2;
+            startY = rect.top + rect.height / 2;
+            stick.style.transition = 'none';
+        };
+        
+        const handleMove = (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            
+            const pos = e.type.includes('mouse') ? e : e.touches[0];
+            // calculate delta from center
+            const deltaX = pos.clientX - startX;
+            const deltaY = pos.clientY - startY;
+            
+            // limit stick movement
+            const maxDistance = 30;
+            const distance = Math.min(Math.sqrt(deltaX * deltaX + deltaY * deltaY), maxDistance);
+            const angle = Math.atan2(deltaY, deltaX);
+            
+            const stickX = Math.cos(angle) * distance;
+            const stickY = Math.sin(angle) * distance;
+            
+            stick.style.transform = `translate(${stickX}px, ${stickY}px)`;
+            
+            // apply camera rotation with adjusted sensitivity
+            vg.camera.rotation.y -= (deltaX * 0.0002);
+            vg.camera.rotation.x -= (deltaY * 0.0002);
+            
+            // clamp vertical rotation
+            vg.camera.rotation.x = Math.max(-Math.PI/3, Math.min(Math.PI/3, vg.camera.rotation.x));
+        };
+        
+        const handleEnd = () => {
+            isDragging = false;
+            stick.style.transition = 'transform 0.2s';
+            stick.style.transform = 'translate(0, 0)';
+        };
+        
+        // add event listeners
+        lookStick.addEventListener('mousedown', handleStart);
+        lookStick.addEventListener('touchstart', handleStart);
+        document.addEventListener('mousemove', handleMove);
+        document.addEventListener('touchmove', handleMove, { passive: false });
+        document.addEventListener('mouseup', handleEnd);
+        document.addEventListener('touchend', handleEnd);
+        
+        document.body.appendChild(lookStick);
+        
+        // add styles for look stick
+        if (!document.querySelector('#look-stick-styles')) {
+            const style = document.createElement('style');
+            style.id = 'look-stick-styles';
+            style.textContent = `
+                .look-stick {
+                    position: fixed;
+                    top: 50%;
+                    right: 40px;
+                    transform: translateY(-50%);
+                    width: 100px;
+                    height: 100px;
+                    background: rgba(255, 255, 255, 0.2);
+                    border: 2px solid white;
+                    border-radius: 50%;
+                    touch-action: none;
+                    user-select: none;
+                }
+                .stick {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    width: 40px;
+                    height: 40px;
+                    background: rgba(255, 255, 255, 0.5);
+                    border-radius: 50%;
+                    transform: translate(-50%, -50%);
+                    transition: transform 0.2s;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
   }
 
   { // room
