@@ -219,8 +219,8 @@ const initRum = (el, data) => {
         // create movement buttons
         createMoveButton('↑', { bottom: '120px', left: '50%', transform: 'translateX(-50%)' }, 'forward');
         createMoveButton('↓', { bottom: '40px', left: '50%', transform: 'translateX(-50%)' }, 'backward');
-        createMoveButton('←', { bottom: '80px', left: 'calc(50% - 60px)' }, 'left');
-        createMoveButton('→', { bottom: '80px', left: 'calc(50% + 60px)' }, 'right');
+        createMoveButton('←', { bottom: '80px', left: 'calc(50% - 67px)' }, 'left');
+        createMoveButton('→', { bottom: '80px', left: 'calc(50% + 20px)' }, 'right');
 
         // add styles only if they don't exist
         if (!document.querySelector('#movement-button-styles')) {
@@ -322,7 +322,7 @@ const initRum = (el, data) => {
             style.textContent = `
                 .look-stick {
                     position: fixed;
-                    top: 50%;
+                    top: 40%;
                     right: 40px;
                     transform: translateY(-50%);
                     width: 100px;
@@ -341,7 +341,7 @@ const initRum = (el, data) => {
                     height: 40px;
                     background: rgba(255, 255, 255, 0.5);
                     border-radius: 50%;
-                    transform: translate(-50%, -50%);
+                    transform: translate(-20%, -50%);
                     transition: transform 0.2s;
                 }
             `;
