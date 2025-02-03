@@ -192,63 +192,55 @@ const initRum = (el, data) => {
     vg.input.whilePressed['ArrowDown'] = (key) => { vg.camera.rotation.x -= 0.02 };
     vg.input.whilePressed['ArrowUp'] = (key) => { vg.camera.rotation.x += 0.02 };
 
-    // check if buttons already exist before creating new ones
-    if (!document.querySelector('.movement-button')) {
-        // add touch controls
-        const createMoveButton = (text, position, control) => {
-            const button = document.createElement('button');
-            button.textContent = text;
-            button.style.position = 'fixed';
-            button.style.zIndex = '1000';
-            button.className = 'movement-button'; // add class for identification
-            Object.assign(button.style, position);
+    // add touch controls
+    const createMoveButton = (text, position, control) => {
+        const button = document.createElement('button');
+        button.textContent = text;
+        button.style.position = 'fixed';
+        button.style.zIndex = '1000';
+        button.className = 'movement-button'; // add class for identification
+        Object.assign(button.style, position);
             
-            // handle touch/mouse events
-            const startMove = () => { player.touchControls[control] = true; };
-            const stopMove = () => { player.touchControls[control] = false; };
+        // handle touch/mouse events
+        const startMove = () => { player.touchControls[control] = true; };
+        const stopMove = () => { player.touchControls[control] = false; };
             
-            button.addEventListener('mousedown', startMove);
-            button.addEventListener('mouseup', stopMove);
-            button.addEventListener('mouseleave', stopMove);
-            button.addEventListener('touchstart', startMove);
-            button.addEventListener('touchend', stopMove);
+        button.addEventListener('mousedown', startMove);
+        button.addEventListener('mouseup', stopMove);
+        button.addEventListener('mouseleave', stopMove);
+        button.addEventListener('touchstart', startMove);
+        button.addEventListener('touchend', stopMove);
             
-            document.body.appendChild(button);
-        };
+        document.body.appendChild(button);
+    };
 
-        // create movement buttons
-        createMoveButton('↑', { bottom: '120px', left: '50%', transform: 'translateX(-50%)' }, 'forward');
-        createMoveButton('↓', { bottom: '40px', left: '50%', transform: 'translateX(-50%)' }, 'backward');
-        createMoveButton('←', { bottom: '80px', left: 'calc(50% - 67px)' }, 'left');
-        createMoveButton('→', { bottom: '80px', left: 'calc(50% + 20px)' }, 'right');
+    // create movement buttons
+    createMoveButton('↑', { bottom: '120px', left: '50%', transform: 'translateX(-50%)' }, 'forward');
+    createMoveButton('↓', { bottom: '40px', left: '50%', transform: 'translateX(-50%)' }, 'backward');
+    createMoveButton('←', { bottom: '80px', left: 'calc(50% - 67px)' }, 'left');
+    createMoveButton('→', { bottom: '80px', left: 'calc(50% + 20px)' }, 'right');
 
-        // add styles only if they don't exist
-        if (!document.querySelector('#movement-button-styles')) {
-            const style = document.createElement('style');
-            style.id = 'movement-button-styles';
-            style.textContent = `
-                .movement-button {
-                    width: 50px;
-                    height: 50px;
-                    background: rgba(255, 255, 255, 0.3);
-                    border: 2px solid white;
-                    border-radius: 25px;
-                    color: white;
-                    font-size: 24px;
-                    cursor: pointer;
-                    touch-action: none;
-                    user-select: none;
-                }
-                .movement-button:active {
-                    background: rgba(255, 255, 255, 0.5);
-                }
-            `;
-            document.head.appendChild(style);
+    const style = document.createElement('style');
+    style.id = 'movement-button-styles';
+    style.textContent = `
+        .movement-button {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.3);
+            border: 2px solid white;
+            border-radius: 25px;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            touch-action: none;
+            user-select: none;
         }
-    }
+        .movement-button:active {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    `;
+    document.head.appendChild(style);
 
-    // after the movement buttons code, add the look stick
-    if (!document.querySelector('.look-stick')) {
         // create look stick container
         const lookStick = document.createElement('div');
         lookStick.className = 'look-stick';
@@ -322,8 +314,8 @@ const initRum = (el, data) => {
             style.textContent = `
                 .look-stick {
                     position: fixed;
-                    top: 40%;
-                    right: 40px;
+                    top: 10%;
+                    right: 5%;
                     transform: translateY(-50%);
                     width: 100px;
                     height: 100px;
@@ -335,7 +327,7 @@ const initRum = (el, data) => {
                 }
                 .stick {
                     position: absolute;
-                    top: 50%;
+                    top: 30%;
                     left: 50%;
                     width: 40px;
                     height: 40px;
@@ -347,7 +339,6 @@ const initRum = (el, data) => {
             `;
             document.head.appendChild(style);
         }
-    }
   }
 
   { // room

@@ -4,6 +4,7 @@
   import { createScene } from '$lib/stappen';
   import Loading from '$lib/components/Loading.svelte';
   import { videoIsPlaying } from '$lib/state/art-info';
+  import { isMenuOpen } from '$lib/state/menu-store';
 
   export let data;
 
@@ -34,6 +35,10 @@
     console.log('playAndLoad');
   }
 
+  function toggleMenu() {
+    $isMenuOpen = !$isMenuOpen;
+  }
+
 </script>
 
 <canvas class="w-full h-full fixed top-0 left-0" 
@@ -41,8 +46,11 @@
   on:click|preventDefault|stopPropagation={handleClick} />
 
 <!-- bottom nav -->
-<div class="fixed backdrop-blur-lg bottom-0 w-full z-50 flex items-center justify-between border-t-[1px] border-white/20">
+<div class="fixed backdrop-blur-lg bottom-0 w-full z-50 flex items-center justify-between border-t-[1px] border-white/20
+  {$isMenuOpen ? 'block' : 'hidden'} md:block">
   <nav class="flex  space-x-[20rem] justify-between w-full items-center">
+
+    <!-- smile btn -->
     <div class="flex space-x-2 ml-32">
       <button class="text-white font-bold text-xl h-[3rem] pl-44 hover:cursor-pointer smile" on:click={playAndLoad}
         on:keydown={(e)=> e.key === 'Enter' && playAndLoad()}>
@@ -66,6 +74,18 @@
     </div>
   </nav>
   </div>
+
+<!-- add hamburger button -->
+<button class="fixed top-4 right-4 z-[60] md:hidden text-white p-2" on:click={toggleMenu}>
+  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    {#if $isMenuOpen}
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+    {:else}
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+    {/if}
+  </svg>
+</button>
+
 {#if showDiv}
   <div
     class="fixed inset-0 bg-black flex items-center justify-center z-50"
