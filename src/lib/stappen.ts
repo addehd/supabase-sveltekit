@@ -4,7 +4,6 @@ import VG from './vg'
 import { setupFloor } from './floor';
 import { setupArtwork } from './art-canvas';
 import { loadSmileyFace } from './smiley';
-import { setupVideo } from './video-cube';
 import { setupBirds } from './birds';
 import { setupGrass } from './grass';
 import { setupMark } from './mark';
@@ -44,7 +43,17 @@ const initRum = (el, data) => {
   const renderer = new THREE.WebGLRenderer({ canvas: el });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.xr.enabled = true;
-  document.body.appendChild(VRButton.createButton(renderer));
+
+  // check if vr is supported before showing button
+  if (navigator.xr) {
+    navigator.xr.isSessionSupported('immersive-vr').then(supported => {
+      if (supported) {
+        const vrButton = VRButton.createButton(renderer);
+        document.body.appendChild(vrButton);
+      }
+    });
+  }
+  
   vg.renderer = renderer;
 
   const textureLoader = new THREE.TextureLoader();
@@ -192,60 +201,58 @@ const initRum = (el, data) => {
     vg.input.whilePressed['ArrowDown'] = (key) => { vg.camera.rotation.x -= 0.02 };
     vg.input.whilePressed['ArrowUp'] = (key) => { vg.camera.rotation.x += 0.02 };
 
-    // add touch controls
-    const createMoveButton = (text, position, control) => {
-        const button = document.createElement('button');
-        button.textContent = text;
-        button.style.position = 'fixed';
-        button.style.zIndex = '1000';
-        button.className = 'movement-button'; // add class for identification
-        Object.assign(button.style, position);
-            
-        // handle touch/mouse events
-        const startMove = () => { player.touchControls[control] = true; };
-        const stopMove = () => { player.touchControls[control] = false; };
-            
-        button.addEventListener('mousedown', startMove);
-        button.addEventListener('mouseup', stopMove);
-        button.addEventListener('mouseleave', stopMove);
-        button.addEventListener('touchstart', startMove);
-        button.addEventListener('touchend', stopMove);
-            
-        document.body.appendChild(button);
-    };
+    // add touch controls only for mobile devices
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+        // movement buttons setup
+        const createMoveButton = (text, position, control) => {
+            const button = document.createElement('button');
+            button.textContent = text;
+            button.style.position = 'fixed';
+            button.style.zIndex = '1000';
+            button.className = 'movement-button';
+            Object.assign(button.style, position);
+                
+            const startMove = () => { player.touchControls[control] = true; };
+            const stopMove = () => { player.touchControls[control] = false; };
+                
+            button.addEventListener('touchstart', startMove);
+            button.addEventListener('touchend', stopMove);
+                
+            document.body.appendChild(button);
+        };
 
-    // create movement buttons
-    createMoveButton('↑', { bottom: '120px', left: '50%', transform: 'translateX(-50%)' }, 'forward');
-    createMoveButton('↓', { bottom: '40px', left: '50%', transform: 'translateX(-50%)' }, 'backward');
-    createMoveButton('←', { bottom: '80px', left: 'calc(50% - 67px)' }, 'left');
-    createMoveButton('→', { bottom: '80px', left: 'calc(50% + 20px)' }, 'right');
+        // create movement buttons
+        createMoveButton('↑', { bottom: '120px', left: '50%', transform: 'translateX(-50%)' }, 'forward');
+        createMoveButton('↓', { bottom: '40px', left: '50%', transform: 'translateX(-50%)' }, 'backward');
+        createMoveButton('←', { bottom: '80px', left: 'calc(50% - 67px)' }, 'left');
+        createMoveButton('→', { bottom: '80px', left: 'calc(50% + 20px)' }, 'right');
 
-    const style = document.createElement('style');
-    style.id = 'movement-button-styles';
-    style.textContent = `
-        .movement-button {
-            width: 50px;
-            height: 50px;
-            background: rgba(255, 255, 255, 0.3);
-            border: 2px solid white;
-            border-radius: 25px;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            touch-action: none;
-            user-select: none;
-        }
-        .movement-button:active {
-            background: rgba(255, 255, 255, 0.5);
-        }
-    `;
-    document.head.appendChild(style);
+        // add styles for movement buttons
+        const style = document.createElement('style');
+        style.textContent = `
+            .movement-button {
+                width: 50px;
+                height: 50px;
+                background: rgba(255, 255, 255, 0.3);
+                border: 2px solid white;
+                border-radius: 25px;
+                color: white;
+                font-size: 24px;
+                touch-action: none;
+                user-select: none;
+            }
+            .movement-button:active {
+                background: rgba(255, 255, 255, 0.5);
+            }
+        `;
+        document.head.appendChild(style);
 
-        // create look stick container
+        // create and setup look stick
         const lookStick = document.createElement('div');
         lookStick.className = 'look-stick';
         
-        // create the inner stick element
         const stick = document.createElement('div');
         stick.className = 'stick';
         lookStick.appendChild(stick);
@@ -307,38 +314,35 @@ const initRum = (el, data) => {
         
         document.body.appendChild(lookStick);
         
-        // add styles for look stick
-        if (!document.querySelector('#look-stick-styles')) {
-            const style = document.createElement('style');
-            style.id = 'look-stick-styles';
-            style.textContent = `
-                .look-stick {
-                    position: fixed;
-                    top: 10%;
-                    right: 5%;
-                    transform: translateY(-50%);
-                    width: 100px;
-                    height: 100px;
-                    background: rgba(255, 255, 255, 0.2);
-                    border: 2px solid white;
-                    border-radius: 50%;
-                    touch-action: none;
-                    user-select: none;
-                }
-                .stick {
-                    position: absolute;
-                    top: 30%;
-                    left: 50%;
-                    width: 40px;
-                    height: 40px;
-                    background: rgba(255, 255, 255, 0.5);
-                    border-radius: 50%;
-                    transform: translate(-20%, -50%);
-                    transition: transform 0.2s;
-                }
-            `;
-            document.head.appendChild(style);
-        }
+        // add look stick styles
+        const lookStickStyle = document.createElement('style');
+        lookStickStyle.textContent = `
+            .look-stick {
+                position: fixed;
+                top: 10%;
+                right: 5%;
+                transform: translateY(-50%);
+                width: 100px;
+                height: 100px;
+                background: rgba(255, 255, 255, 0.2);
+                border: 2px solid white;
+                border-radius: 50%;
+                touch-action: none;
+            }
+            .stick {
+                position: absolute;
+                top: 30%;
+                left: 50%;
+                width: 40px;
+                height: 40px;
+                background: rgba(255, 255, 255, 0.5);
+                border-radius: 50%;
+                transform: translate(-20%, -50%);
+                transition: transform 0.2s;
+            }
+        `;
+        document.head.appendChild(lookStickStyle);
+    }
   }
 
   { // room
