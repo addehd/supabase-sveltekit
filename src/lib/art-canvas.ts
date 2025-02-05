@@ -1,4 +1,5 @@
 import { updateDescription, updateAudioSource, updateName } from './state/art-info';
+import { artworkLoaded } from './stores/loading-store';
 
 import * as THREE from 'three';
 import VG from './vg';
@@ -56,6 +57,9 @@ export function setupArtwork(
       });
       positionArtwork(wall, artworks.map(art => art.object) as THREE.Mesh[], room);
     });
+    
+    // set the store to true when loading is complete
+    artworkLoaded.set(true);
   });
 
   // update artwork description and audio url when player is near

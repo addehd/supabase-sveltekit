@@ -5,6 +5,7 @@
   import Loading from '$lib/components/Loading.svelte';
   import { videoIsPlaying } from '$lib/state/art-info';
   import { isMenuOpen } from '$lib/state/menu-store';
+  import { artworkLoaded } from '$lib/stores/loading-store';
 
   export let data;
 
@@ -12,6 +13,7 @@
   let showDiv = true;
 
   $:isPlaying = videoIsPlaying;
+  $: showDiv = !$artworkLoaded;
 
   const handleClick = async (event) => {
     await el.requestPointerLock({
@@ -21,9 +23,6 @@
 
   onMount(() => {
     createScene(el, data.artworks);
-    setTimeout(() => {
-      showDiv = false;
-    }, 3000);
 
     const svgs = document.querySelectorAll('svg');
     svgs.forEach(svg => {
@@ -74,17 +73,6 @@
     </div>
   </nav>
   </div>
-
-<!-- add hamburger button
-<button class="fixed top-4 right-4 z-[60] md:hidden text-white p-2" on:click={toggleMenu}>
-  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    {#if $isMenuOpen}
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-    {:else}
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-    {/if}
-  </svg>
-</button> -->
 
 {#if showDiv}
   <div
