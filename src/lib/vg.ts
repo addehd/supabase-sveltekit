@@ -215,7 +215,7 @@ export default class VG {
 
   initWorld = function() {
     this.world = new CANNON.World({
-      gravity: new CANNON.Vec3(0, -30, 0) })
+      gravity: new CANNON.Vec3(0, -20, 0) })
   }
 
   initStats = function() {

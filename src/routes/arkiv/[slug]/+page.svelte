@@ -58,6 +58,7 @@
           <div class="artwork-scroll">
             {#each artworks as form, formIndex (form.artwork_id)}
             <div class="artwork rounded-sm flex justify-between px-7 py-7 bg-gray-300/15 w-[60rem] relative"
+                 role="listitem"
                  draggable="true"
                  on:dragstart={(e) => {
                    e.dataTransfer.setData('text/plain', formIndex.toString());
@@ -69,8 +70,7 @@
                  }}
                  animate:flip={{ duration: 300 }}>
               <div class="artwork-number">{formIndex + 1}</div>
-              <button 
-                class="absolute top-2 left-2 text-red-500 hover:text-red-700"
+              <button class="absolute top-2 left-2 text-red-500 hover:text-red-700"
                 on:click={async () => {
                   if (confirm('Are you sure you want to delete this artwork?')) {
                     const formData = new FormData();
@@ -89,6 +89,7 @@
               </button>
               <div class="flex flex-col">
                 {wallPosition}
+          
                 <ArtPieceForm
                   exhibition_id={data.exhibition_id}
                   roomId={form.room}
@@ -96,7 +97,8 @@
                   form={form}
                   artists={data.artists}
                   order={formIndex + 1}
-                  room={sectionName} />
+                  room={sectionName}
+                  audio_url={form.audio_url} />
               </div>
               
               <div class="artwork-image w-[50%]" style="background-image: url('{form.image_url}')"></div>

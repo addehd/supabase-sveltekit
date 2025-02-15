@@ -75,6 +75,7 @@ export const actions = {
   
     return { success: true, exhibition_data };
   },
+  
   edit_exhibition: async ({ request, locals }) => {
     const { supabaseClient } = await checkAuthentication(locals);
 
@@ -99,6 +100,7 @@ export const actions = {
 
     return { success: true };
   },
+
   delete_exhibition: async ({ request, locals }) => {
     const { supabaseClient } = await checkAuthentication(locals);
 

@@ -7,6 +7,7 @@ import { setupArtwork } from './art-canvas';
 import { loadSmileyFace } from './smiley';
 import { setupViracocha } from './viracocha';
 import { setupVideo } from './video-cube';
+import { setupMobileControls } from './mobile-controls';
 
 let vg;
 let player;
@@ -111,29 +112,12 @@ const initRum = (el, data) => {
       object: object,
       moveSpeed: 2,
       lookSpeed: 0.1,
-      jumpSpeed: 10,
+      jumpSpeed: 300,
       crouchSpeed: 0.1,
       unremovable: true,
       moveDirection: new THREE.Vector3(),
-      // gui: [
-      //   [ object.position, 'x', -100, 100, 10, 'object x' ],
-      //   [ object.position, 'y', -100, 100, 10, 'y' ],
-      //   [ object.position, 'z', -100, 100, 10, 'z' ],
-      //   [ object.rotation, 'x', -10, 10, 0.1, "r x" ],
-      //   [ object.rotation, 'y', -10, 10, 0.1, "r y" ],
-      //   [ object.rotation, 'z', -10, 10, 0.1, "r z" ],
-      //   [ body.position, 'x', -100, 100, 10, 'body x' ],
-      //   [ body.position, 'y', -100, 100, 10, 'y' ],
-      //   [ body.position, 'z', -100, 100, 10, 'z' ],
-      //   [ body.velocity, 'x', -10, 10, 0.1, "v x" ],
-      //   [ body.velocity, 'y', -10, 10, 0.1, "v y" ],
-      //   [ body.velocity, 'z', -10, 10, 0.1, "v z" ],
-      //   [ body.quaternion, 'x', -1, 1, 0.01, "q x" ],
-      //   [ body.quaternion, 'y', -1, 1, 0.01, "q y" ],
-      //   [ body.quaternion, 'z', -1, 1, 0.01, "q z" ],
-      //   [ body.quaternion, 'w', -1, 1, 0.01, "q w" ]
-      // ],
       keysDown: {},
+      touchControls: {},
       update: function(delta) {
         this.moveDirection.set(0, 0, 0);
         if (this.keysDown['s']) this.moveDirection.z -= 1;
@@ -200,6 +184,9 @@ const initRum = (el, data) => {
     vg.input.whilePressed['ArrowLeft'] = (key) => { vg.camera.rotation.y += 0.05 };
     vg.input.whilePressed['ArrowDown'] = (key) => { vg.camera.rotation.x -= 0.02 };
     vg.input.whilePressed['ArrowUp'] = (key) => { vg.camera.rotation.x += 0.02 };
+
+    // add mobile controls
+    setupMobileControls(vg, player);
   }
 
   { // room

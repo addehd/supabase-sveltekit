@@ -104,39 +104,91 @@ export const actions = {
       const medium = formData.get('medium');
       const room = formData.get('room');
       const description = formData.get('description');
-      const imageUrl = formData.get('image_url');
       const wall = formData.get('wall');
       const exhibitionsId = formData.get('exhibition_id');
 
       let audioUrl = '';
 
-      try {
-        const audioResponse = await postAudioData(title, shortDescription);
-        if (audioResponse.success) {
-          audioUrl = audioResponse.url;
-        } else {
-          throw new Error('Audio generation failed');
+      const existingArtwork = await supabaseClient
+        .from('artworks')
+        .select('*')
+        .eq('artwork_id', artworkId)
+        .single();
+
+      console.log('existingArtwork:', existingArtwork);
+      console.log('formData:', formData);
+      //return { success: true };
+
+      const currentImageUrl = existingArtwork.data.image_url;
+
+      const newImage = formData.get('image'); // new image file
+
+      // check if a new image is provided
+      let imageUrl = currentImageUrl; // default to current image URL
+
+      if (newImage && newImage.size > 0) {
+        // handle the new image upload logic here
+        const fileExt = newImage.name.split('.').pop();
+        const fileName = `${title}-${Date.now()}.${fileExt}`;
+        const filePath = `exhibitions/${fileName}`;
+
+        const { data: storageData, error: storageError } = await supabaseClient.storage
+          .from('bucket')
+          .upload(filePath, newImage);
+
+        if (storageError) {
+          console.error('Error uploading image:', storageError);
+          return { success: false, error: storageError.message };
         }
-      } catch (audioError) {
-        console.error('Error fetching audio data:', audioError);
-        return { success: false, error: 'Failed to generate audio' };
+
+        const { data: publicUrlData, error: publicUrlError } = await supabaseClient.storage
+          .from('bucket')
+          .getPublicUrl(filePath);
+
+        if (publicUrlError) {
+          console.error('Error generating public URL:', publicUrlError);
+          return { success: false, error: publicUrlError.message };
+        }
+
+        // update the image URL with the new one
+        imageUrl = publicUrlData.publicUrl;
+      }
+
+      // build update object only with changed fields
+      const updates: any = {};
+      const fields = ['title', 'short_description', 'artist_id', 'creation_year', 
+                     'medium', 'room', 'description', 'wall', 'exhibitions_id'];
+      
+      fields.forEach(field => {
+        const newValue = formData.get(field);
+        if (newValue !== null && newValue !== existingArtwork[field]) {
+          updates[field] = newValue;
+        }
+      });
+
+      // handle wall case specifically
+      if (updates.wall) {
+        updates.wall = updates.wall.toLowerCase();
+      }
+
+      // only generate new audio if short_description changed
+      if (updates.short_description) {
+        try {
+          const audioResponse = await postAudioData(
+            formData.get('title') || existingArtwork.title,
+            updates.short_description
+          );
+          if (audioResponse.success) {
+            updates.audio = audioResponse.url;
+          }
+        } catch (audioError) {
+          console.error('Error fetching audio data:', audioError);
+        }
       }
 
       const { data, error } = await supabaseClient
         .from('artworks')
-        .update({
-          title,
-          short_description: shortDescription,
-          artist_id: artistId,
-          creation_year: creationYear,
-          medium,
-          room,
-          description,
-          image_url: imageUrl,
-          audio: audioUrl,
-          wall: wall?.toLowerCase(),
-          exhibitions_id: exhibitionsId,
-        })
+        .update(updates)
         .eq('artwork_id', artworkId)
         .select();
 
