@@ -46,9 +46,9 @@
 </script>
 
 <div class="text-white">
-  <h1 class="w-full text-center text-5xl pt-14 p-7">Utställning nr {data.exhibition_id}</h1>
+  <h1 class="w-full text-center text-5xl pt-24 p-7">Utställning nr {data.exhibition_id}</h1>
   {#each Object.entries(sections) as [sectionName, walls]}
-    <h2 class="text-3xl mb-4">{sectionName} 1</h2>
+    <h2 class="text-3xl mb-4 ml-7">{sectionName} </h2>
     {#each Object.entries(walls) as [wallPosition, artworks]}
       <div class="border border-solid border-gray-300 p-7 my-7">
         <h3 class="text-2xl">{wallPosition} wall</h3>

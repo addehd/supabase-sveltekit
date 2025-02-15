@@ -71,7 +71,7 @@ function addExhibition() {
         <label class="mb-2 text-black">
           Edit Description:
           <textarea name="description" class="w-full px-3 py-2 border rounded" bind:value={exhibition.description} required></textarea>
-        </label>
+        </label>   
         
         <div class="flex justify-between items-center">
           <div>
