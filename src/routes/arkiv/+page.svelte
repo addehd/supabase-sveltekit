@@ -19,12 +19,14 @@ function addExhibition() {
   exhibitions = [...exhibitions, { name: '', year: nextYear.toString(), description: '' }];
 }
 </script>
-<button on:click={addExhibition} class="bg-green-500 mx-auto w-full max-w-sm mt-32 text-white px-4 py-2 rounded-md hover:bg-green-600 mb-4">
-  Ny utställning
-</button>
-<div class="flex flex-col-reverse">
+<div class="flex justify-center" >
+  <button on:click={addExhibition} class="bg-green-500 mx-auto w-full max-w-sm mt-24 mb-11 text-white px-6 py-4 rounded-md hover:bg-green-600">
+    Skapa ny utställning
+  </button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
   {#each exhibitions as exhibition}
-    <form method="POST" enctype="multipart/form-data" action="?/submit_exhibition" class="exhibition section border border-solid border-gray-300 rounded-md mb-8 p-7">
+    <form method="POST" enctype="multipart/form-data" action="?/submit_exhibition" class="exhibition section border border-solid border-gray-300 rounded-md p-7">
       <div>
         <h1 class="text-3xl dark:text-white text-black font-bold mb-6">{exhibition.title || 'Ny utställning'}</h1>
         <label class="mb-2 text-black">
@@ -47,14 +49,14 @@ function addExhibition() {
           <input name="image" type="file" accept="image/*" class="w-full px-3 py-2 border rounded" required>
         </label>
         <!-- <input type="hidden" name="year" value={exhibition.year} /> -->
-        <div class="flex space-x-4">
-          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 mt-4">
+        <div class="flex justify-between">
+          <button type="submit" class="bg-blue-500 text-white px-6 py-3 text-lg font-semibold rounded-md hover:bg-blue-600 mt-4">
             Submit Exhibition
           </button>
           <form method="POST" action="?/delete_exhibition" class="mt-4">
             <input type="hidden" name="exhibition_id" value={exhibition.exhibition_id} />
-            <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
-              Delete Exhibition
+            <button type="submit" class="bg-red-500 text-white px-4 py-2 text-sm rounded-md hover:bg-red-600">
+              Delete
             </button>
           </form>
         </div>
@@ -71,22 +73,25 @@ function addExhibition() {
           <textarea name="description" class="w-full px-3 py-2 border rounded" bind:value={exhibition.description} required></textarea>
         </label>
         
-        <button type="submit" class="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 mt-4">
-          Save Changes
-        </button>
+        <div class="flex justify-between items-center">
+          <div>
+            <button type="submit" class="bg-yellow-500 text-white px-4 py-2 text-sm rounded-md hover:bg-yellow-600 mt-4">
+              Save
+            </button>
 
-      <!-- button edit -->
-      <a href={`/arkiv/${exhibition.exhibition_id}`}>
-        <button type="button" on:click={() => console.log('edit')} class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 mt-4">
-          edit Exhibition
-        </button>
-      </a>
+            <a href={`/arkiv/${exhibition.exhibition_id}`}>
+              <button type="button" class="bg-green-500 text-white px-4 py-2 text-sm rounded-md hover:bg-green-600 mt-4">
+                Edit
+              </button>
+            </a>
+          </div>
 
-      <a href={`/rum/${exhibition.exhibition_id}`}>
-        <button type="button" on:click={() => console.log('edit')} class="bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 mt-4">
-            go to exhibition   <span class="rounded-full bg-purple-200 bg-opacity-50 px-1 ml-1 py-1">{exhibition.exhibition_id}</span>
-        </button>
-      </a>
+          <a href={`/rum/${exhibition.exhibition_id}`} class="inline-block">
+            <button type="button" class="bg-purple-500 text-white px-3 py-2 text-sm rounded-md hover:bg-purple-600 mt-4">
+             #{exhibition.exhibition_id} →
+            </button>
+          </a>
+        </div>
       </form>
     </form>
   {/each}
