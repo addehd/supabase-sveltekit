@@ -18,6 +18,23 @@ export const actions = {
                 
                 // process each csv row
                 for (const row of csvData) {
+                    // first create or update artist
+                    const { data: artistData, error: artistError } = await supabaseClient
+                        .from('artists')
+                        .upsert({
+                            name: row.artist_name || '',
+                            bio: row.artist_bio || null,
+                            birth_year: row.birth_year ? parseInt(row.birth_year) : null,
+                            nationality: row.nationality || null,
+                            exhibitions: parseInt(exhibitionNumber)
+                        }, { onConflict: 'name' });
+
+                    if (artistError) {
+                        console.error('Error upserting artist:', artistError);
+                        throw artistError;
+                    }
+
+                    // then create artwork with artist reference
                     const { data, error } = await supabaseClient
                         .from('artworks')
                         .upsert({
