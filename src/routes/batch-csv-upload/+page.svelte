@@ -1,21 +1,12 @@
   <script lang="ts">
     export let data;
 
-    let selectedFiles: File[] = [];
     let csvFile: File | null = null;
     let exhibitionNumber: number = 0;
     let wallName: string = '';
     let room: string = '';
 
     $: artists = data.artists;
-
-    const handleFileChange = (event: Event) => {
-      console.log('ex nr', exhibitionNumber);
-      const input = event.target as HTMLInputElement;
-      if (input.files) {
-        selectedFiles = Array.from(input.files); // Convert FileList to Array
-      }
-    };
 
     const handleCsvChange = (event: Event) => {
       const input = event.target as HTMLInputElement;
@@ -25,20 +16,12 @@
     };
 
     const handleUpload = async () => {
-      console.log('handleUpload');
-      if (selectedFiles.length > 0 || csvFile) {
+      if (csvFile) {
         const formData = new FormData();
         formData.append('exhibitionNumber', exhibitionNumber.toString());
         formData.append('wallName', wallName);
-        formData.append('room', room); // Add room to formData
-        
-        if (csvFile) {
-          formData.append('csv', csvFile);
-        }
-        
-        selectedFiles.forEach(file => {
-          formData.append('files', file);
-        });
+        formData.append('room', room);
+        formData.append('csv', csvFile);
         
         try {
           const response = await fetch('?/upload', {
@@ -46,20 +29,20 @@
             body: formData
           });
           if (response.ok) {
-            alert('Files uploaded successfully!');
+            alert('CSV uploaded successfully!');
           }
         } catch (error) {
           alert('Upload failed');
         }
       } else {
-        alert("No files selected for upload.");
+        alert("No CSV file selected for upload.");
       }
     };
   </script>
 
   <div class="min-h-screen bg-gray-900 text-white flex flex-col items-center py-10 px-4 w-72 my-24 mx-auto flex-1">
-    <h1 class="text-2xl font-bold mb-6">Batch Upload</h1>
-    <p class="text-sm text-gray-400 mb-6">Upload multiple files at once, file names should be in the format of "artistId-artname-order.jpg"</p>
+    <h1 class="text-2xl font-bold mb-6">CSV Upload</h1>
+    <p class="text-sm text-gray-400 mb-6">Upload a CSV file with artwork information</p>
 
     <div class="w-full max-w-md space-y-4">
       <div class="text-sm text-gray-400 mb-1">Exhibition number:</div>
@@ -67,13 +50,11 @@
         type="number"
         bind:value={exhibitionNumber}
         class="w-full bg-gray-800 text-white rounded-lg p-2 border border-gray-700"
-        placeholder="Enter order number"
-      />
+        placeholder="Enter order number"/>
       
       <select
         bind:value={wallName}
-        class="w-full bg-gray-800 text-white rounded-lg p-2 border border-gray-700"
-      >
+        class="w-full bg-gray-800 text-white rounded-lg p-2 border border-gray-700">
         <option value="">Select wall</option>
         <option value="north">North</option>
         <option value="east">East</option>
@@ -83,8 +64,7 @@
       
       <select
         bind:value={room}
-        class="w-full bg-gray-800 text-white rounded-lg p-2 border border-gray-700"
-      >
+        class="w-full bg-gray-800 text-white rounded-lg p-2 border border-gray-700">
         <option value="">Select room</option>
         <option value="stappen">Stappen</option>
         <option value="hangaren">Hangaren</option>
@@ -92,37 +72,18 @@
       
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-300 mb-2">
-          CSV File (optional)
+          CSV File
         </label>
         <input
           type="file"
           accept=".csv"
           class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-gray-700 file:text-white hover:file:bg-gray-600"
-          on:change={handleCsvChange}
-        />
+          on:change={handleCsvChange} />
       </div>
 
-      <input
-        type="file"
-        multiple
-        class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-gray-700 file:text-white hover:file:bg-gray-600"
-        on:change={handleFileChange}
-      />
-
-      <!-- Display selected file names -->
-      {#if selectedFiles.length > 0}
-        <ul class="bg-gray-800 rounded-lg p-4">
-          {#each selectedFiles as file}
-            <li class="text-sm text-gray-300">📄 {file.name}</li>
-          {/each}
-        </ul>
-      {/if}
-
-      <!-- Upload button -->
       <button
         on:click={handleUpload}
-        class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg transition"
-      >
+        class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg transition">
         Upload
       </button>
     </div>

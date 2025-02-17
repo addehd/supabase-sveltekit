@@ -1,7 +1,7 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
   import { fade } from 'svelte/transition';
-  import { createScene } from '$lib/stappen';
+  import { createScene, loadSmileyFaceWrapper } from '$lib/stappen';
   import Loading from '$lib/components/Loading.svelte';
   import { videoIsPlaying } from '$lib/state/art-info';
   import { isMenuOpen } from '$lib/state/menu-store';
@@ -31,7 +31,7 @@
   });
 
   function playAndLoad() {
-    console.log('playAndLoad');
+    loadSmileyFaceWrapper();
   }
 
   function toggleMenu() {

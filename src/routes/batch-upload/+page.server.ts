@@ -6,9 +6,41 @@ export const actions = {
         try {
             const formData = await request.formData();
             const files = formData.getAll('files');
+            const csvFile = formData.get('csv') as File | null;
             const wallName = formData.get('wallName') as string;
             const exhibitionNumber = formData.get('exhibitionNumber') as string;
             const room = formData.get('room') as string;
+
+            const { supabaseClient, user } = await checkAuthentication(locals);
+
+            if (csvFile) {
+                const csvText = await csvFile.text();
+                const csvData = parseCsv(csvText);
+                
+                // process each csv row
+                for (const row of csvData) {
+                    const { data, error } = await supabaseClient
+                        .from('artworks')
+                        .upsert({
+                            title: row.title || '',
+                            exhibitions_id: parseInt(exhibitionNumber),
+                            image_url: row.image_url || '',
+                            short_description: row.short_description || '',
+                            description: row.description || null,
+                            wall: row.wall || wallName || null,
+                            room: row.room || room,
+                            order: row.order || '',
+                            artist_id: parseInt(row.artist_id) || null,
+                            audio: row.audio || ''
+                        })
+                        .select();
+
+                    if (error) {
+                        console.error('CSV row upload failed:', error);
+                        throw new Error(`Failed to upload CSV row: ${error.message}`);
+                    }
+                }
+            }
 
             console.log('exhibitionNumber addehd', exhibitionNumber);
             
@@ -18,21 +50,17 @@ export const actions = {
 
             console.log('Form data:', { wallName, exhibitionNumber });
             
-            const { supabaseClient, user } = await checkAuthentication(locals);
+      
 
             const processedFiles = await Promise.all(files.map(async (file) => {
                 const fileName = (file as File).name;
                 
-                // validate filename format
-                if (!fileName.includes('-')) {
-                    throw new Error(`Invalid filename format: ${fileName}. Expected format: artist-artwork-exhibition.ext`);
-                }
-
+                // validate 
+                if (!fileName.includes('-')) { throw new Error(`Invalid filename format: ${fileName}. Expected format: artist-artwork-exhibition.ext`); }
                 const parts = fileName.split('-');
-                if (parts.length !== 3) {
-                    throw new Error(`Invalid filename format: ${fileName}. Expected format: artist-artwork-exhibition.ext`);
-                }
+                if (parts.length !== 3) { throw new Error(`Invalid filename format: ${fileName}. Expected format: artist-artwork-exhibition.ext`); }
 
+                // extract artist, artworkname, and exhibition number
                 const [artist, artworkWithUnderscores, exhibitionWithExt] = parts;
                 const artwork = artworkWithUnderscores.replace(/_/g, ' ');
                 const orderNumber = exhibitionWithExt.split('.')[0];
@@ -142,3 +170,20 @@ export const load = async ({ locals }) => {
         artists 
     };
 };
+
+// helper function to parse CSV
+function parseCsv(csvText: string) {
+    const lines = csvText.split('\n');
+    const headers = lines[0].split(',');
+    
+    return lines.slice(1).map(line => {
+        const values = line.split(',');
+        const entry: Record<string, string> = {};
+        
+        headers.forEach((header, index) => {
+            entry[header.trim()] = values[index]?.trim() || '';
+        });
+        
+        return entry;
+    });
+}
