@@ -3,66 +3,93 @@ import { checkAuthentication } from '$lib/helper';
 
 export const actions = {
     upload: async ({ request, locals }) => {
+
+        const { supabaseClient, user } = await checkAuthentication(locals);
+        
         try {
             const formData = await request.formData();
             const csvFile = formData.get('csv') as File | null;
             const wallName = formData.get('wallName') as string;
             const exhibitionNumber = formData.get('exhibitionNumber') as string;
             const room = formData.get('room') as string;
-
-            const { supabaseClient, user } = await checkAuthentication(locals);
-
-            if (csvFile) {
-                const csvText = await csvFile.text();
-                const csvData = parseCsv(csvText);
-                
-                // process each csv row
-                for (const row of csvData) {
-                    // first create or update artist
-                    const { data: artistData, error: artistError } = await supabaseClient
-                        .from('artists')
-                        .upsert({
-                            name: row.artist_name || '',
-                            bio: row.artist_bio || null,
-                            birth_year: row.birth_year ? parseInt(row.birth_year) : null,
-                            nationality: row.nationality || null,
-                            exhibitions: parseInt(exhibitionNumber)
-                        }, { onConflict: 'name' });
-
-                    if (artistError) {
-                        console.error('Error upserting artist:', artistError);
-                        throw artistError;
-                    }
-
-                    // then create artwork with artist reference
-                    const { data, error } = await supabaseClient
-                        .from('artworks')
-                        .upsert({
-                            id: parseInt(row.id) || null,
-                            title: row.name || '',
-                            artist_name: row.artist_name || '',
-                            exhibitions_id: parseInt(exhibitionNumber),
-                            description: row.description || null,
-                            wall: row.wall || wallName || null,
-                            room: row.room || room,
-                            has_image: row.has_image === 'true',
-                            image_file: row.image_file || null
-                        });
-
-                    if (error) {
-                        console.error('Error upserting artwork:', error);
-                        throw error;
-                    }
-                }
-                
-                return { success: true };
-            }
             
-            return { error: 'No CSV file provided' };
+            // verify exhibition exists
+            const { data: exhibition, error: exhibitionError } = await supabaseClient
+            .from('exhibitions')
+            .select('exhibition_id')
+            .eq('exhibition_id', parseInt(exhibitionNumber))
+            .single();
+
+            const csvText = await csvFile.text();
+            const csvData = parseCsv(csvText);
+                
+            for (const row of csvData) {
+
+                // first check if artist exists and get their ID
+                const { data: existingArtist } = await supabaseClient
+                    .from('artists')
+                    .select('artist_id, name')
+                    .eq('name', row.artist_name)
+                    .single();
+
+                // if artist exists, update, otherwise insert
+                const { data: artistData, error: artistError } = await supabaseClient
+                    .from('artists')
+                    .upsert({
+                        artist_id: existingArtist?.artist_id,
+                        name: row.artist_name || '',
+                        bio: row.artist_bio || null,
+                        birth_year: row.birth_year ? parseInt(row.birth_year) : null,
+                        nationality: row.nationality || null,
+                        exhibitions: parseInt(exhibitionNumber)
+                    }, { 
+                        onConflict: 'artist_id'
+                    })
+                    .select('artist_id');
+
+                // log description length
+                if (row.description) {
+                    console.log(`Description length for ${row.name}: ${row.description.length} characters`);
+                }
+
+                return;
+
+                const { data, error } = await supabaseClient
+                    .from('artworks_test')
+                    .upsert({
+                        artwork_id: parseInt(row.id) || null,
+                        title: row.name|| 'hello' + Math.floor(Math.random() * 100),
+                        artist_id: row.id || null,
+                        creation_year: row.creation_year ? parseInt(row.creation_year) : null,
+                        medium: row.medium || null,
+                        description: row.description || null,
+                        wall: row.wall || wallName || null,
+                        room: row.room || room || 'Unspecified', // ensure room is not empty
+                        image_url: row.image_file || null,
+                        audio: row.audio || '',
+                        exhibitions_id: parseInt(exhibitionNumber),
+                        order: row.order ? parseInt(row.order) : 0,
+                        short_description: row.short_description || ''
+                    }, {
+                        onConflict: 'artwork_id'
+                    });
+
+       
+
+                if (error) {
+                    console.error('Error upserting artwork:', error);
+                    throw new Error(`Failed to upsert artwork: ${title} - ${error.message}`);
+                }
+            }
+                
+            return { success: true };
 
         } catch (error) {
             console.error('Upload error:', error);
-            return { error: 'Failed to process upload' };
+            return { 
+                success: false,
+                error: error instanceof Error ? error.message : 'Failed to process upload' 
+            };
         }
     }
 } satisfies Actions;

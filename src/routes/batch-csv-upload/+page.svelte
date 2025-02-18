@@ -2,9 +2,9 @@
     export let data;
 
     let csvFile: File | null = null;
-    let exhibitionNumber: number = 0;
-    let wallName: string = '';
-    let room: string = '';
+    let exhibitionNumber: number = 20;
+    let wallName: string = 'north';
+    let room: string = 'stappen';
 
     $: artists = data.artists;
 
