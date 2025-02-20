@@ -71,10 +71,13 @@
       </select>
       
       <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-300 mb-2">
+        <label 
+          for="csv-upload" 
+          class="block text-sm font-medium text-gray-300 mb-2">
           CSV File
         </label>
         <input
+          id="csv-upload"
           type="file"
           accept=".csv"
           class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-gray-700 file:text-white hover:file:bg-gray-600"

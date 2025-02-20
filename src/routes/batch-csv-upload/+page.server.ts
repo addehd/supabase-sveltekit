@@ -1,5 +1,5 @@
 import type { Actions } from '@sveltejs/kit';
-import { checkAuthentication } from '$lib/helper';
+import { checkAuthentication, createAudio } from '$lib/helper';
 
 export const actions = {
     upload: async ({ request, locals }) => {
@@ -13,19 +13,11 @@ export const actions = {
             const exhibitionNumber = formData.get('exhibitionNumber') as string;
             const room = formData.get('room') as string;
             
-            // verify exhibition exists
-            const { data: exhibition, error: exhibitionError } = await supabaseClient
-            .from('exhibitions')
-            .select('exhibition_id')
-            .eq('exhibition_id', parseInt(exhibitionNumber))
-            .single();
-
             const csvText = await csvFile.text();
             const csvData = parseCsv(csvText);
                 
             for (const row of csvData) {
 
-                // first check if artist exists and get their ID
                 const { data: existingArtist } = await supabaseClient
                     .from('artists')
                     .select('artist_id, name')
@@ -47,14 +39,16 @@ export const actions = {
                     })
                     .select('artist_id');
 
-                // log description length
-                if (row.description) {
-                    console.log(`Description length for ${row.name}: ${row.description.length} characters`);
+                // get audio url from short description
+                let audioUrl = '';
+                if (row.short_description) {
+
+                    const audioResponse = await createAudio( `artwork_${row.id || 'new'}`, row.short_description );
+                    audioUrl = audioResponse.url;
+        
                 }
 
-                return;
-
-                const { data, error } = await supabaseClient
+                const { data: artworkData, error: artworkError } = await supabaseClient
                     .from('artworks_test')
                     .upsert({
                         artwork_id: parseInt(row.id) || null,
@@ -64,9 +58,9 @@ export const actions = {
                         medium: row.medium || null,
                         description: row.description || null,
                         wall: row.wall || wallName || null,
-                        room: row.room || room || 'Unspecified', // ensure room is not empty
+                        room: row.room || room || 'Unspecified',
                         image_url: row.image_file || null,
-                        audio: row.audio || '',
+                        audio: audioUrl || '',
                         exhibitions_id: parseInt(exhibitionNumber),
                         order: row.order ? parseInt(row.order) : 0,
                         short_description: row.short_description || ''
@@ -74,12 +68,9 @@ export const actions = {
                         onConflict: 'artwork_id'
                     });
 
-       
-
-                if (error) {
-                    console.error('Error upserting artwork:', error);
-                    throw new Error(`Failed to upsert artwork: ${title} - ${error.message}`);
-                }
+                if (artworkError) {
+                    console.error('Error upserting artwork:', artworkError);
+                    throw new Error(`Failed to upsert artwork: ${row.name} - ${artworkError.message}`); }
             }
                 
             return { success: true };
@@ -97,21 +88,29 @@ export const actions = {
 export const load = async ({ locals }) => {
     const { supabaseClient, user } = await checkAuthentication(locals);
     
-    // fetch artists from supabase
-    const { data: artists, error } = await supabaseClient
-        .from('artists')
-        .select('*')
-        .order('name');
+    const [artistsResponse, exhibitionsResponse] = await Promise.all([
+        supabaseClient
+            .from('artists')
+            .select('*')
+            .order('name'),
+        supabaseClient
+            .from('exhibitions')
+            .select('exhibition_id, name')
+            .order('name')
+    ]);
 
-    if (error) {
-        // handle error appropriately
-        console.error('Error fetching artists:', error);
-        return { user, artists: [] };
+    const { data: artists, error: artistsError } = artistsResponse;
+    const { data: exhibitions, error: exhibitionsError } = exhibitionsResponse;
+
+    if (artistsError || exhibitionsError) {
+        console.error('Error fetching data:', artistsError || exhibitionsError);
+        return { user, artists: [], exhibitions: [] };
     }
 
     return { 
         user,
-        artists 
+        artists,
+        exhibitions 
     };
 };
 

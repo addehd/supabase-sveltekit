@@ -13,7 +13,7 @@ export async function checkAuthentication(locals) {
 }
 
 // cloudways: functions/audio.php
-export async function postAudioData(name: string, text: string): Promise<any> {
+export async function createAudio(name: string, text: string): Promise<any> {
   const url = 'https://phpstack-863910-3043731.cloudwaysapps.com/audio.php';
   const headers = {
     'Content-Type': 'application/x-www-form-urlencoded',

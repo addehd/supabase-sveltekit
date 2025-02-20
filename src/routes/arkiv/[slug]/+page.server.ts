@@ -1,5 +1,5 @@
 import type { PageServerLoad } from './$types';
-import { checkAuthentication, postAudioData } from '$lib/helper';
+import { checkAuthentication, createAudio } from '$lib/helper';
 
 export const actions = {
   submit_artwork: async ({ params, request, locals }) => {
@@ -52,7 +52,7 @@ export const actions = {
       }
 
       try {
-        const audioResponse = await postAudioData(title, shortDescription);
+        const audioResponse = await createAudio(title, shortDescription);
         if (audioResponse.success) {
           audioUrl = audioResponse.url;
         } else {
@@ -174,7 +174,7 @@ export const actions = {
       // only generate new audio if short_description changed
       if (updates.short_description) {
         try {
-          const audioResponse = await postAudioData(
+          const audioResponse = await createAudio(
             formData.get('title') || existingArtwork.title,
             updates.short_description
           );
