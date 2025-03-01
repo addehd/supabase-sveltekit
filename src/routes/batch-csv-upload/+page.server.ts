@@ -12,68 +12,82 @@ export const actions = {
             const wallName = formData.get('wallName') as string;
             const exhibitionNumber = formData.get('exhibitionNumber') as string;
             const room = formData.get('room') as string;
+
+            // skip rows with artwork id
+            const skip_rows = [34, 35, 42, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54.];
             
             const csvText = await csvFile.text();
             const csvData = parseCsv(csvText);
-                
+
+            const results = {
+                success: 0,
+                skipped: 0,
+                failed: 0,
+                errors: []
+            };
+
             for (const row of csvData) {
+                // Skip specific artwork IDs
+                if (row.artwork_id && skip_rows.includes(parseInt(row.artwork_id))) {
+                    console.log(`Skipping row with ID ${row.artwork_id}: In skip list`);
+                    results.skipped++;
+                    continue;
+                }
 
-                const { data: existingArtist } = await supabaseClient
-                    .from('artists')
-                    .select('artist_id, name')
-                    .eq('name', row.artist_name)
-                    .single();
-
-                // if artist exists, update, otherwise insert
-                const { data: artistData, error: artistError } = await supabaseClient
-                    .from('artists')
-                    .upsert({
-                        artist_id: existingArtist?.artist_id,
-                        name: row.artist_name || '',
-                        bio: row.artist_bio || null,
-                        birth_year: row.birth_year ? parseInt(row.birth_year) : null,
-                        nationality: row.nationality || null,
-                        exhibitions: parseInt(exhibitionNumber)
-                    }, { 
-                        onConflict: 'artist_id'
-                    })
-                    .select('artist_id');
+                // Skip rows with missing required fields
+                if (!row.title) {
+                    console.log(`Skipping row with ID ${row.artwork_id || 'unknown'}: Missing title`);
+                    results.skipped++;
+                    continue;
+                }
 
                 // get audio url from short description
                 let audioUrl = '';
                 if (row.short_description) {
-
-                    const audioResponse = await createAudio( `artwork_${row.id || 'new'}`, row.short_description );
+                    const audioResponse = await createAudio(`artwork_${row.artwork_id || 'new'}`, row.short_description);
                     audioUrl = audioResponse.url;
-        
                 }
 
                 const { data: artworkData, error: artworkError } = await supabaseClient
                     .from('artworks_test')
                     .upsert({
-                        artwork_id: parseInt(row.id) || null,
-                        title: row.name|| 'hello' + Math.floor(Math.random() * 100),
-                        artist_id: row.id || null,
+                        exhibitions_id: row.exhibitions_id ? parseInt(row.exhibitions_id) : parseInt(exhibitionNumber),
+                        artwork_id: row.artwork_id ? parseInt(row.artwork_id) : null,
+                        title: row.title,
+                        artist_id: row.artist_id ? parseInt(row.artist_id) : null,
                         creation_year: row.creation_year ? parseInt(row.creation_year) : null,
                         medium: row.medium || null,
-                        description: row.description || null,
-                        wall: row.wall || wallName || null,
                         room: row.room || room || 'Unspecified',
-                        image_url: row.image_file || null,
+                        description: row.description || null,
+                        short_description: row.short_description || '',
+                        image_url: row.image_url || null,
                         audio: audioUrl || '',
-                        exhibitions_id: parseInt(exhibitionNumber),
-                        order: row.order ? parseInt(row.order) : 0,
-                        short_description: row.short_description || ''
+                        wall: row.wall || wallName || null,
+                        order: row.order ? parseInt(row.order) : 0
                     }, {
                         onConflict: 'artwork_id'
                     });
 
                 if (artworkError) {
-                    console.error('Error upserting artwork:', artworkError);
-                    throw new Error(`Failed to upsert artwork: ${row.name} - ${artworkError.message}`); }
+                    // If it's a duplicate key error, just skip this row
+                    if (artworkError.code === '23505') {
+                        console.log(`Skipping duplicate: ${row.title} (${row.exhibitions_id || exhibitionNumber})`);
+                        results.skipped++;
+                    } else {
+                        results.failed++;
+                        results.errors.push(`Failed to upsert "${row.title}": ${artworkError.message}`);
+                    }
+                    continue; // Skip to next row instead of throwing
+                }
+                
+                results.success++;
+                console.log(`Successfully upserted: ${row.title}`);
             }
                 
-            return { success: true };
+            return { 
+                success: true, 
+                results: results 
+            };
 
         } catch (error) {
             console.error('Upload error:', error);
