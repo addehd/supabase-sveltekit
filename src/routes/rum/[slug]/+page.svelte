@@ -15,8 +15,8 @@
   let showDiv = true;
   let audio;
   let iframeElement: HTMLIFrameElement;
+  let showDescModal = false;
 
- 
   $: { if (audio) { audio.src = $audioSource; } }
   
   function playAndLoad() {
@@ -62,6 +62,10 @@
   function toggleMenu() {
     $isMenuOpen = !$isMenuOpen;
   }
+
+  function toggleDescModal() {
+    showDescModal = !showDescModal;
+  }
 </script>
 
 <div class="fixed backdrop-blur-lg bottom-0 w-full z-50 flex items-center justify-between border-t-[1px] border-white/20 
@@ -79,6 +83,7 @@
             d="M63.5 59.5c-7.4 7.4-19.6 7.4-27 0-1.1-1.1-2.9-1.1-3.9 0-1.1 1.1-1.1 2.9 0 3.9 4.8 4.8 11.1 7.2 17.5 7.2s12.6-2.4 17.5-7.2c1.1-1.1 1.1-2.9 0-3.9-1.2-1.1-3-1.1-4.1 0z" />
         </svg>
       </button>
+      <button class="text-white font-bold text-xl h-[3rem] px-3" on:click={toggleDescModal}>i</button>
     </div>
 
     <p class="text-white text-xl fade-in">{ $name && $name !== 'Welcome' ? 'by ' + $name : ''}</p>
@@ -93,6 +98,24 @@
     </div>
   </nav>
 </div>
+
+<!-- Description modal with matching styles -->
+{#if showDescModal}
+  <div class="fixed inset-0 flex items-center justify-center z-[60]" on:click={toggleDescModal}>
+    <div class="absolute backdrop-blur-lg bg-black/50 w-1/2 max-h-[50vh] overflow-auto text-white p-12 border-[1px] border-white/20 rounded-md" on:click|stopPropagation>
+      <div class="relative">
+        <button 
+          class="absolute top-[-2rem] right-[-2rem] p-7 text-white hover:text-gray-300" 
+          on:click={toggleDescModal}>
+          ✕
+        </button>
+        <div class="text-xl font-bold mb-6">{$name || 'Artwork'}</div>
+        <div>{$description || 'No description available'}</div>
+      </div>
+    </div>
+  </div>
+{/if}
+
 <canvas class="w-full h-full fixed top-0 left-0" bind:this={canvas} on:click|preventDefault|stopPropagation={handleClick} />
 <Footer />
 {#if showDiv}
