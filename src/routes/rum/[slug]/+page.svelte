@@ -99,7 +99,6 @@
   </nav>
 </div>
 
-<!-- Description modal with matching styles -->
 {#if showDescModal}
   <div class="fixed inset-0 flex items-center justify-center z-[60]" on:click={toggleDescModal}>
     <div class="absolute backdrop-blur-lg bg-black/50 w-1/2 max-h-[50vh] overflow-auto text-white p-12 border-[1px] border-white/20 rounded-md" on:click|stopPropagation>

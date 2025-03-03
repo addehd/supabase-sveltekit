@@ -4,7 +4,7 @@ import { artworkLoaded } from './stores/loading-store';
 import * as THREE from 'three';
 import VG from './vg';
 
-const scaleFactor = 0.5;
+const scaleFactor = 0.4;
 
 export function setupArtwork(
     vg: VG, 
@@ -127,7 +127,7 @@ function processImage(image: HTMLImageElement): THREE.CanvasTexture {
 }
 
 function createAndAddArtwork(vg: VG, wallArtwork: any, artwork: any, processedTexture: THREE.CanvasTexture) {
-  const geometry = createGeometry(processedTexture.image as HTMLImageElement, 1);
+  const geometry = createGeometry(processedTexture.image as HTMLImageElement);
 
   const material = new THREE.MeshBasicMaterial({
     map: processedTexture,
@@ -163,8 +163,8 @@ function createGeometry(image: HTMLImageElement): THREE.PlaneGeometry {
   const widthScalingFactor = 1;
 
   return new THREE.PlaneGeometry(
-    (image.width / (scaleFactor * 100)) ,
-    (image.height / (scaleFactor * 100)) 
+    (image.width / (scaleFactor * 100)) * 1.05,  // multiply by 1.05 to increase size
+    (image.height / (scaleFactor * 100)) * 1.05  // multiply by 1.05 to increase size
   );
 }
 

@@ -452,7 +452,7 @@ const initRum = (el, data) => {
           hangarClone.scale.set(scale * 1.2, scale, scale);
           
           const zOffset = (i - 1) * roomDepth / 3;
-          hangarClone.position.set(0, 0, zOffset);
+          hangarClone.position.set(0, 2, zOffset);
     
           vg.add({
             name: `hangar_${i + 1}`,
