@@ -1,22 +1,23 @@
-import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
-import adapter from '@sveltejs/adapter-vercel';
+import adapterNode from '@sveltejs/adapter-node';
+import adapterVercel from '@sveltejs/adapter-vercel';
+import adapterNetlify from '@sveltejs/adapter-netlify';
+import { vitePreprocess } from '@sveltejs/kit/vite';
+
+const target = process.env.ADAPTER || 'node';
+
+const adapters = {
+	node: adapterNode({ out: 'build' }),
+	vercel: adapterVercel(),
+	netlify: adapterNetlify()
+};
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-	// Consult https://kit.svelte.dev/docs/integrations#preprocessors
-	// for more information about preprocessors
-	preprocess: [vitePreprocess()],
+	preprocess: vitePreprocess(),
 
 	kit: {
-		// Add the Vercel adapter here
-		adapter: adapter()
-	},
-
-	// vitePlugin: {
-	// 	experimental: {
-	// 		inspector: true
-	// 	}
-	// }
+		adapter: adapters[target]
+	}
 };
 
 export default config;
