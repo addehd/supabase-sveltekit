@@ -8,6 +8,7 @@
   import { getSystemInfo } from '$lib/helpers';
   import { resetStores } from '$lib/state/art-info';
   import { isMenuOpen } from '$lib/state/menu-store';
+  import { browser } from '$app/environment';
 
   export let data;
 
@@ -16,6 +17,8 @@
   let audio;
   let iframeElement: HTMLIFrameElement;
   let showDescModal = false;
+
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
   $: { if (audio) { audio.src = $audioSource; } }
   
@@ -68,6 +71,7 @@
   }
 </script>
 
+{#if !isMobile}
 <div class="fixed backdrop-blur-lg bottom-0 w-full z-50 flex items-center justify-between border-t-[1px] border-white/20 
   {$isMenuOpen ? 'block' : 'hidden'} md:block">
   <nav class="flex  space-x-[20rem] justify-between w-full items-center">
@@ -98,6 +102,7 @@
     </div>
   </nav>
 </div>
+{/if}
 
 {#if showDescModal}
   <div class="fixed inset-0 flex items-center justify-center z-[60]" on:click={toggleDescModal}>

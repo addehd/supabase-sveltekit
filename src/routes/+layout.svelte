@@ -21,11 +21,15 @@
 		return () => data.subscription.unsubscribe();
 	});
 
+	const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+
 </script>
 
-<header class="fixed backdrop-blur-lg top-0 w-full z-50 flex items-center justify-between border-b-[1px] border-white/20 
-  {$isMenuOpen ? 'block' : 'hidden'} md:block">
-  <nav class="flex  space-x-[20rem] px-11 justify-between w-full items-center">
+{#if !isMobile}
+<header class="fixed z-[500] backdrop-blur-lg top-0 w-full flex items-center justify-between border-b-[1px] border-white/20 
+  {$isMenuOpen ? 'block md:h-28' : 'hidden md:block md:h-28'} {$isMenuOpen ? 'h-full' : 'h-28'}">
+  <nav class="flex space-x-[20rem] px-11 justify-between w-full items-center">
     <div>
 				<p class="text-white text-xl">Välkommen</p>
     </div>
@@ -37,10 +41,25 @@
     </div>
   </nav>
 </header>
+{/if}
 
+{#if isMobile}
+<header class="fixed z-[500] backdrop-blur-lg top-0 w-full flex items-center justify-between border-b-[1px] border-white/20 
+  {$isMenuOpen ? 'block md:h-[30rem]' : 'hidden md:block md:h-0'} {$isMenuOpen ? 'h-full' : 'h-28'}">
+  <nav class="flex space-x-[20rem] px-11 justify-between w-full items-center">
+  
+    <!-- <div class="flex space-x-2">
+      <img src="/logo.svg" alt="logo" class="my-5 h-[3rem] text-center" />
+    </div> -->
+
+  </nav>
+</header>
+{/if}
+
+{#if isMobile}
 <!-- hamburger button added to layout -->
-<button class="rotate-90 fixed top-4 left-4 z-[60] md:hidden text-white p-2" on:click={toggleMenu}>
-	<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<button class="fixed top-4 right-4 z-[600] text-white p-2" on:click={toggleMenu}>
+	<svg class="w-8 h-9 sm:w-12 sm:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 		{#if $isMenuOpen}
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
 		{:else}
@@ -48,6 +67,7 @@
 		{/if}
 	</svg>
 </button>
+{/if}
 
 <main class="dark:bg-gray-900 bg-slate-800 min-h-[100vh]">i
 	<slot />

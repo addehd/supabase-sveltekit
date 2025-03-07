@@ -5,12 +5,22 @@ export const setupMobileControls = (vg, player) => {
     
     if (!isMobile) return;
 
+    // create container for movement buttons
+    const movementContainer = document.createElement('div');
+    movementContainer.className = 'movement-container';
+    movementContainer.style.position = 'fixed';
+    movementContainer.style.bottom = '6%';
+    movementContainer.style.left = '12%';
+    movementContainer.style.transform = 'translateX(-50%)';
+    movementContainer.style.zIndex = '10';
+    document.body.appendChild(movementContainer);
+
     // movement buttons setup
     const createMoveButton = (text, position, control) => {
         const button = document.createElement('button');
         button.textContent = text;
-        button.style.position = 'fixed';
-        button.style.zIndex = '1000';
+        button.style.position = 'absolute';
+        button.style.zIndex = '1';
         button.className = 'movement-button';
         Object.assign(button.style, position);
             
@@ -20,18 +30,25 @@ export const setupMobileControls = (vg, player) => {
         button.addEventListener('touchstart', startMove);
         button.addEventListener('touchend', stopMove);
             
-        document.body.appendChild(button);
+        movementContainer.appendChild(button);
     };
 
     // create movement buttons
-    createMoveButton('↑', { bottom: '120px', left: '50%', transform: 'translateX(-50%)' }, 'forward');
-    createMoveButton('↓', { bottom: '40px', left: '50%', transform: 'translateX(-50%)' }, 'backward');
-    createMoveButton('←', { bottom: '80px', left: 'calc(50% - 67px)' }, 'left');
-    createMoveButton('→', { bottom: '80px', left: 'calc(50% + 20px)' }, 'right');
+    createMoveButton('↑', { bottom: '80px', left: '50%', transform: 'translateX(-50%)' }, 'forward');
+    createMoveButton('↓', { bottom: '0px', left: '50%', transform: 'translateX(-50%)' }, 'backward');
+    createMoveButton('←', { bottom: '40px', left: 'calc(50% - 67px)' }, 'left');
+    createMoveButton('→', { bottom: '40px', left: 'calc(50% + 20px)' }, 'right');
 
     // add styles for movement buttons
     const style = document.createElement('style');
     style.textContent = `
+        .movement-container {
+            width: 180px;
+            height: 180px;
+            left: 80%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
         .movement-button {
             width: 50px;
             height: 50px;
@@ -117,18 +134,20 @@ export const setupMobileControls = (vg, player) => {
     // add look stick styles
     const lookStickStyle = document.createElement('style');
     lookStickStyle.textContent = `
-        .look-stick {
-            position: fixed;
-            top: 10%;
-            right: 5%;
-            transform: translateY(-50%);
-            width: 100px;
-            height: 100px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid white;
-            border-radius: 50%;
-            touch-action: none;
-        }
+   
+       .look-stick {
+       position: fixed;
+        top: 80%;
+        right: 3%;
+        transform: translateY(-50%);
+        width: 100px;
+        height: 100px;
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid white;
+        border-radius: 50%;
+        touch-action: none;
+    }
+        
         .stick {
             position: absolute;
             top: 30%;
