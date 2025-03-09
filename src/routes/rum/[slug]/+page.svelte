@@ -9,6 +9,7 @@
   import { resetStores } from '$lib/state/art-info';
   import { isMenuOpen } from '$lib/state/menu-store';
   import { browser } from '$app/environment';
+  import FormattedText from '$lib/components/FormattedText.svelte';
 
   export let data;
 
@@ -114,7 +115,7 @@
           ✕
         </button>
         <div class="text-xl font-bold mb-6">{$name || 'Artwork'}</div>
-        <div>{$description || 'No description available'}</div>
+        <FormattedText text={$description || 'No description available'} />
       </div>
     </div>
   </div>
@@ -123,7 +124,7 @@
 <canvas class="w-full h-full fixed top-0 left-0" bind:this={canvas} on:click|preventDefault|stopPropagation={handleClick} />
 <Footer />
 {#if showDiv}
-<div class="fixed inset-0 bg-black flex items-center justify-center z-50">
+<div class="fixed inset-0 bg-black flex items-center justify-center z-[720]">
   <div class="w-[20rem] h-[10rem]">
     <Loading />
   </div>

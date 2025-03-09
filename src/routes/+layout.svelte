@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import "../app.css";
 	import { isMenuOpen } from '$lib/state/menu-store';
+	
 	export let data;
 	
 	$: ({ session, supabase } = data);
@@ -28,7 +29,7 @@
 
 {#if !isMobile}
 <header class="fixed z-[500] backdrop-blur-lg top-0 w-full flex items-center justify-between border-b-[1px] border-white/20 
-  {$isMenuOpen ? 'block md:h-28' : 'hidden md:block md:h-28'} {$isMenuOpen ? 'h-full' : 'h-28'}">
+  md:block md:h-28 {$isMenuOpen ? 'block h-full' : ''}">
   <nav class="flex space-x-[20rem] px-11 justify-between w-full items-center">
     <div>
 				<p class="text-white text-xl">Välkommen</p>
@@ -48,16 +49,10 @@
   {$isMenuOpen ? 'block md:h-[30rem]' : 'hidden md:block md:h-0'} {$isMenuOpen ? 'h-full' : 'h-28'}">
   <nav class="flex space-x-[20rem] px-11 justify-between w-full items-center">
   
-    <!-- <div class="flex space-x-2">
-      <img src="/logo.svg" alt="logo" class="my-5 h-[3rem] text-center" />
-    </div> -->
-
   </nav>
 </header>
-{/if}
 
-{#if isMobile}
-<!-- hamburger button added to layout -->
+<!-- menu btn -->
 <button class="fixed top-4 right-4 z-[600] text-white p-2" on:click={toggleMenu}>
 	<svg class="w-8 h-9 sm:w-12 sm:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 		{#if $isMenuOpen}

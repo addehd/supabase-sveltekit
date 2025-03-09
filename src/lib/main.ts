@@ -417,7 +417,7 @@ const initRum = (el, data) => {
     const loader = new GLTFLoader();
 
     loader.load(
-      '/hangar-light.glb',
+      '/hangar.glb',
       function(gltf) {
         const material = new THREE.MeshStandardMaterial({
           color: 0xC0C0C0,

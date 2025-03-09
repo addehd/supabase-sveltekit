@@ -209,7 +209,7 @@ export default class VG {
 
   initScene = function() {
     this.scene = new THREE.Scene()
-    this.scene.add(new THREE.AxesHelper(5))
+    // this.scene.add(new THREE.AxesHelper(5))
     this.scene.background = new THREE.Color(0x334455)
   }
 
