@@ -99,3 +99,38 @@ export function loadSmileyFace(vg, player, room) {
     }
   );
 }
+
+export function removeSmileyFace(vg) {
+  console.log('removeSmileyFace');
+  
+  // find the smiley object directly
+  const smiley = vg.things.find(thing => thing.name === 'smiley');
+  
+  // get the material from the first mesh child
+  const material = smiley.object.children[0]?.material;
+  
+  // fade out animation
+  if (material && material.transparent) {
+    const fadeOutDuration = 900;
+    const startTime = Date.now();
+    
+    function fadeOut() {
+      const elapsedTime = Date.now() - startTime;
+      const progress = Math.min(elapsedTime / fadeOutDuration, 1);
+      material.opacity = 1 - progress;
+      
+      if (progress < 1) {
+        requestAnimationFrame(fadeOut);
+      } else {
+        // remove after fade completes
+        vg.remove(smiley);
+      }
+    }
+    
+    fadeOut();
+  } else {
+    // remove immediately if no material
+    vg.remove(smiley);
+  }
+}
+

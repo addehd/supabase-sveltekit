@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { createScene, loadSmileyFaceWrapper } from '$lib/main';
+  import { createScene, loadSmileyFaceWrapper, removeSmileyFaceWrapper } from '$lib/main';
   import Loading from '$lib/components/Loading.svelte';
   import { description, audioSource, name, updateDescription, updateAudioSource, updateName, videoIsPlaying } from '$lib/state/art-info';
   import { videoElement } from '$lib/state/video-store';
@@ -24,12 +24,14 @@
   $: { if (audio) { audio.src = $audioSource; } }
   
   function playAndLoad() {
-    loadSmileyFaceWrapper();
+
     if (audio) {
       if (audio.paused) {
         audio.play();
+        loadSmileyFaceWrapper();
       } else {
         audio.pause();
+        removeSmileyFaceWrapper();
       }
     }
   }

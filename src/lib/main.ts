@@ -8,6 +8,7 @@ import { loadSmileyFace } from './smiley';
 import { setupViracocha } from './viracocha';
 import { setupVideo } from './video-cube';
 import { setupMobileControls } from './mobile-controls';
+import { removeSmileyFace } from './smiley';
 
 let vg;
 let player;
@@ -491,4 +492,9 @@ export const createScene = (el, imageUrl) => {
 export const loadSmileyFaceWrapper = () => {
   console.log('loadSmileyFaceWrapper');
   loadSmileyFace(vg, player, room);
+}
+
+export const removeSmileyFaceWrapper = () => {
+  console.log('removeSmileyFaceWrapper');
+  removeSmileyFace(vg);
 }
