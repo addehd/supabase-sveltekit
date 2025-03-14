@@ -93,7 +93,11 @@
     </div>
     
     <button on:click={toggleDescModal}>
-      <p class="text-white text-xl fade-in">{ $name && $name !== 'Welcome' ? 'by ' + $name : ''}</p>
+      <p class="text-white text-xl fade-in">
+        {#if $name && $name !== 'Welcome'}
+          <span class="text-sm italic">by</span> {$name}
+        {/if}
+      </p>
     </button>
 
     <div class="text-white bg-gradient-to-r from-green-500 to-green-700 font-bold text-xl py-7 left-0">
