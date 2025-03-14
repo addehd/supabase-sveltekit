@@ -29,7 +29,7 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
         }
     });
 
-    // create play buttona
+    // play button
     const playButton = document.createElement('button');
     playButton.innerHTML = '▶️ Play video';
     playButton.style.position = 'fixed';
@@ -63,14 +63,13 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
     videoTexture.minFilter = THREE.LinearFilter;
     videoTexture.magFilter = THREE.LinearFilter;
     
-    const geometry = new THREE.PlaneGeometry(42, 20);
+    const geometry = new THREE.PlaneGeometry(38, 20);
     const material = new THREE.MeshBasicMaterial({ 
         map: videoTexture,
         side: THREE.DoubleSide 
     });
     const videoMesh = new THREE.Mesh(geometry, material);
-    // position video higher on wall
-    videoMesh.position.set(-room.width/2 + 0.2, room.height * 1.7, -room.depth/2 + 25 );
+    videoMesh.position.set(-room.width/2 + 0.2, room.height * 1.7, -room.depth/2 + 21.7 );
     videoMesh.rotation.y = Math.PI/2;
     
     // add to scene

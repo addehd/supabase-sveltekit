@@ -29,7 +29,7 @@
 
 {#if !isMobile}
 <header class="fixed z-[500] backdrop-blur-lg top-0 w-full flex items-center justify-between border-b-[1px] border-white/20 
-  md:block md:h-28 {$isMenuOpen ? 'block h-full' : ''}">
+  md:block md:h-24 {$isMenuOpen ? 'block h-full' : ''}">
   <nav class="flex space-x-[20rem] px-11 justify-between w-full items-center">
     <div>
 				<p class="text-white text-xl">Välkommen</p>

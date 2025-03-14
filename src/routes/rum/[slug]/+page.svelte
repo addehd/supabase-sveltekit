@@ -90,10 +90,11 @@
             d="M63.5 59.5c-7.4 7.4-19.6 7.4-27 0-1.1-1.1-2.9-1.1-3.9 0-1.1 1.1-1.1 2.9 0 3.9 4.8 4.8 11.1 7.2 17.5 7.2s12.6-2.4 17.5-7.2c1.1-1.1 1.1-2.9 0-3.9-1.2-1.1-3-1.1-4.1 0z" />
         </svg>
       </button>
-      <button class="text-white font-bold text-xl h-[3rem] px-3" on:click={toggleDescModal}>i</button>
     </div>
-
-    <p class="text-white text-xl fade-in">{ $name && $name !== 'Welcome' ? 'by ' + $name : ''}</p>
+    
+    <button on:click={toggleDescModal}>
+      <p class="text-white text-xl fade-in">{ $name && $name !== 'Welcome' ? 'by ' + $name : ''}</p>
+    </button>
 
     <div class="text-white bg-gradient-to-r from-green-500 to-green-700 font-bold text-xl py-7 left-0">
       <a class="px-11 flex items-center gap-1" href="/stappen/20" data-sveltekit-reload>
