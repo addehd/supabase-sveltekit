@@ -444,7 +444,105 @@ const initRum = (el, data) => {
       '/skybox/Daylight_Box_Back.jpg'     // negative z (nz)
     ]);
 
+    const skyboxTextureNight = loader.load([
+      '/skybox-night/Daylight_Box_Right.jpg',   // positive x (px)
+      '/skybox-night/Daylight_Box_Left.jpg',    // negative x (nx)
+      '/skybox-night/Daylight_Box_Top.jpg',     // positive y (py)
+      '/skybox-night/Daylight_Box_Bottom.jpg',  // negative y (ny)
+      '/skybox-night/Daylight_Box_Front.jpg',   // positive z (pz)
+      '/skybox-night/Daylight_Box_Back.jpg'     // negative z (nz)
+    ]);
+
+    // add night mode toggle with css filter
+    let isDay = true;
+    const canvas = vg.renderer.domElement;
+    
+    // create day/night toggle button
+    const toggleButton = document.createElement('button');
+    toggleButton.textContent = '🌙';
+    toggleButton.style.position = 'absolute';
+    toggleButton.style.bottom = '20px';
+    toggleButton.style.left = '50%';
+    toggleButton.style.transform = 'translateX(-50%)';
+    toggleButton.style.width = '50px';
+    toggleButton.style.height = '50px';
+    toggleButton.style.borderRadius = '50%';
+    toggleButton.style.fontSize = '24px';
+    toggleButton.style.color = 'white';
+    toggleButton.style.border = '2px solid white';
+    toggleButton.style.cursor = 'pointer';
+    toggleButton.style.zIndex = '1000';
+    toggleButton.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    
+    // add button to document body, positioned relative to canvas
+    canvas.parentElement.style.position = 'relative';
+    canvas.parentElement.appendChild(toggleButton);
+    
+    // set initial skybox
     vg.scene.background = skyboxTexture;
+    
+    // toggle function for day/night
+    const toggleDayNight = () => {
+      isDay = !isDay;
+      if (!isDay) {
+        // night mode
+        toggleButton.textContent = '☀️';
+        
+        // change skybox to night version
+        vg.scene.background = skyboxTextureNight;
+        
+        // darken all textures by adjusting material colors
+        vg.scene.traverse((obj) => {
+          if (obj.material && obj.material.color) {
+            // store original color if not already stored
+            if (!obj.userData.originalColor) {
+              obj.userData.originalColor = obj.material.color.clone();
+            }
+            // darken the color
+            obj.material.color.multiplyScalar(0.3);
+          }
+        });
+        
+        // also darken ambient light
+        vg.scene.traverse((obj) => {
+          if (obj.type === 'AmbientLight') {
+            obj.intensity = 0.1;
+          }
+          if (obj.type === 'DirectionalLight') {
+            obj.intensity = 0.1;
+          }
+        });
+      } else {
+        // day mode
+        toggleButton.textContent = '🌙';
+        
+        // change skybox to day version
+        vg.scene.background = skyboxTexture;
+        
+        // restore original colors
+        vg.scene.traverse((obj) => {
+          if (obj.material && obj.material.color && obj.userData.originalColor) {
+            obj.material.color.copy(obj.userData.originalColor);
+          }
+        });
+        
+        // restore light intensity
+        vg.scene.traverse((obj) => {
+          if (obj.type === 'AmbientLight') {
+            obj.intensity = 0.2;
+          }
+          if (obj.type === 'DirectionalLight') {
+            obj.intensity = 0.2;
+          }
+        });
+      }
+    };
+    
+    // add click event to button
+    toggleButton.addEventListener('click', toggleDayNight);
+    
+    // keep keyboard shortcut
+    vg.input.onDown['n'] = toggleDayNight;
   }
 
   setupArtwork(vg, textureLoader, data, room);
