@@ -58,9 +58,6 @@ const initRum = (el, data) => {
     vg.add({
       name: 'world',
       unremovable: true,
-      // gui: [
-      //   [ vg.world.gravity, 'y', -100, 10, 0.1, 'gravity' ]
-      // ]
     })
   }
 
@@ -78,15 +75,6 @@ const initRum = (el, data) => {
     vg.add({
       name: 'camera',
       unremovable: true,
-      // gui: [
-      //   [ vg.camera.rotation, 'x', -10, 10 ],
-      //   [ vg.camera.rotation, 'y', -10, 10 ],
-      //   [ vg.camera.rotation, 'z', -10, 10 ],
-      //   [ vg.camera.quaternion, 'x', -1, 1, 0.01, "q x" ],
-      //   [ vg.camera.quaternion, 'y', -1, 1, 0.01, "q y" ],
-      //   [ vg.camera.quaternion, 'z', -1, 1, 0.01, "q z" ],
-      //   [ vg.camera.quaternion, 'w', -1, 1, 0.01, "q w" ]
-      // ]
     })
   }
 
@@ -167,15 +155,6 @@ const initRum = (el, data) => {
           vg.add({
             name: `hangar_${i + 1}`,
             object: hangarClone,
-            // gui: [
-            //   [hangarClone.position, 'x', -roomWidth/2, roomWidth/2, 1, 'position x'],
-            //   [hangarClone.position, 'y', -roomHeight/2, roomHeight/2, 1, 'position y'],
-            //   [hangarClone.position, 'z', -roomDepth/2, roomDepth/2, 1, 'position z'],
-            //   [hangarClone.scale, 'x', 0.1, 3.6, 0.01, 'scale x'],
-            //   [hangarClone.scale, 'y', 0.1, 3, 0.01, 'scale y'],
-            //   [hangarClone.scale, 'z', 0.1, 3, 0.01, 'scale z'],
-            //   [hangarClone.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rotation y']
-            // ]
           });
         }
       },
@@ -187,8 +166,6 @@ const initRum = (el, data) => {
     );
   }
 
-  //loadSmileyFace(vg, player, room);
-
   setupArtwork(vg, textureLoader, data, room);
   setupViracocha(vg, room);
   setupVideo(room, vg);
@@ -199,8 +176,6 @@ export const createScene = (el, imageUrl) => {
 };
 
 export const loadSmileyFaceWrapper = () => {
-  console.log('loadSmileyFaceWrapper');
-  // check if smiley already exists before creating a new one
   const existingSmiley = vg.things.find(thing => thing.name === 'smiley');
   if (!existingSmiley) {
     loadSmileyFace(vg, player, room);
