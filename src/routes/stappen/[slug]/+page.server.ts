@@ -1,7 +1,6 @@
 import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = async ({params, locals: { supabase } }) => {
 
-
   const exhibitionId = params.slug;
 
   const { data: exhibition } = await supabase
@@ -14,7 +13,7 @@ export const load: PageServerLoad = async ({params, locals: { supabase } }) => {
     .from('artworks')
     .select()
     .eq('exhibitions_id', exhibitionId)
-    .or('wall.eq.west,wall.eq.south')
+    .eq('room', 'stappen')
     .order('artwork_id', { ascending: true })
 
   return { 
