@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import "../app.css";
 	import { isMenuOpen } from '$lib/state/menu-store';
+	import { writable } from 'svelte/store';
 	
 	export let data;
 	
@@ -11,6 +12,14 @@
 	// toggle the menu state
 	function toggleMenu() {
 		$isMenuOpen = !$isMenuOpen;
+	}
+	
+	// create a store for info overlay state
+	const isInfoOpen = writable(false);
+	
+	// toggle the info overlay
+	function toggleInfo() {
+		$isInfoOpen = !$isInfoOpen;
 	}
 
 	onMount(() => {
@@ -27,13 +36,26 @@
 
 </script>
 
+<!-- info overlay -->
+{#if $isInfoOpen}
+<div class="fixed inset-0 z-[600] flex items-center justify-center" role="dialog" aria-modal="true">
+  <button class="absolute inset-0 w-full h-full backdrop-blur-md" on:click={toggleInfo} aria-label="Close information overlay"></button>
+	<div class="relative p-8 rounded-lg max-w-3xl flex-row flex gap-x-40">
+			<img src="/urban.png" alt="logo" class="my-5 h-[5rem] text-center" />
+			<img src="/logo.svg" alt="logo" class="my-5 h-[3.5rem] text-center" />
+			<img src="/cfuk.svg" alt="logo" class="my-5 h-[3.3rem] text-center" />
+	</div>
+</div>
+{/if}
+
+<!-- desktop header -->
 {#if !isMobile}
 <header class="fixed z-[500] backdrop-blur-lg top-0 w-full flex items-center justify-between border-b-[1px] border-white/20 
   md:block md:h-24 {$isMenuOpen ? 'block h-full' : ''}">
   <nav class="flex space-x-[20rem] px-11 justify-between w-full items-center">
-    <div>
+    <button on:click={toggleInfo}>
 				<p class="text-white text-xl">Välkommen</p>
-    </div>
+    </button>
     <div class="flex space-x-2">
       <img src="/logo.svg" alt="logo" class="my-5 h-[3rem] text-center" />
     </div>
@@ -44,17 +66,19 @@
 </header>
 {/if}
 
+
+<!-- mobile header -->
 {#if isMobile}
 <header class="fixed z-[500] backdrop-blur-lg top-0 w-full flex items-center justify-between border-b-[1px] border-white/20 
   {$isMenuOpen ? 'block md:h-[30rem]' : 'hidden md:block md:h-0'} {$isMenuOpen ? 'h-full' : 'h-28'}">
   <nav class="flex space-x-[20rem] px-11 justify-between w-full items-center">
-  
   </nav>
 </header>
 
 <!-- menu btn -->
 <button class="fixed top-4 right-4 z-[600] text-white p-2" on:click={toggleMenu}>
 	<svg class="w-8 h-9 sm:w-12 sm:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		hej
 		{#if $isMenuOpen}
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
 		{:else}

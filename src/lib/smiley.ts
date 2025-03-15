@@ -8,7 +8,7 @@ export function loadSmileyFace(vg, player, room) {
     '/smiley.glb',
     function(gltf) {
       const material = new THREE.MeshStandardMaterial({
-        color: 0xffff00,
+        color: 0xFFE500,
         emissive: 0x444400,  // glow
         roughness: 1,
         metalness: 0.5,

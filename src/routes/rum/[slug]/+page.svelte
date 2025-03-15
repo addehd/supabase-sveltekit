@@ -40,7 +40,7 @@
     createScene(canvas, data.artworks);
     setTimeout(() => {
       showDiv = false;
-    }, 3000);
+    },   0);
     const svgs = document.querySelectorAll('svg');
     svgs.forEach(svg => {
       svg.classList.add('active');
