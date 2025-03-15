@@ -9,7 +9,8 @@ import { setupGrass } from './grass';
 import { setupMark } from './mark';
 import { VRButton } from 'three/addons/webxr/VRButton.js';
 import { setupMobileControls } from './mobile-controls';
-
+import { setupPlayer } from './player';
+import { setupRoom } from './room';
 let vg;
 let player;
 
@@ -101,225 +102,39 @@ const initRum = (el, data) => {
   }
 
   { // player
-    var body = new CANNON.Body({
-      mass:57,
-      shape: new CANNON.Sphere(1),
-      linearDamping: 0.9,
-      angularDamping: 0.9
+    const checkPlayerAboveMark = setupMark(vg, room, markMatrix, player);
+
+    player = setupPlayer(vg, {
+      position: {
+        x: room.player.x,
+        y: room.player.y,
+        z: room.player.z
+      },
+      look: {
+        x: room.player.look.x,
+        y: room.player.look.y
+      },
+      room: {
+        width: room.width,
+        depth: room.depth
+      },
+      onUpdate: (position) => {
+        // check mark position every frame
+        checkPlayerAboveMark(position);
+      }
     });
 
-    body.position.set(room.player.x, room.player.y, room.player.z);
-
-    var object = new THREE.Mesh(
-      new THREE.BoxGeometry(1, 3, 2),
-      new THREE.MeshBasicMaterial({ color: 0x00ff90 }));
-
-    //const checkArtworkProximity = setupArtwork(vg, textureLoader, data, room);
-
-    player = {
-      name: 'player',
-      body: body,
-      object: object,
-      moveSpeed: 2,
-      lookSpeed: 0.1,
-      jumpSpeed: 1,
-      crouchSpeed: 0.1,
-      unremovable: true,
-      moveDirection: new THREE.Vector3(),
-      keysDown: {},
-      touchControls: {},
-      update: function(delta) {
-        this.moveDirection.set(0, 0, 0);
-        if (this.keysDown['s'] || this.touchControls['backward']) this.moveDirection.z -= 1;
-        if (this.keysDown['w'] || this.touchControls['forward']) this.moveDirection.z += 1;
-        if (this.keysDown['a'] || this.touchControls['left']) this.moveDirection.x -= 1;
-        if (this.keysDown['d'] || this.touchControls['right']) this.moveDirection.x += 1;
-        this.moveDirection.normalize();
-
-        let cameraDirection = new THREE.Vector3();
-        vg.camera.getWorldDirection(cameraDirection);
-        cameraDirection.y = 0;
-        cameraDirection.normalize();
-        let sideDirection = new THREE.Vector3(-cameraDirection.z, 0, cameraDirection.x);
-        
-        let moveImpulse = new CANNON.Vec3(
-          (this.moveDirection.x * sideDirection.x + this.moveDirection.z * cameraDirection.x) * this.moveSpeed * delta,
-          0,
-          (this.moveDirection.x * sideDirection.z + this.moveDirection.z * cameraDirection.z) * this.moveSpeed * delta
-        );
-        this.body.applyImpulse(moveImpulse);
-
-        // constrain player movement within the room
-        this.body.position.x = Math.max(-room.width/2 + 1, Math.min(room.width/2 - 1, this.body.position.x));
-        this.body.position.z = Math.max(-room.depth/2 + 1, Math.min(room.depth/2 - 1, this.body.position.z));
-
-        this.object.position.copy(this.body.position);
-        this.object.quaternion.copy(this.body.quaternion);
-
-        vg.camera.position.copy(this.object.position);
-        vg.camera.position.y += 1.2;
-
-        // initial camera rotation to look up and to the right
-        if (!this.initialRotationSet) {
-          vg.camera.rotation.x = room.player.look.x;
-          vg.camera.rotation.y = room.player.look.y;
-          this.initialRotationSet = true;
-        }
-      }
-    };
-
-    vg.add(player);
-
-    vg.cameraTarget = object;
-
-    // input handling
-    ['w', 'a', 's', 'd'].forEach(key => {
-      vg.input.onDown[key] = () => { player.keysDown[key] = true; };
-      vg.input.onUp[key] = () => { player.keysDown[key] = false; };
-    });
-
-    vg.input.onDown[' '] = (key) => {
-      if (Math.abs(player.body.velocity.y) < 0.1) {
-        player.body.applyImpulse(new CANNON.Vec3(0, player.jumpSpeed, 0));
-      }
-    };
-
-    vg.input.whilePressed['Control'] = (key) => player.body.velocity.y -= player.crouchSpeed;
-
-    // look
-    vg.camera.rotation.order = "YXZ";
-    vg.input.whilePressed['ArrowRight'] = (key) => { vg.camera.rotation.y -= 0.05 };
-    vg.input.whilePressed['ArrowLeft'] = (key) => { vg.camera.rotation.y += 0.05 };
-    vg.input.whilePressed['ArrowDown'] = (key) => { vg.camera.rotation.x -= 0.02 };
-    vg.input.whilePressed['ArrowUp'] = (key) => { vg.camera.rotation.x += 0.02 };
-
-    // add mobile controls
     setupMobileControls(vg, player);
   }
 
   { // room
-    { // west
-      const wallHeight = room.wallHeight;
-
-      let body = new CANNON.Body({
-        type: CANNON.Body.STATIC,
-        shape: new CANNON.Box(new CANNON.Vec3(room.thickness, wallHeight / 2, room.depth))
-      });
-
-      // define position constants
-      const xPos = -room.width / 2 - room.thickness - 1;
-      const yPos = wallHeight / 4;
-      const zPos = 0;
-      // set body position using constants
-      body.position.set(xPos, yPos, zPos);
-
-      const diffuseTexture = textureLoader.load('/bricks/brick_wall_02_diff_1k.jpg');
-      const displacementTexture = textureLoader.load('/bricks/brick_wall_02_disp_1k.png');
-
-      const repeatX = room.depth / 2;
-      const repeatY = room.height;
-
-      diffuseTexture.repeat.set(repeatX, repeatY);
-      displacementTexture.repeat.set(repeatX, repeatY);
-
-      diffuseTexture.wrapS = diffuseTexture.wrapT = THREE.RepeatWrapping;
-      displacementTexture.wrapS = displacementTexture.wrapT = THREE.RepeatWrapping;
-
-      const geometry = new THREE.BoxGeometry(room.thickness, wallHeight, room.depth);
-      const material = new THREE.MeshStandardMaterial({
-        map: diffuseTexture,
-        displacementMap: displacementTexture,
-        opacity: 0.5
-      });
-      const object = new THREE.Mesh(geometry, material);
-
-      var west = {
-        name: 'west',
-        body: body,
-        object: object,
-        gui: [
-          [object.position, 'x', -room.width * 1.5, room.width, 0.1, 'pos x'],
-          [object.position, 'y', 0, room.height * 2, 0.1, 'pos y'],
-          [object.position, 'z', -room.depth, room.depth, 0.1, 'pos z'],
-          [object.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rot y']
-        ]
-      };
-
-      vg.add(west);
-    }
- 
-    { // north
-      const wallHeight = room.wallHeight;
-    
-      const textureLoader = new THREE.TextureLoader();
-    
-      const diffuseTexture = textureLoader.load('/bricks/brick_wall_02_diff_1k.jpg');
-      const displacementTexture = textureLoader.load('/bricks/brick_wall_02_disp_1k.png');
-    
-      const repeatX = 5;
-      const repeatY = wallHeight / 8;
-    
-      diffuseTexture.repeat.set(repeatX, repeatY);
-      displacementTexture.repeat.set(repeatX, repeatY);
-    
-      diffuseTexture.wrapS = diffuseTexture.wrapT = THREE.RepeatWrapping;
-      displacementTexture.wrapS = displacementTexture.wrapT = THREE.RepeatWrapping;
-    
-      let body = new CANNON.Body({
-        type: CANNON.Body.STATIC,
-        shape: new CANNON.Box(new CANNON.Vec3(50, wallHeight / 2, 0.5))
-      });
-    
-      // lowered position of north wall
-      const wallPosition = wallHeight / 4;
-      body.position.set(-5, wallPosition, room.depth / 2 + room.thickness / 2);
-    
-      const geometry = new THREE.BoxGeometry(room.width, wallHeight, room.thickness);
-      const material = new THREE.MeshStandardMaterial({ 
-        map: diffuseTexture,
-        displacementMap: displacementTexture,
-        displacementScale: 0.1,
-        roughness: 0.8,
-        metalness: 0.2
-      });
-      const object = new THREE.Mesh(geometry, material);
-    
-      const north = {
-        name: 'north',
-        body: body,
-        object: object,
-        gui: [
-          [object.position, 'x', -room.width, room.width, 0.1, 'pos x'],
-          [object.position, 'y', 0, room.height, 0.1, 'pos y'],
-          [object.position, 'z', -room.depth, room.depth, 0.1, 'pos z'],
-          [object.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rot y']
-        ]
-      };
-    
-      vg.add(north);
-    }
-
-    { // light
-      const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 0.2);
-      directionalLight.position.set(-40, 50, 50);
-    
-      const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.2);
-    
-      vg.add({
-        name: 'light',
-        object: directionalLight,
-        gui: [
-          [ directionalLight.position, 'x', 'pos x' ],
-          [ directionalLight.position, 'y', 'pos y' ],
-          [ directionalLight.position, 'z', 'pos z' ]
-        ],
-      });
-    
-      vg.add({
-        name: 'ambientLight',
-        object: ambientLight
-      });
-    }
+    setupRoom(vg, {
+      width: room.width,
+      depth: room.depth,
+      height: room.height,
+      thickness: room.thickness,
+      wallHeight: room.wallHeight
+    }, textureLoader);
   }
  
   { // skybox
@@ -438,7 +253,6 @@ const initRum = (el, data) => {
   //setupVideo(room, vg);
   setupBirds(vg, room);
   setupGrass(vg, textureLoader);
-  const checkPlayerAboveMark = setupMark(vg, room, markMatrix, player);
 
   //todo move this to vg.update / loop
   setInterval(() => {
