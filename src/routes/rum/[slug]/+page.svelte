@@ -1,14 +1,12 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount } from 'svelte';
   import { createScene, loadSmileyFaceWrapper, removeSmileyFaceWrapper } from '$lib/main';
   import Loading from '$lib/components/Loading.svelte';
   import { description, audioSource, name, updateDescription, updateAudioSource, updateName, videoIsPlaying } from '$lib/state/art-info';
   import { videoElement } from '$lib/state/video-store';
   import Footer from '$lib/components/Footer.svelte';
   import { getSystemInfo } from '$lib/helpers';
-  import { resetStores } from '$lib/state/art-info';
   import { isMenuOpen } from '$lib/state/menu-store';
-  import { browser } from '$app/environment';
   import FormattedText from '$lib/components/FormattedText.svelte';
 
   export let data;
@@ -24,15 +22,12 @@
   $: { if (audio) { audio.src = $audioSource; } }
   
   function playAndLoad() {
-
-    if (audio) {
-      if (audio.paused) {
-        audio.play();
-        loadSmileyFaceWrapper();
-      } else {
-        audio.pause();
-        removeSmileyFaceWrapper();
-      }
+    if (audio.paused) {
+      audio.play();
+      loadSmileyFaceWrapper();
+    } else {
+      audio.pause();
+      removeSmileyFaceWrapper();
     }
   }
   
@@ -40,12 +35,18 @@
     createScene(canvas, data.artworks);
     setTimeout(() => {
       showDiv = false;
-    },   0);
+    }, 0);
     const svgs = document.querySelectorAll('svg');
     svgs.forEach(svg => {
       svg.classList.add('active');
     });
     audio = new Audio($audioSource);
+    
+    // add event listener for when audio ends
+    audio.addEventListener('ended', () => {
+      removeSmileyFaceWrapper();
+      // audio ended naturally
+    });
     
     // log system info
     const systemInfo = getSystemInfo();
@@ -60,14 +61,6 @@
       unadjustedMovement: true,
     });
   };
-  function toggleVideo() {
-    $videoIsPlaying = !$videoIsPlaying;
-  }
-
-  // add toggle function
-  function toggleMenu() {
-    $isMenuOpen = !$isMenuOpen;
-  }
 
   function toggleDescModal() {
     showDescModal = !showDescModal;
@@ -137,20 +130,3 @@
   </div>
 </div>
 {/if}
-<style>
-.glow {
-  filter: drop-shadow(0 0 4px currentColor);
-}
-.marquee {
-  white-space: nowrap;
-  animation: scroll-text 230s linear infinite;
-}
-@keyframes scroll-text {
-  from {
-    transform: translateX(0%);
-  }
-  to {
-    transform: translateX(-100%);
-  }
-}
-</style>

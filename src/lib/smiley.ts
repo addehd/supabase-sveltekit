@@ -9,7 +9,7 @@ export function loadSmileyFace(vg, player, room) {
     function(gltf) {
       const material = new THREE.MeshStandardMaterial({
         color: 0xFFE500,
-        emissive: 0x444400,  // glow
+        emissive: 0x444400,  // gloaaaaaa
         roughness: 1,
         metalness: 0.5,
         transparent: true,
@@ -26,28 +26,40 @@ export function loadSmileyFace(vg, player, room) {
       const center = boundingBox.getCenter(new THREE.Vector3());
       gltf.scene.position.sub(center);
 
-      const scaleFactor = 8.2;
+      const scaleFactor = 7.2;
       gltf.scene.scale.multiplyScalar(scaleFactor);
 
-      // calculate position in front of the player
-      const offsetDistance = 6; // distance in front of the player
-      const direction = new THREE.Vector3();
-      vg.camera.getWorldDirection(direction);
-      direction.y = 0; // keep it on the same horizontal plane
-      direction.normalize();
-
-      // set position in front of the player
-      gltf.scene.position.copy(player.object.position).add(direction.multiplyScalar(offsetDistance));
+      // get player position
+      const playerPos = player.object.position.clone();
+      
+      // get camera direction
+      const cameraDirection = new THREE.Vector3();
+      vg.camera.getWorldDirection(cameraDirection);
+      cameraDirection.y = 0;
+      cameraDirection.normalize();
+      
+      // calculate right vector (perpendicular to camera direction)
+      const rightVector = new THREE.Vector3();
+      rightVector.crossVectors(cameraDirection, new THREE.Vector3(0, 1, 0));
+      rightVector.normalize();
+      
+      // position smiley to the right side of player's view
+      const forwardDistance = 7;  // how far forward
+      const sideDistance = 6;     // how far to the side
+      
+      // set initial position to the side
+      gltf.scene.position.copy(playerPos.clone()
+        .add(cameraDirection.clone().multiplyScalar(forwardDistance))
+        .add(rightVector.clone().multiplyScalar(sideDistance)));
 
       // ensure it doesn't overlap with walls and position it higher
       gltf.scene.position.x = Math.max(-room.width / 2 + 1, Math.min(room.width / 2 - 1, gltf.scene.position.x));
-      gltf.scene.position.y += 1; // raise the smiley face by 2 units
+      gltf.scene.position.y = playerPos.y + 1; // raise the smiley face
       gltf.scene.position.z = Math.max(-room.depth / 2 + 1, Math.min(room.depth / 2 - 1, gltf.scene.position.z));
 
       // rotate smiley towards player
-      const playerPosition = player.object.position.clone();
-      playerPosition.y = gltf.scene.position.y;
-      gltf.scene.lookAt(playerPosition);
+      playerPos.y = gltf.scene.position.y;
+      gltf.scene.lookAt(playerPos);
 
       const pointLight = new THREE.PointLight(0xffffff, 1, 100);
       pointLight.position.set(0, 5, 0);
@@ -73,8 +85,39 @@ export function loadSmileyFace(vg, player, room) {
         name: 'smiley',
         object: gltf.scene,
         update: () => {
-          // update smiley rotation to face player
+          // get player position
           const playerPos = player.object.position.clone();
+          
+          // get camera direction
+          const cameraDirection = new THREE.Vector3();
+          vg.camera.getWorldDirection(cameraDirection);
+          cameraDirection.y = 0;
+          cameraDirection.normalize();
+          
+          // calculate right vector (perpendicular to camera direction)
+          const rightVector = new THREE.Vector3();
+          rightVector.crossVectors(cameraDirection, new THREE.Vector3(0, 1, 0));
+          rightVector.normalize();
+          
+          // position smiley to the right side of player's view
+          const forwardDistance = 7;  // how far forward
+          const sideDistance = 6;     // how far to the side
+          
+          // combine forward and right vectors to get position
+          const targetPosition = playerPos.clone()
+            .add(cameraDirection.clone().multiplyScalar(forwardDistance))
+            .add(rightVector.clone().multiplyScalar(sideDistance));
+          
+          // smoothly move toward target position
+          const lerpFactor = 0.03; // adjust for faster/slower following
+          gltf.scene.position.lerp(targetPosition, lerpFactor);
+          
+          // ensure it doesn't go outside room boundaries
+          gltf.scene.position.x = Math.max(-room.width / 2 + 1, Math.min(room.width / 2 - 1, gltf.scene.position.x));
+          gltf.scene.position.y = playerPos.y + 1; // maintain height above ground
+          gltf.scene.position.z = Math.max(-room.depth / 2 + 1, Math.min(room.depth / 2 - 1, gltf.scene.position.z));
+          
+          // make smiley face the player
           playerPos.y = gltf.scene.position.y;
           gltf.scene.lookAt(playerPos);
         },
@@ -106,10 +149,27 @@ export function removeSmileyFace(vg) {
   // find the smiley object directly
   const smiley = vg.things.find(thing => thing.name === 'smiley');
   
-  // get the material from the first mesh child
-  const material = smiley.object.children[0]?.material;
+  // check if smiley exists
+  if (!smiley) {
+    console.warn('Smiley not found for removal');
+    return;
+  }
   
-  // fade out animation
+  // find material - traverse the scene to get the mesh material
+  let material = null;
+  
+  smiley.object.traverse(function(child) {
+    if (child.isMesh && child.material) {
+      material = child.material;
+    }
+  });
+  
+  // if no material found, try the first child as fallback
+  if (!material && smiley.object.children[0]?.material) {
+    material = smiley.object.children[0].material;
+  }
+  
+  // fade out animation if material exists and is transparent
   if (material && material.transparent) {
     const fadeOutDuration = 900;
     const startTime = Date.now();
@@ -129,7 +189,8 @@ export function removeSmileyFace(vg) {
     
     fadeOut();
   } else {
-    // remove immediately if no material
+    // remove immediately if no material or not transparent
+    console.log('Removing smiley immediately (no material or not transparent)');
     vg.remove(smiley);
   }
 }

@@ -491,7 +491,13 @@ export const createScene = (el, imageUrl) => {
 
 export const loadSmileyFaceWrapper = () => {
   console.log('loadSmileyFaceWrapper');
-  loadSmileyFace(vg, player, room);
+  // check if smiley already exists before creating a new one
+  const existingSmiley = vg.things.find(thing => thing.name === 'smiley');
+  if (!existingSmiley) {
+    loadSmileyFace(vg, player, room);
+  } else {
+    console.log('smiley already exists, not creating a new one');
+  }
 }
 
 export const removeSmileyFaceWrapper = () => {

@@ -1,7 +1,6 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
-  import { fade } from 'svelte/transition';
-  import { createScene, loadSmileyFaceWrapper } from '$lib/stappen';
+  import { createScene, loadSmileyFaceWrapper, removeSmileyFaceWrapper } from '$lib/stappen';
   import Loading from '$lib/components/Loading.svelte';
   import { videoIsPlaying } from '$lib/state/art-info';
   import { isMenuOpen } from '$lib/state/menu-store';
@@ -63,6 +62,8 @@
         </svg>
       </button>
     </div>
+
+    <!-- next exhibition -->
     <div class="text-white bg-gradient-to-r from-orange-500 to-orange-700 font-bold text-xl py-7 left-0">
       <a class="px-11 flex items-center gap-1" href="/rum/32" data-sveltekit-reload>
           Hangaren
@@ -72,14 +73,4 @@
       </a>
     </div>
   </nav>
-  </div>
-
-{#if showDiv}
-  <div
-    class="fixed inset-0 bg-black flex items-center justify-center z-50"
-    transition:fade="{{ duration: 0 }}">
-    <div class="w-[20rem] h-[10rem]">
-      <Loading />
-    </div>
-  </div>
-{/if}
+</div>

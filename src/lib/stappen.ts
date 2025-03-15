@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import VG from './vg'
 import { setupFloor } from './floor';
 import { setupArtwork } from './art-canvas';
-import { loadSmileyFace } from './smiley';
+import { loadSmileyFace, removeSmileyFace } from './smiley';
 import { setupBirds } from './birds';
 import { setupGrass } from './grass';
 import { setupMark } from './mark';
@@ -97,15 +97,6 @@ const initRum = (el, data) => {
     vg.add({
       name: 'camera',
       unremovable: true,
-      // gui: [
-      //   [ vg.camera.rotation, 'x', -10, 10 ],
-      //   [ vg.camera.rotation, 'y', -10, 10 ],
-      //   [ vg.camera.rotation, 'z', -10, 10 ],
-      //   [ vg.camera.quaternion, 'x', -1, 1, 0.01, "q x" ],
-      //   [ vg.camera.quaternion, 'y', -1, 1, 0.01, "q y" ],
-      //   [ vg.camera.quaternion, 'z', -1, 1, 0.01, "q z" ],
-      //   [ vg.camera.quaternion, 'w', -1, 1, 0.01, "q w" ]
-      // ]
     })
   }
 
@@ -256,109 +247,7 @@ const initRum = (el, data) => {
 
       vg.add(west);
     }
-    
-    // { // east
-    //   let body = new CANNON.Body({
-    //     type: CANNON.Body.STATIC,
-    //     shape: new CANNON.Box(new CANNON.Vec3(room.thickness, room.height * 2, room.depth))
-    //   })
-
-    //   body.position.set(room.width/2 + room.thickness/2, room.height, 0)
-
-    //   const diffuseTexture = textureLoader.load('/bricks/brick_wall_02_diff_1k.jpg');
-    //   const displacementTexture = textureLoader.load('/bricks/brick_wall_02_disp_1k.png');
-
-    //   const repeatX = room.depth / 3;
-    //   const repeatY = room.height * 2;
-
-    //   diffuseTexture.repeat.set(repeatX, repeatY);
-    //   displacementTexture.repeat.set(repeatX, repeatY);
-
-    //   diffuseTexture.wrapS = diffuseTexture.wrapT = THREE.RepeatWrapping;
-    //   displacementTexture.wrapS = displacementTexture.wrapT = THREE.RepeatWrapping;
-
-    //   const geometry = new THREE.BoxGeometry(room.thickness, room.height * 14, room.depth)
-    //   const material = new THREE.MeshStandardMaterial({
-    //     map: diffuseTexture,
-    //     displacementMap: displacementTexture,
-    //     displacementScale: 0.1,
-    //     roughness: 0.8,
-    //     metalness: 0.2,
-        
-    //     transparent: true
-    //   })
-    //   const object = new THREE.Mesh(geometry, material)
-
-    //   var east = {
-    //     name: 'east',
-    //     body: body,
-    //     object: object,
-    //     gui: [
-    //       [object.position, 'x', -room.width, room.width, 0.1, 'pos x'],
-    //       [object.position, 'y', 0, room.height * 2, 0.1, 'pos y'],
-    //       [object.position, 'z', -room.depth, room.depth, 0.1, 'pos z'],
-    //       [object.rotation, 'y', -Math.PI, Math.PI, 0.01, 'rot y'],
-    //       [material, 'roughness', 0, 1, 0.01, 'roughness'],
-    //       [material, 'metalness', 0, 1, 0.01, 'metalness'],
-    //       [material, 'displacementScale', 0, 1, 0.01, 'displacement'],
-    //       [material, 'opacity', 0, 1, 0.01, 'opacity']
-    //     ]
-    //   }
-
-    //   vg.add(east)
-    // }
-
-    // { // south
-    //   const wallHeight = 50;
-    
-    //   const textureLoader = new THREE.TextureLoader();
-    
-    //   const diffuseTexture = textureLoader.load('/bricks/brick_wall_02_diff_1k.jpg');
-    //   const displacementTexture = textureLoader.load('/bricks/brick_wall_02_disp_1k.png');
-    
-    //   const repeatX = room.width / 5.5;
-    //   const repeatY = wallHeight / 5.5;
-    
-    //   diffuseTexture.repeat.set(repeatX, repeatY);
-    //   displacementTexture.repeat.set(repeatX, repeatY);
-    
-    //   diffuseTexture.wrapS = diffuseTexture.wrapT = THREE.RepeatWrapping;
-    //   displacementTexture.wrapS = displacementTexture.wrapT = THREE.RepeatWrapping;
-    
-    //   let body = new CANNON.Body({
-    //     type: CANNON.Body.STATIC,
-    //     shape: new CANNON.Box(new CANNON.Vec3(room.width * 1.2 / 2, wallHeight / 2, room.thickness / 2))
-    //   });
-    
-    //   body.position.set(0, wallHeight / 2.6, -room.depth / 2 - room.thickness / 2);
-    
-    //   const geometry = new THREE.BoxGeometry(room.width * 1.2, wallHeight, room.thickness);
-    //   const material = new THREE.MeshStandardMaterial({
-    //     map: diffuseTexture,
-    //     displacementMap: displacementTexture,
-    //     displacementScale: 0.1,
-    //     roughness: 0.8,
-    //     metalness: 0.2
-    //   });
-    //   const object = new THREE.Mesh(geometry, material);
-    
-    //   var south = {
-    //     name: 'south',
-    //     body: body,
-    //     object: object,
-    //     gui: [
-    //       [material, 'roughness', 0, 1, 0.01, 'roughness'],
-    //       [material, 'metalness', 0, 1, 0.01, 'metalness'],
-    //       [material, 'displacementScale', 0, 1, 0.01, 'displacement'],
-    //       [body.position, 'x', -10, 10, 0.1, 'move x'],
-    //       [body.position, 'y', 0, 20, 0.1, 'move y'],
-    //       [body.position, 'z', -10, 10, 0.1, 'move z']
-    //     ],
-    //   };
-    
-    //   vg.add(south);
-    // }
-
+ 
     { // north
       const wallHeight = room.wallHeight;
     
@@ -563,4 +452,10 @@ export const createScene = (el, imageUrl) => {
 
 export const loadSmileyFaceWrapper = () => {
   loadSmileyFace(vg, player, room);
+}
+
+
+export const removeSmileyFaceWrapper = () => {
+  console.log('removeSmileyFaceWrapper');
+  removeSmileyFace(vg);
 }
