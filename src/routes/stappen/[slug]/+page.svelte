@@ -1,40 +1,32 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { createScene, loadSmileyFaceWrapper, removeSmileyFaceWrapper } from '$lib/stappen';
-  import { videoIsPlaying } from '$lib/state/art-info';
   import { isMenuOpen } from '$lib/state/menu-store';
   import { artworkLoaded } from '$lib/stores/loading-store';
+  import Loading from '$lib/components/Loading.svelte';
+  
   import SmileyButton from '$lib/components/SmileyButton.svelte';
   import ArtworkDescription from '$lib/components/ArtworkDescription.svelte';
 
   export let data;
-
-  let el;
-  let showDiv = true;
-
-  $:isPlaying = videoIsPlaying;
-  $: showDiv = !$artworkLoaded;
-
-  const handleClick = async (event) => {
+  
+  const requestPointerLock = async (event) => {
     await el.requestPointerLock({
       unadjustedMovement: true,
     });
   };
-
+  
+  let el;
   onMount(() => {
-    createScene(el, data.artworks);
-
-    const svgs = document.querySelectorAll('svg');
-    svgs.forEach(svg => {
-      svg.classList.add('active');
-    });
+    createScene(el, data.artworks); 
+    $artworkLoaded = true;
   });
 
 </script>
 
 <canvas class="w-full h-full fixed top-0 left-0" 
   bind:this={el}
-  on:click|preventDefault|stopPropagation={handleClick} />
+  on:click|preventDefault|stopPropagation={requestPointerLock} />
 
 <!-- bottom nav -->
 <div class="fixed backdrop-blur-lg bottom-0 w-full z-50 flex items-center justify-between border-t-[1px] border-white/20
@@ -60,5 +52,7 @@
     </div>
   </nav>
 </div>
+
+<Loading />
 
 <ArtworkDescription />

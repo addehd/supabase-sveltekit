@@ -112,7 +112,7 @@ const initRum = (el, data) => {
       },
       look: {
         x: room.player.look.x,
-        y: room.player.look.y
+      y: room.player.look.y
       },
       room: {
         width: room.width,
@@ -133,7 +133,13 @@ const initRum = (el, data) => {
       depth: room.depth,
       height: room.height,
       thickness: room.thickness,
-      wallHeight: room.wallHeight
+      wallHeight: room.wallHeight,
+      walls: {
+        west: true,
+        north: true,
+        east: false,
+        south: false
+      }
     }, textureLoader);
   }
  
@@ -171,12 +177,12 @@ const initRum = (el, data) => {
     toggleButton.style.width = '50px';
     toggleButton.style.height = '50px';
     toggleButton.style.borderRadius = '50%';
-    toggleButton.style.fontSize = '24px';
+    toggleButton.style.fontSize = '20px';
     toggleButton.style.color = 'white';
-    toggleButton.style.border = '2px solid white';
+    toggleButton.style.border = '1.5px solid white';
     toggleButton.style.cursor = 'pointer';
     toggleButton.style.zIndex = '1000';
-    toggleButton.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    toggleButton.style.backgroundColor = 'rgba(0, 0, 0, 0)';
     
     // add button to document body, positioned relative to canvas
     canvas.parentElement.style.position = 'relative';
@@ -250,7 +256,6 @@ const initRum = (el, data) => {
   }
 
   setupArtwork(vg, textureLoader, data, room);
-  //setupVideo(room, vg);
   setupBirds(vg, room);
   setupGrass(vg, textureLoader);
 

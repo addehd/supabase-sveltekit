@@ -24,6 +24,12 @@ export type RoomConfig = {
   thickness: number;
   wallHeight?: number;
   opacity?: number;
+  walls?: {
+    north?: boolean;
+    south?: boolean;
+    east?: boolean;
+    west?: boolean;
+  };
 }
 
 export function setupWall(vg: VG, config: WallConfig, textureLoader: THREE.TextureLoader) {
@@ -31,7 +37,7 @@ export function setupWall(vg: VG, config: WallConfig, textureLoader: THREE.Textu
     type: CANNON.Body.STATIC,
     shape: new CANNON.Box(new CANNON.Vec3(
       config.dimensions.width,
-      config.dimensions.height/2,
+      config.dimensions.height / 2,
       config.dimensions.depth
     ))
   });
@@ -46,8 +52,9 @@ export function setupWall(vg: VG, config: WallConfig, textureLoader: THREE.Textu
   const diffuseTexture = textureLoader.load('/bricks/brick_wall_02_diff_1k.jpg');
   const displacementTexture = textureLoader.load('/bricks/brick_wall_02_disp_1k.png');
 
-  // setup texture repeats
-  const repeatX = config.dimensions.depth / 2;
+  // setup texture repeats based on wall orientation
+  const isNorthSouth = config.name.includes('north') || config.name.includes('south');
+  const repeatX = isNorthSouth ? config.dimensions.width / 2 : config.dimensions.depth / 2;
   const repeatY = config.dimensions.height / 8;
 
   [diffuseTexture, displacementTexture].forEach(texture => {
@@ -92,34 +99,75 @@ export function setupWall(vg: VG, config: WallConfig, textureLoader: THREE.Textu
 }
 
 export function setupRoom(vg: VG, config: RoomConfig, textureLoader: THREE.TextureLoader) {
-  // setup walls
-  setupWall(vg, {
-    name: 'westWall',
-    position: {
-      x: -config.width/2 - config.thickness - 1,
-      y: (config.wallHeight || config.height) / 4,
-      z: 0
-    },
-    dimensions: {
-      width: config.thickness,
-      height: config.wallHeight || config.height,
-      depth: config.depth
-    }
-  }, textureLoader);
+  const walls = config.walls || { north: true, south: true, east: true, west: true };
 
-  setupWall(vg, {
-    name: 'northWall', 
-    position: {
-      x: -5,
-      y: (config.wallHeight || config.height) / 4,
-      z: config.depth/2 + config.thickness/2
-    },
-    dimensions: {
-      width: config.width,
-      height: config.wallHeight || config.height,
-      depth: config.thickness
-    }
-  }, textureLoader);
+  // west wall
+  if (walls.west) {
+    setupWall(vg, {
+      name: 'westWall',
+      position: {
+        x: -config.width/2 - config.thickness - 1,
+        y: (config.wallHeight || config.height) / 4,
+        z: 0
+      },
+      dimensions: {
+        width: config.thickness,
+        height: config.wallHeight || config.height,
+        depth: config.depth
+      }
+    }, textureLoader);
+  }
+
+  // east wall
+  if (walls.east) {
+    setupWall(vg, {
+      name: 'eastWall',
+      position: {
+        x: config.width/2 + config.thickness + 1,
+        y: (config.wallHeight || config.height) / 4,
+        z: 0
+      },
+      dimensions: {
+        width: config.thickness,
+        height: config.wallHeight || config.height,
+        depth: config.depth * 2
+      }
+    }, textureLoader);
+  }
+
+  // north wall
+  if (walls.north) {
+    setupWall(vg, {
+      name: 'northWall', 
+      position: {
+        x: -5,
+        y: (config.wallHeight || config.height) / 4,
+        z: config.depth/2 + config.thickness/2
+      },
+      dimensions: {
+        width: config.width,
+        height: config.wallHeight || config.height,
+        depth: config.thickness
+      }
+    }, textureLoader);
+  }
+
+  // south wall
+  if (walls.south) {
+    setupWall(vg, {
+      name: 'southWall',
+      position: {
+        x: -5,
+        y: (config.wallHeight || config.height) / 4,
+        z: -config.depth/2 - config.thickness/2
+      },
+      dimensions: {
+        width: config.width,
+        height: config.wallHeight || config.height,
+        depth: config.thickness
+      }
+    }, textureLoader);
+  }
 
   // setup lights
   const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 0.2);

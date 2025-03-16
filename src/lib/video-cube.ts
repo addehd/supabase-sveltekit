@@ -31,7 +31,7 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
 
     // play button
     const playButton = document.createElement('button');
-    playButton.innerHTML = '▶️ Play video';
+    playButton.innerHTML = '▶️ Play';
     playButton.style.position = 'fixed';
     playButton.style.bottom = '30px';
     playButton.style.left = '240px';

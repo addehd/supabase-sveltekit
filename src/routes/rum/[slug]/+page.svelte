@@ -41,11 +41,8 @@
     audio.addEventListener('ended', () => {
       removeSmileyFaceWrapper();
     });
-    
-    // log system info
-    const systemInfo = getSystemInfo();
-    console.log('System Information:', systemInfo);
   });
+  
   // bind iframe to store
   $: if (iframeElement) {
     $videoElement = iframeElement;

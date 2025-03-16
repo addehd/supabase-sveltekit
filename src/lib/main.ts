@@ -105,7 +105,7 @@ const initRum = (el, data) => {
     setupRoom(vg, {
       width: room.width,
       depth: room.depth,
-      height: room.height,
+      height: room.height * 9,
       thickness: room.thickness,
       opacity: room.opacity
     }, textureLoader);
