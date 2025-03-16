@@ -9,9 +9,7 @@ const config = {
 
 	kit: {
 		// Add the Vercel adapter here
-		adapter: adapter(
-			{ runtime: 'nodejs20' }
-		)
+		adapter: adapter()
 	},
 
 	// vitePlugin: {
