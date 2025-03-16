@@ -1,5 +1,21 @@
 // get device and memory info
 export function getSystemInfo() {
+  // check if we're in browser environment
+  if (typeof window === 'undefined') {
+    return {
+      isMobile: false,
+      userAgent: '',
+      platform: '',
+      screenWidth: 0,
+      screenHeight: 0,
+      devicePixelRatio: 1,
+      deviceMemory: 'Not available',
+      totalJSHeapSize: 'Not available',
+      usedJSHeapSize: 'Not available',
+      timestamp: new Date().toISOString()
+    };
+  }
+
   const deviceInfo = {
     // device details
     isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
