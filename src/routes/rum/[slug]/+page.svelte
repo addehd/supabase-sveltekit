@@ -8,6 +8,7 @@
   import { isMenuOpen } from '$lib/state/menu-store';
   import SmileyButton from '$lib/components/SmileyButton.svelte';
   import ArtworkDescription from '$lib/components/ArtworkDescription.svelte';
+  import { writable } from 'svelte/store';
 
   export let data;
 
@@ -15,11 +16,14 @@
   let audio;
   let iframeElement: HTMLIFrameElement;
   let showDescModal = false;
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const isMobile = writable(false);
 
   $: { if (audio) { audio.src = $audioSource; } }
   
   onMount(() => {
+    // move mobile check here
+    $isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
     createScene(canvas, data.artworks);
 
     audio = new Audio($audioSource);
@@ -41,7 +45,7 @@
   }
 </script>
 
-{#if !isMobile}
+{#if !$isMobile}
   <div class="fixed backdrop-blur-lg bottom-0 w-full z-50 flex items-center justify-between border-t-[1px] border-white/20 
     {$isMenuOpen ? 'block' : 'hidden'} md:block">
     <nav class="flex  space-x-[20rem] justify-between w-full items-center">

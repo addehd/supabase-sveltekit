@@ -8,13 +8,14 @@
   import Footer from '$lib/components/Footer.svelte';
   import SmileyButton from '$lib/components/SmileyButton.svelte';
   import ArtworkDescription from '$lib/components/ArtworkDescription.svelte';
+  import { writable } from 'svelte/store';
   
   export let data;
   
   let canvas;
   let audio;
   let showDescModal = false;
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const isMobile = writable(false);
 
   $: { if (audio) { audio.src = $audioSource; } }
   
@@ -25,8 +26,10 @@
   };
 
   onMount(() => {
-    createScene(canvas, data.artworks);
+    // move mobile check here
+    $isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
+    createScene(canvas, data.artworks);
     audio = new Audio($audioSource);
     audio.addEventListener('ended', () => {
       removeSmileyFaceWrapper();
