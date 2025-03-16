@@ -2,12 +2,11 @@
   import { onMount } from 'svelte';
   import { createScene, loadSmileyFaceWrapper, removeSmileyFaceWrapper } from '$lib/main';
   import Loading from '$lib/components/Loading.svelte';
-  import { description, audioSource, name, updateDescription, updateAudioSource, updateName, videoIsPlaying } from '$lib/state/art-info';
+  import { audioSource } from '$lib/state/art-info';
   import { videoElement } from '$lib/state/video-store';
   import Footer from '$lib/components/Footer.svelte';
   import { getSystemInfo } from '$lib/helpers';
   import { isMenuOpen } from '$lib/state/menu-store';
-  import FormattedText from '$lib/components/FormattedText.svelte';
   import SmileyButton from '$lib/components/SmileyButton.svelte';
   import ArtworkDescription from '$lib/components/ArtworkDescription.svelte';
 
@@ -35,19 +34,12 @@
   
   onMount(() => {
     createScene(canvas, data.artworks);
-    setTimeout(() => {
-      showDiv = false;
-    }, 0);
-    const svgs = document.querySelectorAll('svg');
-    svgs.forEach(svg => {
-      svg.classList.add('active');
-    });
+    
     audio = new Audio($audioSource);
     
     // add event listener for when audio ends
     audio.addEventListener('ended', () => {
       removeSmileyFaceWrapper();
-      // audio ended naturally
     });
     
     // log system info
@@ -81,7 +73,7 @@
     </div>
     
     <ArtworkDescription />
-    
+
     <div class="text-white bg-gradient-to-r from-green-500 to-green-700 font-bold text-xl py-7 left-0">
       <a class="px-11 flex items-center gap-1" href="/stappen/20" data-sveltekit-reload>
         till Stäppen
@@ -98,11 +90,4 @@
 
 <Footer />
 
-{#if showDiv}
-<div class="fixed inset-0 bg-black flex items-center justify-center z-[720]">
-  <div class="w-[20rem] h-[10rem]">
-    <Loading />
-  </div>
-</div>
-{/if}
-
+<Loading />
