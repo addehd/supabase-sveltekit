@@ -31,9 +31,6 @@
 		return () => data.subscription.unsubscribe();
 	});
 
-	const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-
 </script>
 
 <!-- info overlay -->
@@ -49,7 +46,6 @@
 {/if}
 
 <!-- desktop header -->
-{#if !isMobile}
 <header class="fixed z-[500] backdrop-blur-lg top-0 w-full flex items-center justify-between border-b-[1px] border-white/20 
   md:block md:h-24 {$isMenuOpen ? 'block h-full' : ''}">
   <nav class="flex space-x-[20rem] px-11 justify-between w-full items-center">
@@ -64,11 +60,10 @@
     </div>
   </nav>
 </header>
-{/if}
+
 
 
 <!-- mobile header -->
-{#if isMobile}
 <header class="fixed z-[500] backdrop-blur-lg top-0 w-full flex items-center justify-between border-b-[1px] border-white/20 
   {$isMenuOpen ? 'block md:h-[30rem]' : 'hidden md:block md:h-0'} {$isMenuOpen ? 'h-full' : 'h-28'}">
   <nav class="flex space-x-[20rem] px-11 justify-between w-full items-center">
@@ -86,7 +81,6 @@
 		{/if}
 	</svg>
 </button>
-{/if}
 
 <main class="dark:bg-gray-900 bg-slate-800 min-h-[100vh]">i
 	<slot />
