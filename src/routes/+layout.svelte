@@ -45,9 +45,8 @@
 </div>
 {/if}
 
-<!-- desktop header -->
-<header class="fixed z-[500] backdrop-blur-lg top-0 w-full flex items-center justify-between border-b-[1px] border-white/20 
-  md:block md:h-24 {$isMenuOpen ? 'block h-full' : ''}">
+<!-- desktop header - show only on md and up -->
+<header class="hidden md:fixed md:block md:z-[500] md:backdrop-blur-lg md:top-0 md:w-full md:h-24 md:border-b-[1px] md:border-white/20">
   <nav class="flex space-x-[20rem] px-11 justify-between w-full items-center">
     <button on:click={toggleInfo}>
 				<p class="text-white text-xl">Välkommen</p>
@@ -61,11 +60,9 @@
   </nav>
 </header>
 
-
-
-<!-- mobile header -->
-<header class="fixed z-[500] backdrop-blur-lg top-0 w-full flex items-center justify-between border-b-[1px] border-white/20 
-  {$isMenuOpen ? 'block md:h-[30rem]' : 'hidden md:block md:h-0'} {$isMenuOpen ? 'h-full' : 'h-28'}">
+<!-- mobile header - hide on md and up -->
+<header class="md:hidden fixed z-[500] backdrop-blur-lg top-0 w-full flex items-center justify-between border-b-[1px] border-white/20 
+  {$isMenuOpen ? 'h-full' : 'h-28'}">
   <nav class="flex space-x-[20rem] px-11 justify-between w-full items-center">
   </nav>
 </header>
