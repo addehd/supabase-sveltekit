@@ -22,10 +22,17 @@
 		$isInfoOpen = !$isInfoOpen;
 	}
 
+	// create a store for mobile state
+	const isMobile = writable(false);
+
 	onMount(() => {
+		// check for mobile only in browser
+		$isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
 		const { data } = supabase.auth.onAuthStateChange((_, newSession) => {
 			if (newSession?.expires_at !== session?.expires_at) {
-				invalidate('supabase:auth'); }
+				invalidate('supabase:auth');
+			}
 		});
 
 		return () => data.subscription.unsubscribe();
@@ -82,3 +89,10 @@
 <main class="dark:bg-gray-900 bg-slate-800 min-h-[100vh]">i
 	<slot />
 </main>
+
+<!-- use $isMobile store in your template -->
+{#if $isMobile}
+  <!-- mobile content -->
+{:else}
+  <!-- desktop content -->
+{/if}
