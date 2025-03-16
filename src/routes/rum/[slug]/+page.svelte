@@ -9,6 +9,7 @@
   import { isMenuOpen } from '$lib/state/menu-store';
   import FormattedText from '$lib/components/FormattedText.svelte';
   import SmileyButton from '$lib/components/SmileyButton.svelte';
+  import ArtworkDescription from '$lib/components/ArtworkDescription.svelte';
 
   export let data;
 
@@ -79,14 +80,8 @@
       />
     </div>
     
-    <button on:click={toggleDescModal}>
-      <p class="text-white text-xl fade-in">
-        {#if $name && $name !== 'Welcome'}
-          <span class="text-sm italic">by</span> {$name}
-        {/if}
-      </p>
-    </button>
-
+    <ArtworkDescription />
+    
     <div class="text-white bg-gradient-to-r from-green-500 to-green-700 font-bold text-xl py-7 left-0">
       <a class="px-11 flex items-center gap-1" href="/stappen/20" data-sveltekit-reload>
         till Stäppen
@@ -99,24 +94,10 @@
 </div>
 {/if}
 
-{#if showDescModal}
-  <div class="fixed inset-0 flex items-center justify-center z-[60]" on:click={toggleDescModal}>
-    <div class="absolute backdrop-blur-lg bg-black/50 w-1/2 max-h-[50vh] overflow-auto text-white p-12 border-[1px] border-white/20 rounded-md" on:click|stopPropagation>
-      <div class="relative">
-        <button 
-          class="absolute top-[-2rem] right-[-2rem] p-7 text-white hover:text-gray-300" 
-          on:click={toggleDescModal}>
-          ✕
-        </button>
-        <div class="text-xl font-bold mb-6">{$name || 'Artwork'}</div>
-        <FormattedText text={$description || 'No description available'} />
-      </div>
-    </div>
-  </div>
-{/if}
-
 <canvas class="w-full h-full fixed top-0 left-0" bind:this={canvas} on:click|preventDefault|stopPropagation={handleClick} />
+
 <Footer />
+
 {#if showDiv}
 <div class="fixed inset-0 bg-black flex items-center justify-center z-[720]">
   <div class="w-[20rem] h-[10rem]">
@@ -124,3 +105,4 @@
   </div>
 </div>
 {/if}
+

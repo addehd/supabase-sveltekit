@@ -5,6 +5,7 @@
   import { isMenuOpen } from '$lib/state/menu-store';
   import { artworkLoaded } from '$lib/stores/loading-store';
   import SmileyButton from '$lib/components/SmileyButton.svelte';
+  import ArtworkDescription from '$lib/components/ArtworkDescription.svelte';
 
   export let data;
 
@@ -59,3 +60,5 @@
     </div>
   </nav>
 </div>
+
+<ArtworkDescription />
