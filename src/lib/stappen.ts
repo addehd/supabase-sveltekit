@@ -252,7 +252,7 @@ const initRum = (el, data) => {
 
   //todo move this to vg.update / loop
   setInterval(() => {
-    checkPlayerAboveMark(player.body.position);
+    //checkPlayerAboveMark(player.body.position);
   }, 2000);
 }
 
