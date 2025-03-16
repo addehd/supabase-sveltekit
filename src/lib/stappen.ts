@@ -59,11 +59,6 @@ const initRum = (el, data) => {
   vg.renderer = renderer;
 
   const textureLoader = new THREE.TextureLoader();
-  const matrix = [
-    [0, 0, 0],
-    [0, 1, 0], // x in middle
-    [0, 0, 0]
-  ];
 
   const ground = setupFloor(room);
   vg.add(ground);
@@ -78,9 +73,6 @@ const initRum = (el, data) => {
     vg.add({
       name: 'world',
       unremovable: true,
-      // gui: [
-      //   [ vg.world.gravity, 'y', -100, 10, 0.1, 'gravity' ]
-      // ]
     })
   }
 
@@ -172,14 +164,13 @@ const initRum = (el, data) => {
     toggleButton.textContent = '🌙';
     toggleButton.style.position = 'absolute';
     toggleButton.style.bottom = '20px';
-    toggleButton.style.left = '50%';
+    toggleButton.style.left = '20%';
     toggleButton.style.transform = 'translateX(-50%)';
     toggleButton.style.width = '50px';
     toggleButton.style.height = '50px';
     toggleButton.style.borderRadius = '50%';
-    toggleButton.style.fontSize = '20px';
+    toggleButton.style.fontSize = '27px';
     toggleButton.style.color = 'white';
-    toggleButton.style.border = '1.5px solid white';
     toggleButton.style.cursor = 'pointer';
     toggleButton.style.zIndex = '1000';
     toggleButton.style.backgroundColor = 'rgba(0, 0, 0, 0)';
@@ -224,7 +215,7 @@ const initRum = (el, data) => {
         });
       } else {
         // day mode
-        toggleButton.textContent = '🌙';
+        toggleButton.textContent = '☀️';  // show sun in day mode
         
         // change skybox to day version
         vg.scene.background = skyboxTexture;

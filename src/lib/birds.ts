@@ -98,10 +98,10 @@ export function setupBirds(vg, room) {
 
     // create audio button and controls
     const audioButton = document.createElement('button');
-    audioButton.innerHTML = '🔊 ';
+    audioButton.innerHTML = '🔊';
     audioButton.style.position = 'absolute';
-    audioButton.style.bottom = '28px';
-    audioButton.style.left = '40px'; 
+    audioButton.style.bottom = '27px';
+    audioButton.style.left = '12.3%'; 
     audioButton.style.color = 'white';
     audioButton.style.zIndex = '1000';
     audioButton.style.fontSize = '1.7rem';
@@ -114,10 +114,10 @@ export function setupBirds(vg, room) {
         if (audio.paused) {
             audio.currentTime = 0; // reset audio to start
             audio.play().catch(e => console.error('Audio play failed:', e));
-            audioButton.innerHTML = '🖕 Seagulls';
+            audioButton.innerHTML = '🖕';
         } else {
             audio.pause();
-            audioButton.innerHTML = '🔊 Play';
+            audioButton.innerHTML = '🔊';
         }
     });
 }
