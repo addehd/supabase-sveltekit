@@ -45,7 +45,7 @@
   }
 </script>
 
-{#if !$isMobile}
+{#if true}
   <div class="fixed backdrop-blur-lg bottom-0 w-full z-50 flex items-center justify-between border-t-[1px] border-white/20 
     {$isMenuOpen ? 'block' : 'hidden'} md:block">
     <nav class="flex  space-x-[20rem] justify-between w-full items-center">
