@@ -75,6 +75,11 @@ const authGuard: Handle = async ({ event, resolve }) => {
     redirect(303, '/arkiv')
   }
 
+  // redirect unauthenticated users at root to /rum/32
+  if (!event.locals.session && event.url.pathname === '/') {
+    redirect(303, '/rum/32')
+  }
+
   return resolve(event)
 }
 
