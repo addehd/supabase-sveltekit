@@ -10,6 +10,37 @@ export function setupBirds(vg, room) {
     // tracking which birds are visible to player
     const birdVisibility = {};
 
+    // Single raycaster for all objects
+    const visibilitySystem = {
+        raycaster: new THREE.Raycaster(),
+        lastCheckTime: 0,
+        checkInterval: 200, // ms
+        
+        update: function(camera, objects, playerPosition) {
+            const now = performance.now();
+            if (now - this.lastCheckTime < this.checkInterval) return;
+            this.lastCheckTime = now;
+            
+            // Single raycaster update
+            this.raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+            
+            // Filter objects by distance first (optimization)
+            const nearbyObjects = objects.filter(obj => 
+                obj.position.distanceTo(playerPosition) < proximityThreshold
+            );
+            
+            // Single intersect call for all objects
+            const intersects = this.raycaster.intersectObjects(nearbyObjects, true);
+            
+            // Process results
+            const hitObjectIds = new Set(
+                intersects.map(hit => hit.object.userData.id)
+            );
+            
+            return hitObjectIds;
+        }
+    };
+
     // create bird with custom parameters
     const createBird = (params) => {
         console.log(`Loading bird ${params.id}`);
