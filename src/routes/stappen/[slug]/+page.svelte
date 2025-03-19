@@ -8,33 +8,40 @@
   import Footer from '$lib/components/Footer.svelte';
   import SmileyButton from '$lib/components/SmileyButton.svelte';
   import ArtworkDescription from '$lib/components/ArtworkDescription.svelte';
-  import { writable } from 'svelte/store';
   
   export let data;
   
   let canvas;
   let audio;
   let showDescModal = false;
+  let sceneLoaded = false;
+  let audioLoaded = false;
 
   $: { if (audio) { audio.src = $audioSource; } }
   
-
+  $: if (sceneLoaded && audioLoaded) {
+    $artworkLoaded = true;
+  }
 
   onMount(() => {
     $artworkLoaded = false;
     
     createScene(canvas, data.artworks);
+    
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        sceneLoaded = true;
+      });
+    });
 
     audio = new Audio($audioSource);
+    audio.addEventListener('canplaythrough', () => {
+      audioLoaded = true;
+    });
     audio.addEventListener('ended', () => {
       removeSmileyFaceWrapper();
     });
-
-    setTimeout(() => {
-      $artworkLoaded = true;
-    }, 1500);
   });
-    
   function toggleDescModal() {
     showDescModal = !showDescModal;
   }

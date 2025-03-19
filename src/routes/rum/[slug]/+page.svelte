@@ -8,32 +8,41 @@
   import { isMenuOpen } from '$lib/state/menu-store';
   import SmileyButton from '$lib/components/SmileyButton.svelte';
   import ArtworkDescription from '$lib/components/ArtworkDescription.svelte';
-  import { writable } from 'svelte/store';
   import { artworkLoaded } from '$lib/stores/loading-store';
+  
   export let data;
 
   let canvas;
   let audio;
   let iframeElement: HTMLIFrameElement;
   let showDescModal = false;
+  let sceneLoaded = false;
+  let audioLoaded = false;
 
   $: { if (audio) { audio.src = $audioSource; } }
 
-
+  $: if (sceneLoaded && audioLoaded) {
+    $artworkLoaded = true;
+  }
 
   onMount(() => {
     $artworkLoaded = false;
     
     createScene(canvas, data.artworks);
+    
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        sceneLoaded = true;
+      });
+    });
 
     audio = new Audio($audioSource);
+    audio.addEventListener('canplaythrough', () => {
+      audioLoaded = true;
+    });
     audio.addEventListener('ended', () => {
       removeSmileyFaceWrapper();
     });
-
-    setTimeout(() => {
-      $artworkLoaded = true;
-    }, 1500);
   });
   
   $: if (iframeElement) { $videoElement = iframeElement; }
@@ -60,7 +69,6 @@
         />
       </div>
     
-      
       <div class="text-white bg-gradient-to-r from-green-500 to-green-700 font-bold text-xl py-7 left-0">
         <a class="px-11 flex items-center gap-1" href="/stappen/20" data-sveltekit-reload>
           till Stäppen
