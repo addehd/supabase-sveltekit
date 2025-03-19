@@ -9,20 +9,20 @@
   import SmileyButton from '$lib/components/SmileyButton.svelte';
   import ArtworkDescription from '$lib/components/ArtworkDescription.svelte';
   import { writable } from 'svelte/store';
-
+  import { artworkLoaded } from '$lib/stores/loading-store';
   export let data;
 
   let canvas;
   let audio;
   let iframeElement: HTMLIFrameElement;
   let showDescModal = false;
-  const isMobile = writable(false);
 
   $: { if (audio) { audio.src = $audioSource; } }
-  
+
+
+
   onMount(() => {
-    // move mobile check here
-    $isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    $artworkLoaded = false;
     
     createScene(canvas, data.artworks);
 
@@ -30,24 +30,28 @@
     audio.addEventListener('ended', () => {
       removeSmileyFaceWrapper();
     });
+
+    setTimeout(() => {
+      $artworkLoaded = true;
+    }, 1500);
   });
   
   $: if (iframeElement) { $videoElement = iframeElement; }
+
+  function toggleDescModal() {
+    showDescModal = !showDescModal;
+  }
 
   const requestPointerLock = async (event) => {
     await canvas.requestPointerLock({
       unadjustedMovement: true,
     });
   };
-
-  function toggleDescModal() {
-    showDescModal = !showDescModal;
-  }
+  
 </script>
 
-{#if true}
-  <div class="fixed backdrop-blur-lg bottom-0 w-full z-50 flex items-center justify-between border-t-[1px] border-white/20 
-    {$isMenuOpen ? 'block' : 'hidden'} md:block">
+<div class="hidden sm:flex fixed backdrop-blur-lg bottom-0 w-full z-50 items-center justify-between border-t-[1px] border-white/20 
+  {$isMenuOpen ? 'block' : 'hidden'} md:block">
     <nav class="flex  space-x-[20rem] justify-between w-full items-center">
       <div class="flex space-x-2 ml-11">
         <SmileyButton 
@@ -56,8 +60,7 @@
         />
       </div>
     
-      <ArtworkDescription />
-
+      
       <div class="text-white bg-gradient-to-r from-green-500 to-green-700 font-bold text-xl py-7 left-0">
         <a class="px-11 flex items-center gap-1" href="/stappen/20" data-sveltekit-reload>
           till Stäppen
@@ -68,8 +71,9 @@
       </div>
     </nav>
   </div>
-{/if}
-
-<canvas class="w-full h-full fixed top-0 left-0" bind:this={canvas} on:click|preventDefault|stopPropagation={requestPointerLock} />
-<Loading />
-<Footer />
+  
+  
+  <canvas class="w-full h-full fixed top-0 left-0" bind:this={canvas} on:click|preventDefault|stopPropagation={requestPointerLock} />
+  <Loading />
+  <Footer />
+  <ArtworkDescription />
