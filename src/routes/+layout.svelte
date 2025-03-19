@@ -22,7 +22,6 @@
 		$isInfoOpen = !$isInfoOpen;
 	}
 
-	// create a store for mobile state
 	const isMobile = writable(false);
 
 	onMount(() => {

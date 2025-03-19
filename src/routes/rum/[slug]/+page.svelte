@@ -9,7 +9,7 @@
   import SmileyButton from '$lib/components/SmileyButton.svelte';
   import ArtworkDescription from '$lib/components/ArtworkDescription.svelte';
   import { artworkLoaded } from '$lib/stores/loading-store';
-  
+
   export let data;
 
   let canvas;
@@ -32,7 +32,9 @@
     
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        sceneLoaded = true;
+        setTimeout(() => {
+          sceneLoaded = true;
+        }, 5000);
       });
     });
 
@@ -80,8 +82,8 @@
     </nav>
   </div>
   
-  
   <canvas class="w-full h-full fixed top-0 left-0" bind:this={canvas} on:click|preventDefault|stopPropagation={requestPointerLock} />
+
   <Loading />
   <Footer />
   <ArtworkDescription />

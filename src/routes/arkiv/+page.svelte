@@ -19,7 +19,7 @@ function addExhibition() {
   exhibitions = [...exhibitions, { name: '', year: nextYear.toString(), description: '' }];
 }
 </script>
-<div class="flex justify-center" >
+<div class="flex justify-start" >
   <button on:click={addExhibition} class="bg-green-500 mx-auto w-full max-w-sm mt-24 mb-11 text-white px-6 py-4 rounded-md hover:bg-green-600">
     Skapa ny utställning
   </button>

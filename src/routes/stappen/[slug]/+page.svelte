@@ -30,7 +30,9 @@
     
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        sceneLoaded = true;
+        setTimeout(() => {
+          sceneLoaded = true;
+        }, 5000);
       });
     });
 
