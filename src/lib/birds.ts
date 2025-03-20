@@ -41,6 +41,13 @@ export function setupBirds(vg, room) {
         }
     };
 
+    // bird sound effect
+    const birdSound = new Audio('/seagull.mp3');
+    const playBirdSound = () => {
+        birdSound.currentTime = 0;
+        birdSound.play().catch(e => console.error('bird sound failed:', e));
+    };
+
     // create bird with custom parameters
     const createBird = (params) => {
         console.log(`Loading bird ${params.id}`);
@@ -127,7 +134,7 @@ export function setupBirds(vg, room) {
                         
                         // check proximity to player every few frames for performance
                         this.frameCount++;
-                        if (this.frameCount % 10 !== 0) return;
+                        if (this.frameCount % 3 !== 0) return;
                         
                         try {
                             const player = vg.things.find(thing => thing.name === 'player');
@@ -158,9 +165,11 @@ export function setupBirds(vg, room) {
                                 console.log(`Bird ${params.id} - Distance: ${distance.toFixed(2)}, In view: ${intersects.length > 0}, Visible: ${isVisible}`);
                             }
                             
-                            if (isVisible && !wasVisible) {
+                            if (isVisible) {
                                 console.log(`Bird ${params.id} is now visible!`);
                                 birdVisibility[`bird_${params.id}`] = true;
+                                // play sound when bird becomes visible
+                                playBirdSound();
                             } else if (!isVisible && wasVisible) {
                                 console.log(`Bird ${params.id} is no longer visible`);
                                 birdVisibility[`bird_${params.id}`] = false;

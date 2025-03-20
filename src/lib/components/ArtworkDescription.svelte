@@ -14,9 +14,9 @@
 
 <!-- just the modal -->
 {#if showDescModal}
-  <div class="fixed inset-0 flex items-center justify-center z-[60]" 
+  <div class="fixed inset-0 flex items-center justify-center z-[60] top-0 right-0" 
     on:click={toggleDescModal}>
-    <div class="absolute backdrop-blur-lg bg-black/50 w-1/2 max-h-[50vh] overflow-auto text-white p-12 border-[1px] border-white/20 rounded-md" 
+    <div class="absolute backdrop-blur-lg bg-black/50 max-w-[60vw] max-h-[69vh] overflow-auto text-white p-12 border-[1px] border-white/20 rounded-md" 
       on:click|stopPropagation>
       <div class="relative">
         <button 
@@ -32,7 +32,7 @@
 {/if}
 
 <!-- trigger button -->
-<button class=" left-0" on:click={toggleDescModal}>
+<button class="fixed bottom-8 left-[50%] translate-x-[-50%] z-50" on:click={toggleDescModal}>
   <p class="text-white text-xl fade-in">
     {#if $name && $name !== 'Welcome'}
       <span class="text-sm italic">by</span> {$name}

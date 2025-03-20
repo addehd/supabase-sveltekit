@@ -3,7 +3,11 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 export function loadSmileyFace(vg, player, room) {
   const loader = new GLTFLoader();
-
+  
+  // add tracking variables for rotation detection
+  let lastCameraDirection = new THREE.Vector3();
+  let currentSide = 'right'; // track which side smiley is on
+  
   loader.load(
     '/smiley.glb',
     function(gltf) {
@@ -33,24 +37,23 @@ export function loadSmileyFace(vg, player, room) {
       const playerPos = player.object.position.clone();
       
       // get camera direction
-      const cameraDirection = new THREE.Vector3();
-      vg.camera.getWorldDirection(cameraDirection);
-      cameraDirection.y = 0;
-      cameraDirection.normalize();
-      
-      // calculate right vector (perpendicular to camera direction)
-      const rightVector = new THREE.Vector3();
-      rightVector.crossVectors(cameraDirection, new THREE.Vector3(0, 1, 0));
-      rightVector.normalize();
-      
+      vg.camera.getWorldDirection(lastCameraDirection);
+      lastCameraDirection.y = 0;
+      lastCameraDirection.normalize();
+
+      // store initial camera direction
+      vg.camera.getWorldDirection(lastCameraDirection);
+      lastCameraDirection.y = 0;
+      lastCameraDirection.normalize();
+
       // position smiley to the right side of player's view
       const forwardDistance = 7;  // how far forward
       const sideDistance = 6;     // how far to the side
       
       // set initial position to the side
       gltf.scene.position.copy(playerPos.clone()
-        .add(cameraDirection.clone().multiplyScalar(forwardDistance))
-        .add(rightVector.clone().multiplyScalar(sideDistance)));
+        .add(lastCameraDirection.clone().multiplyScalar(forwardDistance))
+        .add(new THREE.Vector3(0, 0, 0)));
 
       // ensure it doesn't overlap with walls and position it higher
       gltf.scene.position.x = Math.max(-room.width / 2 + 1, Math.min(room.width / 2 - 1, gltf.scene.position.x));
@@ -94,19 +97,43 @@ export function loadSmileyFace(vg, player, room) {
           cameraDirection.y = 0;
           cameraDirection.normalize();
           
+          // check angle between last and current direction
+          const angle = lastCameraDirection.angleTo(cameraDirection);
+          const cross = new THREE.Vector3().crossVectors(lastCameraDirection, cameraDirection);
+          const rotationDirection = Math.sign(cross.y); // positive for left rotation, negative for right
+          
+          // detect rapid rotation (around 180 degrees)
+          if (angle > Math.PI * 0.4) { // about 126 degrees threshold
+            // switch sides based on rotation direction
+            if (rotationDirection < 0 && currentSide === 'right') {
+              currentSide = 'left';
+            } else if (rotationDirection > 0 && currentSide === 'left') {
+              currentSide = 'right';
+            }
+          }
+          
           // calculate right vector (perpendicular to camera direction)
           const rightVector = new THREE.Vector3();
           rightVector.crossVectors(cameraDirection, new THREE.Vector3(0, 1, 0));
           rightVector.normalize();
           
-          // position smiley to the right side of player's view
+          // position smiley based on which side it should be on
           const forwardDistance = 7;  // how far forward
           const sideDistance = 6;     // how far to the side
           
           // combine forward and right vectors to get position
           const targetPosition = playerPos.clone()
-            .add(cameraDirection.clone().multiplyScalar(forwardDistance))
-            .add(rightVector.clone().multiplyScalar(sideDistance));
+            .add(cameraDirection.clone().multiplyScalar(forwardDistance));
+            
+          // add side offset based on current side
+          if (currentSide === 'right') {
+            targetPosition.add(rightVector.clone().multiplyScalar(sideDistance));
+          } else {
+            targetPosition.add(rightVector.clone().multiplyScalar(-sideDistance));
+          }
+          
+          // update last direction for next frame
+          lastCameraDirection.copy(cameraDirection);
           
           // smoothly move toward target position
           const lerpFactor = 0.03; // adjust for faster/slower following

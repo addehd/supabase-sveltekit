@@ -71,6 +71,7 @@
         />
       </div>
     
+
       <div class="text-white bg-gradient-to-r from-green-500 to-green-700 font-bold text-xl py-7 left-0">
         <a class="px-11 flex items-center gap-1" href="/stappen/20" data-sveltekit-reload>
           till Stäppen
@@ -84,6 +85,7 @@
   
   <canvas class="w-full h-full fixed top-0 left-0" bind:this={canvas} on:click|preventDefault|stopPropagation={requestPointerLock} />
 
+  <ArtworkDescription />
+    
   <Loading />
   <Footer />
-  <ArtworkDescription />
