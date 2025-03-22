@@ -34,17 +34,33 @@ export function setupArtwork(
         createAndAddArtwork(vg, wallArtwork, artwork, processedTexture);
         resolve();
       } else {
-        textureLoader.load(artwork.image_url, (texture) => {
-          const image = texture.image as HTMLImageElement;
-          const processedTexture = processImage(image);
-          processedTextures.set(artwork.image_url, processedTexture);
-          
-          createAndAddArtwork(vg, wallArtwork, artwork, processedTexture);
-          resolve();
-        }, undefined, (error) => {
-          console.error(`Error loading texture for artwork: ${artwork.image_url}`, error);
-          reject(error);
-        }); 
+        // check if the url is an svg
+        const isSvg = artwork.image_url.toLowerCase().endsWith('.svg');
+        
+        if (isSvg) {
+          // handle svg loading
+          loadSvg(artwork.image_url).then(svgTexture => {
+            processedTextures.set(artwork.image_url, svgTexture);
+            createAndAddArtwork(vg, wallArtwork, artwork, svgTexture);
+            resolve();
+          }).catch(error => {
+            console.error(`Error loading SVG for artwork: ${artwork.image_url}`, error);
+            reject(error);
+          });
+        } else {
+          // handle regular image loading
+          textureLoader.load(artwork.image_url, (texture) => {
+            const image = texture.image as HTMLImageElement;
+            const processedTexture = processImage(image);
+            processedTextures.set(artwork.image_url, processedTexture);
+            
+            createAndAddArtwork(vg, wallArtwork, artwork, processedTexture);
+            resolve();
+          }, undefined, (error) => {
+            console.error(`Error loading texture for artwork: ${artwork.image_url}`, error);
+            reject(error);
+          }); 
+        }
       }
     });
   });
@@ -270,4 +286,84 @@ function positionArtwork(wall: string, artworks: THREE.Mesh[], room: { width: nu
         // increment based on direction
         currentX += (width + spacing) * increment;
     });
+}
+
+// new function to load and process SVGs
+function loadSvg(url: string): Promise<THREE.CanvasTexture> {
+  return new Promise((resolve, reject) => {
+    // fetch the svg file
+    fetch(url)
+      .then(response => response.text())
+      .then(svgData => {
+        // create a blob from the svg data
+        const blob = new Blob([svgData], {type: 'image/svg+xml'});
+        const blobUrl = URL.createObjectURL(blob);
+        
+        // create a new image to render the svg
+        const img = new Image();
+        img.onload = () => {
+          // create a canvas to render the svg
+          const canvas = document.createElement('canvas');
+          // set reasonable default dimensions for svg
+          const defaultWidth = 800;
+          const defaultHeight = 600;
+          
+          // extract width and height from svg if possible
+          const parser = new DOMParser();
+          const svgDoc = parser.parseFromString(svgData, 'image/svg+xml');
+          const svgElement = svgDoc.querySelector('svg');
+          
+          let width = defaultWidth;
+          let height = defaultHeight;
+          
+          if (svgElement) {
+            // try to get width and height attributes
+            const svgWidth = svgElement.getAttribute('width');
+            const svgHeight = svgElement.getAttribute('height');
+            
+            // try to get viewBox if width/height not specified
+            if ((!svgWidth || !svgHeight) && svgElement.getAttribute('viewBox')) {
+              const viewBox = svgElement.getAttribute('viewBox').split(' ');
+              if (viewBox.length === 4) {
+                width = parseFloat(viewBox[2]);
+                height = parseFloat(viewBox[3]);
+              }
+            } else {
+              // parse width and height if available
+              if (svgWidth) width = parseFloat(svgWidth);
+              if (svgHeight) height = parseFloat(svgHeight);
+            }
+          }
+          
+          // apply scale factor
+          canvas.width = width * scaleFactor;
+          canvas.height = height * scaleFactor;
+          
+          const ctx = canvas.getContext('2d');
+          // apply same filters as for images
+          ctx.filter = 'contrast(130%) brightness(70%)';
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          
+          // create texture from canvas
+          const svgTexture = new THREE.CanvasTexture(canvas);
+          svgTexture.encoding = THREE.sRGBEncoding;
+          
+          // clean up blob url
+          URL.revokeObjectURL(blobUrl);
+          
+          resolve(svgTexture);
+        };
+        
+        img.onerror = (error) => {
+          URL.revokeObjectURL(blobUrl);
+          reject(`Failed to load SVG: ${error}`);
+        };
+        
+        // set src to start loading
+        img.src = blobUrl;
+      })
+      .catch(error => {
+        reject(`Error fetching SVG: ${error}`);
+      });
+  });
 }

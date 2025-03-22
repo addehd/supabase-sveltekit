@@ -221,16 +221,16 @@ export function setupBirds(vg, room) {
 
     createBird({
         id: 2,
-        startAngle: Math.PI,
-        radius: 65,
+        startAngle: (2 * Math.PI) / 3,
+        radius: 100,
         rotationSpeed: 0.0004,
         flyHeight: 60
     });
     
     createBird({
         id: 3,
-        startAngle: Math.PI / 2,
-        radius: 105,
+        startAngle: (4 * Math.PI) / 3,
+        radius: 165,
         rotationSpeed: 0.00026,
         flyHeight: 80
     });
