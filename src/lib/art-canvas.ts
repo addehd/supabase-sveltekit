@@ -77,40 +77,46 @@ export function setupArtwork(
   // update artwork description and audio url when player is near
   let lastUpdatedArtwork = null;
   let lastCheckTime = 0;
-  const proximityThreshold = 30;
+  const proximityThreshold = 60;
   const checkInterval = 1000;
 
   return (playerPosition: THREE.Vector3) => {
     const now = performance.now();
     if (now - lastCheckTime > checkInterval) {
       let playerNearArtwork = false;
+      let closestArtwork = null;
+      let closestDistance = Infinity;
       
+      // first pass: find the closest artwork
       vg.scene.children.forEach((child) => {
         if (child.userData && child.userData.artwork) {
-          
           const distance = playerPosition.distanceTo(child.position);
           
-          if (distance < proximityThreshold) {
+          if (distance < proximityThreshold && distance < closestDistance) {
+            closestDistance = distance;
+            closestArtwork = child;
             playerNearArtwork = true;
-            if (child !== lastUpdatedArtwork) {
-              if (child.userData.artwork.description) {
-                updateDescription(child.userData.artwork.description);
-              }
-              if (child.userData.artwork.audio && 
-                  (!lastUpdatedArtwork?.userData.artwork.audio || 
-                   lastUpdatedArtwork.userData.artwork.audio !== child.userData.artwork.audio)) {
-                updateAudioSource(child.userData.artwork.audio);
-              }
-              
-              if (child.userData.artwork.title) {
-                updateName(child.userData.artwork.title);
-              }
-
-              lastUpdatedArtwork = child;
-            }
           }
         }
       });
+      
+      // update UI only if closest artwork changed
+      if (playerNearArtwork && closestArtwork !== lastUpdatedArtwork) {
+        if (closestArtwork.userData.artwork.description) {
+          updateDescription(closestArtwork.userData.artwork.description);
+        }
+        if (closestArtwork.userData.artwork.audio && 
+            (!lastUpdatedArtwork?.userData.artwork.audio || 
+             lastUpdatedArtwork.userData.artwork.audio !== closestArtwork.userData.artwork.audio)) {
+          updateAudioSource(closestArtwork.userData.artwork.audio);
+        }
+        
+        if (closestArtwork.userData.artwork.title) {
+          updateName(closestArtwork.userData.artwork.title);
+        }
+
+        lastUpdatedArtwork = closestArtwork;
+      }
 
       if (!playerNearArtwork && lastUpdatedArtwork) {
         updateDescription('');

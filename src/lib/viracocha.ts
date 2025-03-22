@@ -42,7 +42,7 @@ export const setupViracocha = (vg, room) => {
       // scale and position the model
       const scale = 0.036
       gltf.scene.scale.set(scale, scale, scale)
-      gltf.scene.position.set(0, 11, -161)
+      gltf.scene.position.set(0, 11, 0)
       gltf.scene.rotation.y = Math.PI * 2
 
       // add to scene with controls
