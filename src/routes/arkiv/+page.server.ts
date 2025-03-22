@@ -111,40 +111,7 @@ export const actions = {
       return { success: false, error: 'Invalid exhibition ID' };
     }
 
-    const { data: rooms, error: roomFetchError } = await supabaseClient
-      .from('rooms')
-      .select('id')
-      .eq('exhibition_id', exhibition_id);
-
-    if (roomFetchError) {
-      console.error('Error fetching rooms:', roomFetchError);
-      return { success: false, error: roomFetchError.message };
-    }
-
-    const roomIds = rooms.map(room => room.id);
-
-    if (roomIds.length > 0) {
-      const { error: artworkError } = await supabaseClient
-        .from('artworks')
-        .delete()
-        .in('room_id', roomIds);
-
-      if (artworkError) {
-        console.error('Error deleting related artworks:', artworkError);
-        return { success: false, error: artworkError.message };
-      }
-    }
-
-    const { error: roomDeleteError } = await supabaseClient
-      .from('rooms')
-      .delete()
-      .in('id', roomIds);
-
-    if (roomDeleteError) {
-      console.error('Error deleting rooms:', roomDeleteError);
-      return { success: false, error: roomDeleteError.message };
-    }
-
+    // directly delete the exhibition - cascade will handle related records
     const { error: exhibitionError } = await supabaseClient
       .from('exhibitions')
       .delete()

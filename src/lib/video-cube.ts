@@ -1,14 +1,27 @@
 import * as THREE from 'three';
 import { videoSource, videoIsPlaying } from './state/art-info';
 
+// video configuration
+const VIDEO_CONFIG = {
+  width: 28,         // width of video plane 
+  height: 16,        // height of video plane
+  htmlWidth: 1400,   // width of html video element
+  htmlHeight: 640,   // height of html video element
+  position: {
+    x: -0.3,          // offset from wall (increase to move right)
+    y: 1.6,          // multiplier for room height 
+    z: 17          // offset from depth
+  }
+};
+
 export function setupVideo(room, vg, videoUrl = '/test.mp4') {
     // create video element first
     const video = document.createElement('video');
     video.src = videoUrl;
     video.loop = true;
     video.playsInline = true;
-    video.width = 1400;
-    video.height = 640;
+    video.width = VIDEO_CONFIG.htmlWidth;
+    video.height = VIDEO_CONFIG.htmlHeight;
     video.autoplay = false;
 
     // subscribe to video source changes after video element is created
@@ -63,13 +76,17 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
     videoTexture.minFilter = THREE.LinearFilter;
     videoTexture.magFilter = THREE.LinearFilter;
     
-    const geometry = new THREE.PlaneGeometry(38, 20);
+    const geometry = new THREE.PlaneGeometry(VIDEO_CONFIG.width, VIDEO_CONFIG.height);
     const material = new THREE.MeshBasicMaterial({ 
         map: videoTexture,
         side: THREE.DoubleSide 
     });
     const videoMesh = new THREE.Mesh(geometry, material);
-    videoMesh.position.set(-room.width/2 + 0.2, room.height * 1.7, -room.depth/2 + 21.7 );
+    videoMesh.position.set(
+        -room.width/2 + VIDEO_CONFIG.position.x, 
+        room.height * VIDEO_CONFIG.position.y, 
+        -room.depth/2 + VIDEO_CONFIG.position.z
+    );
     videoMesh.rotation.y = Math.PI/2;
     
     // add to scene

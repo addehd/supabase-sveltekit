@@ -4,7 +4,7 @@ import { artworkLoaded } from './stores/loading-store';
 import * as THREE from 'three';
 import VG from './vg';
 
-const scaleFactor = 0.4;
+const scaleFactor = 0.3;
 
 export function setupArtwork(
     vg: VG, 
@@ -52,9 +52,21 @@ export function setupArtwork(
   // wait for all textures to load before positioning
   Promise.all(loadPromises).then(() => {
     Object.entries(wallArtwork).forEach(([wall, artworks]) => {
+      // debug the pre-sorted array (for south wall)
+      if (wall === 'south') {
+        console.log('before sorting:', artworks.map(a => ({ id: a.artwork_id, order: a.order })));
+      }
+      
+      // sort by order property
       artworks.sort((a, b) => {
         return a.order - b.order;
       });
+      
+      // debug the sorted array (for south wall)
+      if (wall === 'south') {
+        console.log('after sorting:', artworks.map(a => ({ id: a.artwork_id, order: a.order })));
+      }
+      
       positionArtwork(wall, artworks.map(art => art.object) as THREE.Mesh[], room);
     });
     
@@ -163,19 +175,30 @@ function createGeometry(image: HTMLImageElement): THREE.PlaneGeometry {
   const widthScalingFactor = 1;
 
   return new THREE.PlaneGeometry(
-    (image.width / (scaleFactor * 100)) * 1.05,  // multiply by 1.05 to increase size
-    (image.height / (scaleFactor * 100)) * 1.05  // multiply by 1.05 to increase size
+    (image.width / (scaleFactor * 100)) * 1.075,  // multiply by 1.05 to increase size
+    (image.height / (scaleFactor * 100)) * 1.075  // multiply by 1.05 to increase size
   );
 }
 
 function addArtworkToWall(wallArtwork: any, artwork: any, object: THREE.Mesh) {
   const wall = artwork.wall.toLowerCase();
   if (wallArtwork[wall]) {
+    // ensure artwork has a valid order property
+    if (artwork.order === undefined || artwork.order === null || artwork.order === 0) {
+      // if multiple artworks have order 0, assign a sequential order based on position in array
+      artwork.order = wallArtwork[wall].length + 1;
+    }
+    
     wallArtwork[wall].push({ 
       object, 
       artwork_id: artwork.artwork_id,
       order: artwork.order 
     });
+    
+    // log for debugging
+    if (wall === 'south') {
+      console.log(`added south artwork ${artwork.artwork_id} with order ${artwork.order}`);
+    }
   } else {
     //console.error(`Invalid wall specified for artwork ${artwork.artwork_id}: ${artwork.wall}`);
   }
@@ -184,7 +207,7 @@ function addArtworkToWall(wallArtwork: any, artwork: any, object: THREE.Mesh) {
 function positionArtwork(wall: string, artworks: THREE.Mesh[], room: { width: number, depth: number, height: number }, videoUrl?: string) {
     const floorY = 0;
     const heightAboveFloor = -0.4;
-    const artworkYOffset = -1.5;
+    const artworkYOffset = -1.7;
     const spacing = 0;
     
     // wall direction configuration
@@ -205,6 +228,11 @@ function positionArtwork(wall: string, artworks: THREE.Mesh[], room: { width: nu
     
     const increment = direction === 'ltr' ? 1 : -1;
     let currentX = startX;
+
+    // add debug logging to help track ordering issues
+    if (wall === 'south') {
+      console.log('positioning south wall artworks:', artworks.map(art => art.userData?.artwork?.order));
+    }
 
     artworks.forEach((art) => {
         const width = art.geometry.parameters.width;
@@ -228,7 +256,7 @@ function positionArtwork(wall: string, artworks: THREE.Mesh[], room: { width: nu
                 art.rotation.y = -Math.PI / 2;
                 break;
             case 'west':
-                art.position.set(-room.width / 2 + 0.1, yPosition, currentX + xOffset);
+                art.position.set(-room.width / 1.96 , yPosition, currentX + xOffset);
                 art.rotation.y = Math.PI / 2;
                 break;
         }

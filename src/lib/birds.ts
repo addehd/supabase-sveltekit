@@ -15,37 +15,87 @@ export function setupBirds(vg, room) {
         raycaster: new THREE.Raycaster(),
         lastCheckTime: 0,
         checkInterval: 200, // ms
+        birds: [],
         
-        update: function(camera, objects, playerPosition) {
+        addBird: function(bird, id) {
+            this.birds.push({ object: bird, id: id });
+        },
+        
+        update: function(camera, playerPosition) {
             const now = performance.now();
             if (now - this.lastCheckTime < this.checkInterval) return;
             this.lastCheckTime = now;
             
-            // Single raycaster update
+            // single raycaster update
             this.raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
             
-            // Filter objects by distance first (optimization)
-            const nearbyObjects = objects.filter(obj => 
-                obj.position.distanceTo(playerPosition) < proximityThreshold
+            // filter objects by distance first (optimization)
+            const nearbyBirds = this.birds.filter(bird => 
+                bird.object.position.distanceTo(playerPosition) < proximityThreshold
             );
             
-            // Single intersect call for all objects
-            const intersects = this.raycaster.intersectObjects(nearbyObjects, true);
+            // collect all bird objects for intersection test
+            const birdObjects = nearbyBirds.map(bird => bird.object);
             
-            // Process results
-            const hitObjectIds = new Set(
-                intersects.map(hit => hit.object.userData.id)
-            );
+            // single intersect call for all objects
+            const intersects = this.raycaster.intersectObjects(birdObjects, true);
             
-            return hitObjectIds;
+            // extract hit bird ids
+            const hitBirdIds = new Set();
+            intersects.forEach(hit => {
+                // traverse up to find parent bird
+                let obj = hit.object;
+                while(obj.parent && !obj.userData.birdId) {
+                    obj = obj.parent;
+                }
+                if(obj.userData.birdId) {
+                    hitBirdIds.add(obj.userData.birdId);
+                }
+            });
+            
+            // update bird visibility states
+            for(const bird of this.birds) {
+                const id = `bird_${bird.id}`;
+                const wasVisible = birdVisibility[id];
+                const isVisible = hitBirdIds.has(bird.id) && 
+                    bird.object.position.distanceTo(playerPosition) < proximityThreshold;
+                
+                if(isVisible && !wasVisible) {
+                    console.log(`Bird ${bird.id} is now visible!`);
+                    birdVisibility[id] = true;
+                    
+                    // when bird becomes visible, play sound if audio is enabled
+                    if(audioEnabled && !birdSoundPlaying) {
+                        playBirdSound();
+                    }
+                } else if(!isVisible && wasVisible) {
+                    console.log(`Bird ${bird.id} is no longer visible`);
+                    birdVisibility[id] = false;
+                    // DO NOT stop sound when bird goes out of view
+                }
+            }
+            
+            // We no longer check to stop sound when birds are not visible
+            // The sound will continue playing until the button is pressed
         }
     };
 
     // bird sound effect
     const birdSound = new Audio('/seagull.mp3');
+    birdSound.loop = true; // ensure audio loops continuously
+    let birdSoundPlaying = false;
+    let audioEnabled = true;
+    
     const playBirdSound = () => {
+        if (birdSoundPlaying || !audioEnabled) return;
+        birdSoundPlaying = true;
         birdSound.currentTime = 0;
         birdSound.play().catch(e => console.error('bird sound failed:', e));
+    };
+    
+    const stopBirdSound = () => {
+        birdSoundPlaying = false;
+        birdSound.pause();
     };
 
     // create bird with custom parameters
@@ -94,7 +144,9 @@ export function setupBirds(vg, room) {
                     action.play();
                 }
                 
-                // add check proximity function to bird
+                // add bird to visibility system
+                bird.userData.birdId = params.id;
+                visibilitySystem.addBird(bird, params.id);
                 birdVisibility[`bird_${params.id}`] = false;
                 
                 vg.add({
@@ -132,50 +184,17 @@ export function setupBirds(vg, room) {
     
                         mixer.update(delta);
                         
-                        // check proximity to player every few frames for performance
+                        // update visibility check in main game loop
                         this.frameCount++;
-                        if (this.frameCount % 3 !== 0) return;
-                        
-                        try {
-                            const player = vg.things.find(thing => thing.name === 'player');
-                            if (!player?.object) return;
-                            
-                            const playerPosition = player.object.position;
-                            if (!playerPosition) return;
-                            
-                            const distance = bird.position.distanceTo(playerPosition);
-                            
-                            // update raycaster from camera
-                            if (!vg.camera) {
-                                console.error("Camera not found for raycasting");
-                                return;
+                        if (this.frameCount % 3 === 0) {
+                            try {
+                                const player = vg.things.find(thing => thing.name === 'player');
+                                if (player?.object && vg.camera) {
+                                    visibilitySystem.update(vg.camera, player.object.position);
+                                }
+                            } catch (error) {
+                                console.error("Error updating visibility system:", error);
                             }
-                            
-                            raycaster.setFromCamera(new THREE.Vector2(0, 0), vg.camera);
-                            
-                            // check for intersection with bird
-                            const intersects = raycaster.intersectObjects([bird, ...bird.children], true);
-                            
-                            // visible if within range and ray hits the bird
-                            const isVisible = distance < proximityThreshold && intersects.length > 0;
-                            const wasVisible = birdVisibility[`bird_${params.id}`];
-                            
-                            // debug data
-                            if (this.frameCount % (10 * 5) === 0) {
-                                console.log(`Bird ${params.id} - Distance: ${distance.toFixed(2)}, In view: ${intersects.length > 0}, Visible: ${isVisible}`);
-                            }
-                            
-                            if (isVisible) {
-                                console.log(`Bird ${params.id} is now visible!`);
-                                birdVisibility[`bird_${params.id}`] = true;
-                                // play sound when bird becomes visible
-                                playBirdSound();
-                            } else if (!isVisible && wasVisible) {
-                                console.log(`Bird ${params.id} is no longer visible`);
-                                birdVisibility[`bird_${params.id}`] = false;
-                            }
-                        } catch (error) {
-                            console.error("Error in bird update:", error);
                         }
                     }
                 });
@@ -216,7 +235,7 @@ export function setupBirds(vg, room) {
         flyHeight: 80
     });
 
-    // create audio button and controls
+    // update audio button and controls
     const audioButton = document.createElement('button');
     audioButton.innerHTML = '🔊';
     audioButton.style.position = 'absolute';
@@ -231,13 +250,27 @@ export function setupBirds(vg, room) {
     audio.loop = true;
     
     audioButton.addEventListener('click', () => {
-        if (audio.paused) {
+        // toggle audio state
+        audioEnabled = !audioEnabled;
+        
+        if (audioEnabled) {
+            // turn on background audio
             audio.currentTime = 0;
             audio.play().catch(e => console.error('Audio play failed:', e));
-            audioButton.innerHTML = '🖕';
+            audioButton.innerHTML = '🔇';
+            
+            // restart bird sound if any birds are visible
+            const anyBirdVisible = Object.values(birdVisibility).some(visible => visible);
+            if (anyBirdVisible && !birdSoundPlaying) {
+                playBirdSound();
+            }
         } else {
+            // turn off all audio (both background and bird sounds)
             audio.pause();
             audioButton.innerHTML = '🔊';
+            
+            // importantly, stop the bird sound when button is pressed
+            stopBirdSound();
         }
     });
 }

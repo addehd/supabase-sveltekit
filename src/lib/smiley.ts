@@ -1,13 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-
 export function loadSmileyFace(vg, player, room) {
   const loader = new GLTFLoader();
-  
-  // add tracking variables for rotation detection
-  let lastCameraDirection = new THREE.Vector3();
-  let currentSide = 'right'; // track which side smiley is on
-  
   loader.load(
     '/smiley.glb',
     function(gltf) {
@@ -19,71 +13,62 @@ export function loadSmileyFace(vg, player, room) {
         transparent: true,
         opacity: 0,
       });
-
       gltf.scene.traverse(function(child) {
         if (child.isMesh) {
           child.material = material;
         }
       });
-
       const boundingBox = new THREE.Box3().setFromObject(gltf.scene);
       const center = boundingBox.getCenter(new THREE.Vector3());
       gltf.scene.position.sub(center);
-
       const scaleFactor = 7.2;
       gltf.scene.scale.multiplyScalar(scaleFactor);
-
       // get player position
       const playerPos = player.object.position.clone();
       
       // get camera direction
-      vg.camera.getWorldDirection(lastCameraDirection);
-      lastCameraDirection.y = 0;
-      lastCameraDirection.normalize();
-
-      // store initial camera direction
-      vg.camera.getWorldDirection(lastCameraDirection);
-      lastCameraDirection.y = 0;
-      lastCameraDirection.normalize();
-
+      const cameraDirection = new THREE.Vector3();
+      vg.camera.getWorldDirection(cameraDirection);
+      cameraDirection.y = 0;
+      cameraDirection.normalize();
+      
+      // calculate right vector (perpendicular to camera direction)
+      const rightVector = new THREE.Vector3();
+      rightVector.crossVectors(cameraDirection, new THREE.Vector3(0, 1, 0));
+      rightVector.normalize();
+      
       // position smiley to the right side of player's view
       const forwardDistance = 7;  // how far forward
       const sideDistance = 6;     // how far to the side
       
       // set initial position to the side
       gltf.scene.position.copy(playerPos.clone()
-        .add(lastCameraDirection.clone().multiplyScalar(forwardDistance))
-        .add(new THREE.Vector3(0, 0, 0)));
-
+        .add(cameraDirection.clone().multiplyScalar(forwardDistance))
+        .add(rightVector.clone().multiplyScalar(sideDistance)));
       // ensure it doesn't overlap with walls and position it higher
       gltf.scene.position.x = Math.max(-room.width / 2 + 1, Math.min(room.width / 2 - 1, gltf.scene.position.x));
       gltf.scene.position.y = playerPos.y + 1; // raise the smiley face
       gltf.scene.position.z = Math.max(-room.depth / 2 + 1, Math.min(room.depth / 2 - 1, gltf.scene.position.z));
-
       // rotate smiley towards player
       playerPos.y = gltf.scene.position.y;
       gltf.scene.lookAt(playerPos);
-
       const pointLight = new THREE.PointLight(0xffffff, 1, 100);
       pointLight.position.set(0, 5, 0);
       gltf.scene.add(pointLight);
 
+
       // fade in animation
       const fadeInDuration = 900;
       const startTime = Date.now();
-
       function fadeIn() {
         const elapsedTime = Date.now() - startTime;
         const progress = Math.min(elapsedTime / fadeInDuration, 1);
         material.opacity = progress;
-
         if (progress < 1) {
           requestAnimationFrame(fadeIn);
         }
       }
-
       fadeIn();
-
       vg.add({
         name: 'smiley',
         object: gltf.scene,
@@ -97,43 +82,19 @@ export function loadSmileyFace(vg, player, room) {
           cameraDirection.y = 0;
           cameraDirection.normalize();
           
-          // check angle between last and current direction
-          const angle = lastCameraDirection.angleTo(cameraDirection);
-          const cross = new THREE.Vector3().crossVectors(lastCameraDirection, cameraDirection);
-          const rotationDirection = Math.sign(cross.y); // positive for left rotation, negative for right
-          
-          // detect rapid rotation (around 180 degrees)
-          if (angle > Math.PI * 0.4) { // about 126 degrees threshold
-            // switch sides based on rotation direction
-            if (rotationDirection < 0 && currentSide === 'right') {
-              currentSide = 'left';
-            } else if (rotationDirection > 0 && currentSide === 'left') {
-              currentSide = 'right';
-            }
-          }
-          
           // calculate right vector (perpendicular to camera direction)
           const rightVector = new THREE.Vector3();
           rightVector.crossVectors(cameraDirection, new THREE.Vector3(0, 1, 0));
           rightVector.normalize();
           
-          // position smiley based on which side it should be on
+          // position smiley to the right side of player's view
           const forwardDistance = 7;  // how far forward
           const sideDistance = 6;     // how far to the side
           
           // combine forward and right vectors to get position
           const targetPosition = playerPos.clone()
-            .add(cameraDirection.clone().multiplyScalar(forwardDistance));
-            
-          // add side offset based on current side
-          if (currentSide === 'right') {
-            targetPosition.add(rightVector.clone().multiplyScalar(sideDistance));
-          } else {
-            targetPosition.add(rightVector.clone().multiplyScalar(-sideDistance));
-          }
-          
-          // update last direction for next frame
-          lastCameraDirection.copy(cameraDirection);
+            .add(cameraDirection.clone().multiplyScalar(forwardDistance))
+            .add(rightVector.clone().multiplyScalar(sideDistance));
           
           // smoothly move toward target position
           const lerpFactor = 0.03; // adjust for faster/slower following
@@ -221,4 +182,3 @@ export function removeSmileyFace(vg) {
     vg.remove(smiley);
   }
 }
-

@@ -24,20 +24,22 @@ function addExhibition() {
     Skapa ny utställning
   </button>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8">
   {#each exhibitions as exhibition}
     <form method="POST" enctype="multipart/form-data" action="?/submit_exhibition" class="exhibition section border border-solid border-gray-300 rounded-md p-7">
-      <div>
-        <h1 class="text-3xl dark:text-white text-black font-bold mb-6">{exhibition.title || 'Ny utställning'}</h1>
-        <label class="mb-2 text-black">
+      <div class="text-white">
+        <h1 class="text-3xl dark:text-white text-white font-bold mb-6">{exhibition.title || 'Ny utställning'}</h1>
+        <label class="mb-2 text-white">
             Name:
-          <input name="name" type="text" class="w-full px-3 py-2 border rounded" bind:value={exhibition.title} required>
+          <input name="name" type="text" class="text-black w-full px-3 py-2 border rounded" bind:value={exhibition.title} required>
         </label>
         
-        <!-- <label class="mb-2 text-black">
+        <label class="mb-2">
           Description:
-          <textarea name="description" class="w-full px-3 py-2 border rounded" bind:value={exhibition.description} required></textarea>
-        </label> -->
+          <textarea name="description" class="text-black w-full px-3 py-2 border rounded" bind:value={exhibition.description} required></textarea>
+        </label>
+
         <p>{exhibition.description}, {exhibition.img}</p>
         <div 
           class="w-full h-[22rem] rounded-md mb-4 bg-cover bg-center" 
@@ -46,7 +48,7 @@ function addExhibition() {
         ></div>
         <label class="mb-2 dark:text-white text-black">
           Upload Image:
-          <input name="image" type="file" accept="image/*" class="w-full px-3 py-2 border rounded" required>
+          <input name="image" type="file" accept="image/*" class="text-black w-full px-3 py-2 border rounded" required>
         </label>
         <!-- <input type="hidden" name="year" value={exhibition.year} /> -->
         <div class="flex justify-between">
