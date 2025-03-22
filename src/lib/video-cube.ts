@@ -3,14 +3,14 @@ import { videoSource, videoIsPlaying } from './state/art-info';
 
 // video configuration
 const VIDEO_CONFIG = {
-  width: 28,         // width of video plane 
-  height: 16,        // height of video plane
+  width: 35,         // width of video plane 
+  height: 20,        // height of video plane
   htmlWidth: 1400,   // width of html video element
   htmlHeight: 640,   // height of html video element
   position: {
-    x: -0.3,          // offset from wall (increase to move right)
+    x: -0.6,          // offset from wall (increase to move right)
     y: 1.6,          // multiplier for room height 
-    z: 17          // offset from depth
+    z: 22          // offset from depth
   }
 };
 
@@ -44,21 +44,21 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
 
     // play button
     const playButton = document.createElement('button');
-    playButton.innerHTML = '▶️ Play';
+    playButton.innerHTML = '▶️';
     playButton.style.position = 'fixed';
-    playButton.style.bottom = '30px';
+    playButton.style.bottom = '29px';
     playButton.style.left = '240px';
     playButton.style.zIndex = '1000';
     playButton.style.color = 'white';
-    playButton.style.fontSize = '1.3rem';
+    playButton.style.fontSize = '1.6rem';
     
     playButton.addEventListener('click', () => {
         if (video.paused) {
             video.play().catch(e => console.error('Play failed:', e));
-            playButton.innerHTML = 'Pause ⏸️ ';
+            playButton.innerHTML = ' ⏸️ ';
         } else {
             video.pause();
-            playButton.innerHTML = 'Play ▶️';
+            playButton.innerHTML = ' ▶️';
         }
     });
     

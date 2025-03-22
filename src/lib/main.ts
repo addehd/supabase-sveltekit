@@ -26,7 +26,7 @@ declare global {
 
 const room = {
   width: 34 * 3.3,
-  depth: 107 * 3.99,
+  depth: 107 * 4.1,
   height: 4 * 1.5,
   opacity: 0.8,
   thickness: 1
