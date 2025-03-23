@@ -5,6 +5,8 @@
   // internal state for modal
   let showDescModal = false;
 
+  $: console.log($description);
+
   // toggle function
   const toggleDescModal = () => {
     console.log('toggleDescModal');

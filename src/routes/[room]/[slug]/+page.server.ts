@@ -1,7 +1,6 @@
 import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = async ({params, locals: { supabase } }) => {
 
-
   const exhibitionId = params.slug;
 
   const { data: exhibition } = await supabase
@@ -11,14 +10,15 @@ export const load: PageServerLoad = async ({params, locals: { supabase } }) => {
     .single();
 
   const { data: artworks } = await supabase
-    .from('artworks')
+    .from('artworks_merged')
     .select()
     .eq('exhibitions_id', exhibitionId)
-    .or('wall.eq.west,wall.eq.south')
-    .order('artwork_id', { ascending: true })
+    .eq('room', params.room)
+    .order('order', { ascending: true })
 
   return { 
     exibitions: exhibition ?? [],
-    artworks: artworks ?? []
+    artworks: artworks ?? [],
+    routeParam: params.room
   };
 };
