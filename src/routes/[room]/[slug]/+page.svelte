@@ -34,7 +34,6 @@
   let canvas;
   let audio;
   let iframeElement: HTMLIFrameElement;
-  let showDescModal = false;
   let sceneLoaded = false;
   let audioLoaded = false;
   let routeModule;
@@ -50,7 +49,6 @@
   onMount(async () => {
     $artworkLoaded = false;
     
-    // fix the module loading approach
     const importFunc = data.routeParam && moduleMap[data.routeParam] 
       ? moduleMap[data.routeParam] 
       : moduleMap['rum'];
@@ -77,10 +75,6 @@
     });
   });
 
-  function toggleDescModal() {
-    showDescModal = !showDescModal;
-  }
-
   const requestPointerLock = async (event) => {
     await canvas.requestPointerLock({
       unadjustedMovement: true,
@@ -95,9 +89,8 @@
   const removeSmiley = () => {
     if (routeModule) routeModule.removeSmileyFaceWrapper();
   };
-
-  $: console.log(data.routeParam);
 </script>
+
 
 <div class="hidden sm:flex fixed backdrop-blur-lg bottom-0 w-full z-50 items-center justify-between border-t-[1px] border-white/20 
   {$isMenuOpen ? 'block' : 'hidden'} md:block">
