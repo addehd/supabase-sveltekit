@@ -76,4 +76,66 @@ export function getSystemInfo() {
   }
 
   return deviceInfo;
+}
+
+// device and orientation detection
+export function getDeviceAndOrientation() {
+  // device detection
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                  (window.innerWidth <= 768);
+  
+  // determines if device is likely a phone (smaller screen than tablet)
+  const isPhone = isMobile && (window.innerWidth < 600 || window.innerHeight < 600);
+  
+  // get current orientation
+  let isLandscape = false;
+  
+  if (window.screen && window.screen.orientation) {
+    // modern orientation api
+    isLandscape = window.screen.orientation.type.includes('landscape');
+  } else if (window.orientation !== undefined) {
+    // fallback for older devices
+    isLandscape = Math.abs(window.orientation as number) === 90;
+  } else {
+    // last resort: compare window dimensions
+    isLandscape = window.innerWidth > window.innerHeight;
+  }
+  
+  return {
+    isMobile,    // any mobile device (phone or tablet)
+    isPhone,     // specifically a phone (smaller screen)
+    isTablet: isMobile && !isPhone, // tablet detection
+    isLandscape,
+    isPortrait: !isLandscape,
+    
+    // add listener for orientation changes
+    addOrientationListener: (callback: () => void) => {
+      const handler = () => callback();
+      
+      if (window.screen && window.screen.orientation) {
+        window.screen.orientation.addEventListener('change', handler);
+      } else {
+        window.addEventListener('orientationchange', handler);
+        // also listen for resize as fallback
+        window.addEventListener('resize', handler);
+      }
+      
+      // return cleanup function
+      return () => {
+        if (window.screen && window.screen.orientation) {
+          window.screen.orientation.removeEventListener('change', handler);
+        } else {
+          window.removeEventListener('orientationchange', handler);
+          window.removeEventListener('resize', handler);
+        }
+      };
+    }
+  };
+}
+
+// check if device should show rotation message
+export function shouldShowRotationMessage() {
+  const { isPhone, isLandscape } = getDeviceAndOrientation();
+  // show rotation message only on phones in portrait mode
+  return isPhone && !isLandscape;
 } 

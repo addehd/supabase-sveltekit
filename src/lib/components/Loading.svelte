@@ -10,7 +10,7 @@
   });
 </script>
 
-{#if false}
+{#if !$artworkLoaded}
   <div class="fixed inset-0 bg-black flex items-center justify-center z-[1020]">
     <div class="w-[20rem] h-[10rem]">
       <div class="rotate-[-90deg] z-[1000] sm:rotate-0">

@@ -41,7 +41,7 @@
 </script>
 
 <button 
-  class="text-white font-bold text-xl h-[3rem] hover:cursor-pointer smile" 
+  class="text-white font-bold text-xl h-[3rem] hover:cursor-pointer z-[420] absolute bottom-7 left-7" 
   on:click={handleClick}
   on:keydown={(e) => e.key === 'Enter' && handleClick()}>
   <svg class="h-[3rem] inline-block ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
