@@ -1,5 +1,9 @@
 // mobile controls setup
 export const setupMobileControls = (vg, player) => {
+    // debug log for initialization
+    console.log('Setting up mobile controls, is mobile?:', /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+    console.log('Player object:', player);
+
     // check if mobile device
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
@@ -24,13 +28,30 @@ export const setupMobileControls = (vg, player) => {
         button.className = 'movement-button';
         Object.assign(button.style, position);
             
-        const startMove = () => { player.touchControls[control] = true; };
-        const stopMove = () => { player.touchControls[control] = false; };
+        const startMove = () => { 
+            console.log(`Button ${control} pressed`);
+            console.log('Player controls before:', player.touchControls);
+            player.touchControls[control] = true; 
+            console.log('Player controls after:', player.touchControls);
+        };
+        
+        const stopMove = () => { 
+            console.log(`Button ${control} released`);
+            player.touchControls[control] = false; 
+        };
             
-        button.addEventListener('touchstart', startMove);
-        button.addEventListener('touchend', stopMove);
+        button.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            startMove();
+        });
+        
+        button.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            stopMove();
+        });
             
         movementContainer.appendChild(button);
+        console.log(`Created ${control} button`);
     };
 
     // create movement buttons
@@ -161,4 +182,9 @@ export const setupMobileControls = (vg, player) => {
         }
     `;
     document.head.appendChild(lookStickStyle);
+
+    // log final setup state
+    console.log('Mobile controls setup complete');
+    console.log('Movement container:', movementContainer);
+    console.log('Initial player touch controls:', player.touchControls);
 }; 

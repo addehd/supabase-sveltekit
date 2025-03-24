@@ -52,10 +52,12 @@ export function setupPlayer(vg: VG, config: PlayerConfig) {
       touchControls: {},
       update: function(delta) {
         this.moveDirection.set(0, 0, 0);
-        if (this.keysDown['s']) this.moveDirection.z -= 1;
-        if (this.keysDown['w']) this.moveDirection.z += 1;
-        if (this.keysDown['a']) this.moveDirection.x -= 1;
-        if (this.keysDown['d']) this.moveDirection.x += 1;
+        
+        if (this.keysDown['s'] || this.touchControls['backward']) this.moveDirection.z -= 1;
+        if (this.keysDown['w'] || this.touchControls['forward']) this.moveDirection.z += 1;
+        if (this.keysDown['a'] || this.touchControls['left']) this.moveDirection.x -= 1;
+        if (this.keysDown['d'] || this.touchControls['right']) this.moveDirection.x += 1;
+        
         this.moveDirection.normalize();
 
         let cameraDirection = new THREE.Vector3();

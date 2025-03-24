@@ -53,8 +53,8 @@
 
   onMount(async () => {
 
-    isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
-    (window.innerWidth <= 768);
+    isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+
 
 
     $artworkLoaded = false;
@@ -93,7 +93,6 @@
     });
 
     return () => {
-      // cleanup orientation listener on component unmount
       if (cleanupOrientationListener) cleanupOrientationListener();
     };
   });
@@ -104,7 +103,6 @@
     });
   };
   
-  // wrapping functions to pass to components
   const loadSmiley = () => {
     if (routeModule) routeModule.loadSmileyFaceWrapper();
   };
@@ -130,28 +128,16 @@
 {#if !isMobile}
 <div class="hidden sm:flex fixed backdrop-blur-lg bottom-0 w-full z-50 items-center justify-between border-t-[1px] border-white/20 
   {$isMenuOpen ? 'block' : 'hidden'} md:block">
-  <nav class="flex space-x-[20rem] justify-between w-full items-center">
-    <div class="flex space-x-2 ml-11">
- 
-    </div>
-    
-    <div class="text-white bg-gradient-to-r {config.gradientClasses} font-bold text-xl py-7 left-0">
-      <a class="px-11 flex items-center gap-1" href={config.nextRoute} data-sveltekit-reload>
-        {config.nextText}
-        <svg class="w-9 h-9" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path stroke="currentColor" fill="none" stroke-width="1.5" d="M14 6l6 6-6 6" />
-        </svg>
-      </a>
-    </div>
-  </nav>
+  <nav class="flex space-x-[20rem] justify-end w-full"> <div class="text-white bg-gradient-to-r {config.gradientClasses} font-bold text-xl py-7 right-0"> <a class="px-11 flex items-center gap-1" href={config.nextRoute} data-sveltekit-reload>
+     {config.nextText} <svg class="w-9 h-9" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path stroke="currentColor" fill="none" stroke-width="1.5" d="M14 6l6 6-6 6" /> </svg> </a> </div> </nav>
 </div>
 {/if}
   
 <canvas class="w-full h-full fixed top-0 left-0" bind:this={canvas} on:click|preventDefault|stopPropagation={requestPointerLock} />
 
 <SmileyButton 
-loadSmiley={loadSmiley}
-removeSmiley={removeSmiley}/>
+  loadSmiley={loadSmiley}
+  removeSmiley={removeSmiley}/>
 
 <ArtworkDescription />
   

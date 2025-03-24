@@ -80,9 +80,22 @@ export function getSystemInfo() {
 
 // device and orientation detection
 export function getDeviceAndOrientation() {
+  // check if we're in browser environment
+  if (typeof window === 'undefined') {
+    return {
+      isMobile: false,
+      isPhone: false,
+      isTablet: false,
+      isLandscape: false,
+      isPortrait: true,
+      addOrientationListener: () => () => {} // noop function that returns cleanup
+    };
+  }
+
   // device detection
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
-                  (window.innerWidth <= 768);
+  const isMobile = typeof navigator !== 'undefined' && 
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+    (window.innerWidth <= 768);
   
   // determines if device is likely a phone (smaller screen than tablet)
   const isPhone = isMobile && (window.innerWidth < 600 || window.innerHeight < 600);
@@ -90,15 +103,17 @@ export function getDeviceAndOrientation() {
   // get current orientation
   let isLandscape = false;
   
-  if (window.screen && window.screen.orientation) {
-    // modern orientation api
-    isLandscape = window.screen.orientation.type.includes('landscape');
-  } else if (window.orientation !== undefined) {
-    // fallback for older devices
-    isLandscape = Math.abs(window.orientation as number) === 90;
-  } else {
-    // last resort: compare window dimensions
-    isLandscape = window.innerWidth > window.innerHeight;
+  if (typeof window !== 'undefined') {
+    if (window.screen?.orientation) {
+      // modern orientation api
+      isLandscape = window.screen.orientation.type.includes('landscape');
+    } else if (window.orientation !== undefined) {
+      // fallback for older devices
+      isLandscape = Math.abs(window.orientation as number) === 90;
+    } else {
+      // last resort: compare window dimensions
+      isLandscape = window.innerWidth > window.innerHeight;
+    }
   }
   
   return {
@@ -110,9 +125,11 @@ export function getDeviceAndOrientation() {
     
     // add listener for orientation changes
     addOrientationListener: (callback: () => void) => {
+      if (typeof window === 'undefined') return () => {};
+      
       const handler = () => callback();
       
-      if (window.screen && window.screen.orientation) {
+      if (window.screen?.orientation) {
         window.screen.orientation.addEventListener('change', handler);
       } else {
         window.addEventListener('orientationchange', handler);
@@ -122,7 +139,7 @@ export function getDeviceAndOrientation() {
       
       // return cleanup function
       return () => {
-        if (window.screen && window.screen.orientation) {
+        if (window.screen?.orientation) {
           window.screen.orientation.removeEventListener('change', handler);
         } else {
           window.removeEventListener('orientationchange', handler);
@@ -135,7 +152,8 @@ export function getDeviceAndOrientation() {
 
 // check if device should show rotation message
 export function shouldShowRotationMessage() {
+  if (typeof window === 'undefined') return false;
+  
   const { isPhone, isLandscape } = getDeviceAndOrientation();
-  // show rotation message only on phones in portrait mode
   return isPhone && !isLandscape;
 } 

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { audioSource } from '$lib/state/art-info';
+  import { getDeviceAndOrientation } from '$lib/helper';
   
   export let loadSmiley: () => void;
   export let removeSmiley: () => void;
@@ -13,7 +14,16 @@
     audio.src = $audioSource;
   }
 
+  let deviceInfo = {
+    isMobile: false,
+    isPhone: false,
+    isTablet: false,
+    isLandscape: false,
+    isPortrait: true
+  };
+  
   onMount(() => {
+    deviceInfo = getDeviceAndOrientation();
     audio = new Audio($audioSource);
     
     audio.addEventListener('ended', () => {
@@ -41,7 +51,8 @@
 </script>
 
 <button 
-  class="text-white font-bold text-xl h-[3rem] hover:cursor-pointer z-[420] absolute bottom-7 left-7" 
+  class="text-white font-bold text-xl h-[3rem] hover:cursor-pointer z-[420] absolute bottom-7 
+    {deviceInfo.isMobile ? 'left-1/2 -translate-x-1/2' : 'left-7'}" 
   on:click={handleClick}
   on:keydown={(e) => e.key === 'Enter' && handleClick()}>
   <svg class="h-[3rem] inline-block ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
