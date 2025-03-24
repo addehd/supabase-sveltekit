@@ -70,7 +70,7 @@ export function setupArtwork(
     Object.entries(wallArtwork).forEach(([wall, artworks]) => {
       // debug the pre-sorted array (for south wall)
       if (wall === 'south') {
-        console.log('before sorting:', artworks.map(a => ({ id: a.artwork_id, order: a.order })));
+        //console.log('before sorting:', artworks.map(a => ({ id: a.artwork_id, order: a.order })));
       }
       
       // sort by order property
@@ -80,7 +80,7 @@ export function setupArtwork(
       
       // debug the sorted array (for south wall)
       if (wall === 'south') {
-        console.log('after sorting:', artworks.map(a => ({ id: a.artwork_id, order: a.order })));
+        //console.log('after sorting:', artworks.map(a => ({ id: a.artwork_id, order: a.order })));
       }
       
       positionArtwork(wall, artworks.map(art => art.object) as THREE.Mesh[], room);
@@ -218,9 +218,9 @@ function addArtworkToWall(wallArtwork: any, artwork: any, object: THREE.Mesh) {
     });
     
     // log for debugging
-    if (wall === 'south') {
-      console.log(`added south artwork ${artwork.artwork_id} with order ${artwork.order}`);
-    }
+    //if (wall === 'south') {
+    //  console.log(`added south artwork ${artwork.artwork_id} with order ${artwork.order}`);
+    //}
   } else {
     //console.error(`Invalid wall specified for artwork ${artwork.artwork_id}: ${artwork.wall}`);
   }
@@ -252,9 +252,9 @@ function positionArtwork(wall: string, artworks: THREE.Mesh[], room: { width: nu
     let currentX = startX;
 
     // add debug logging to help track ordering issues
-    if (wall === 'south') {
-      console.log('positioning south wall artworks:', artworks.map(art => art.userData?.artwork?.order));
-    }
+    //if (wall === 'south') {
+    //  console.log('positioning south wall artworks:', artworks.map(art => art.userData?.artwork?.order));
+    //}
 
     artworks.forEach((art) => {
         const width = art.geometry.parameters.width;

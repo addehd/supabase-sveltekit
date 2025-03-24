@@ -71,13 +71,12 @@ const authGuard: Handle = async ({ event, resolve }) => {
     redirect(303, '/')
   }
 
-  if (event.locals.session && event.url.pathname === '/') {
-    redirect(303, '/arkiv')
-  }
+  // if (event.locals.session && event.url.pathname === '/') {
+  //   redirect(303, '/arkiv')
+  // }
 
-  // redirect unauthenticated users at root to /rum/32
   if (!event.locals.session && event.url.pathname === '/') {
-    redirect(303, '/rum/32')
+    redirect(303, '/hangaren/32')
   }
 
   return resolve(event)

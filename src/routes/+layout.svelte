@@ -22,11 +22,11 @@
 		$isInfoOpen = !$isInfoOpen;
 	}
 
-	const isMobile = writable(false);
+	let isMobile = false;
 
 	onMount(() => {
 		// check for mobile only in browser
-		$isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+		isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
 		const { data } = supabase.auth.onAuthStateChange((_, newSession) => {
 			if (newSession?.expires_at !== session?.expires_at) {
@@ -51,20 +51,21 @@
 	</div>
 {/if}
 
-<!-- desktop header -->
-<header class="hidden md:fixed md:block md:z-[500] md:backdrop-blur-lg md:top-0 md:w-full md:h-24 md:border-b-[1px] md:border-white/20">
-  <nav class="flex space-x-[20rem] px-11 justify-between w-full items-center">
-    <button on:click={toggleInfo}>
-				<p class="text-white text-xl">Välkommen</p>
-    </button>
-    <div class="flex space-x-2">
-      <img src="/logo.svg" alt="logo" class="my-5 h-[3rem] text-center" />
-    </div>
-    <div class="text-white text-xl py-7 left-0">
-			 <a href="/stappen/34">cfuk.nu</a>
-    </div>
-  </nav>
-</header>
+{#if !isMobile}
+	<header class="hidden md:fixed md:block md:z-[500] md:backdrop-blur-lg md:top-0 md:w-full md:h-24 md:border-b-[1px] md:border-white/20">
+  	<nav class="flex space-x-[20rem] px-11 justify-between w-full items-center">
+    	<button on:click={toggleInfo}>
+					<p class="text-white text-xl">Välkommen</p>
+    	</button>
+    	<div class="flex space-x-2">
+      	<img src="/logo.svg" alt="logo" class="my-5 h-[3rem] text-center" />
+    	</div>
+    	<div class="text-white text-xl py-7 left-0">
+			 	<a href="/stappen/34">cfuk.nu</a>
+    	</div>
+  	</nav>
+	</header>
+{/if}
 
 <!-- mobile header -->
 <header class="md:hidden fixed z-[500] backdrop-blur-lg top-0 w-full flex items-center justify-between border-b-[1px] border-white/20 
@@ -87,10 +88,3 @@
 <main class="dark:bg-gray-900 bg-slate-800 min-h-[100vh]">i
 	<slot />
 </main>
-
-<!-- use $isMobile store in your template -->
-{#if $isMobile}
-  <!-- mobile content -->
-{:else}
-  <!-- desktop content -->
-{/if}
