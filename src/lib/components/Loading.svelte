@@ -12,7 +12,7 @@
 
 {#if !$artworkLoaded}
   <div class="fixed inset-0 bg-black flex items-center justify-center z-[1020]">
-    <div class="w-[20rem] h-[10rem]">
+    <div class="w-[11rem] md:w-[16rem] h-[10rem]">
       <div class="rotate-[-90deg] z-[1000] sm:rotate-0">
         <!--?xml version="1.0" encoding="utf-8"?-->
         <!-- Generator: Adobe Illustrator 26.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->

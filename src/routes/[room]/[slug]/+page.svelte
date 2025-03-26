@@ -114,7 +114,7 @@
 
 
 {#if showRotationMessage}
-  <div class="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center text-white">
+  <div class="fixed inset-0 bg-black z-[5000] flex items-center justify-center text-white">
     <div class="text-center p-4">
       <svg class="w-16 h-16 mx-auto mb-4 animate-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <path fill="currentColor" d="M7 1h10a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2zm0 2v18h10V3H7zm5 15a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>

@@ -171,8 +171,8 @@ export const setupMobileControls = (vg, player) => {
         
         .stick {
             position: absolute;
-            top: 30%;
-            left: 50%;
+            left: 39%;
+            top: 45%;
             width: 40px;
             height: 40px;
             background: rgba(255, 255, 255, 0.5);
