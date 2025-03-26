@@ -9,6 +9,7 @@
   import ArtworkDescription from '$lib/components/ArtworkDescription.svelte';
   import { artworkLoaded } from '$lib/stores/loading-store';
   import { getDeviceAndOrientation, shouldShowRotationMessage } from '$lib/helper';
+  import UserGuide from '$lib/components/UserGuide.svelte';
 
   export let data;
 
@@ -112,6 +113,7 @@
   };
 </script>
 
+<UserGuide />
 
 {#if showRotationMessage}
   <div class="fixed inset-0 bg-black z-[5000] flex items-center justify-center text-white">
