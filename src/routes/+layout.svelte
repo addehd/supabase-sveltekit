@@ -54,14 +54,15 @@
 {#if !isMobile}
 	<header class="hidden md:fixed md:block md:z-[500] md:backdrop-blur-lg md:top-0 md:w-full md:h-24 md:border-b-[1px] md:border-white/20">
   	<nav class="flex space-x-[20rem] px-11 justify-between w-full items-center">
-    	<button on:click={toggleInfo}>
+    	<!-- <button on:click={toggleInfo}>
 					<p class="text-white text-xl">Välkommen</p>
-    	</button>
+    	</button> -->
+			<div></div>
     	<div class="flex space-x-2">
       	<img src="/logo.svg" alt="logo" class="my-5 h-[3rem] text-center" />
     	</div>
     	<div class="text-white text-xl py-7 left-0">
-			 	<a href="/stappen/34">cfuk.nu</a>
+			 	<a href="https://cfuk.nu">cfuk.nu</a>
     	</div>
   	</nav>
 	</header>

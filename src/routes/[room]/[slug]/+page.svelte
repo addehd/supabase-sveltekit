@@ -20,13 +20,13 @@
 
   const routeConfig = {
     'stappen': {
-      nextRoute: '/stappen/20',
-      nextText: 'till Hangaren',
+      nextRoute: '/hangaren/32',
+      nextText: 'Hangaren',
       gradientClasses: 'from-purple-500 to-purple-800'
     },
     'rum': {
-      nextRoute: '/hangaren/32',
-      nextText: 'till Stäppen',
+      nextRoute: '/stappen/20',
+      nextText: 'Stäppen',
       gradientClasses: 'from-green-500 to-green-700'
     }
   };
