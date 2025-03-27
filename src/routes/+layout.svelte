@@ -46,7 +46,9 @@
 		<div class="relative p-8 rounded-lg max-w-3xl flex-row flex gap-x-40">
 				<img src="/urban.png" alt="logo" class="my-5 h-[5rem] text-center" />
 				<img src="/logo.svg" alt="logo" class="my-5 h-[3.5rem] text-center" />
-				<img src="/cfuk.svg" alt="logo" class="my-5 h-[3.3rem] text-center" />
+				<a href="https://cfuk.nu/#vem" class="p-3">
+					<img src="/cfuk.svg" alt="logo" class="my-5 h-[3.3rem] text-center" />
+				</a>
 		</div>
 	</div>
 {/if}
