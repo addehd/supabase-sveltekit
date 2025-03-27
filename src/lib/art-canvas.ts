@@ -65,7 +65,8 @@ export function setupArtwork(
     });
   });
 
-  // wait for all textures to load before positioning
+  const EXTRA_TIME = 3000;
+
   Promise.all(loadPromises).then(() => {
     Object.entries(wallArtwork).forEach(([wall, artworks]) => {
       // debug the pre-sorted array (for south wall)
@@ -86,8 +87,10 @@ export function setupArtwork(
       positionArtwork(wall, artworks.map(art => art.object) as THREE.Mesh[], room);
     });
     
-    // set the store to true when loading is complete
-    artworkLoaded.set(true);
+    // always add 1500ms to whatever the loading time was
+    setTimeout(() => {
+      artworkLoaded.set(true);
+    }, EXTRA_TIME);
   });
 
   // update artwork description and audio url when player is near

@@ -61,7 +61,10 @@
 				<img src="/logo.svg" alt="logo" class="h-[3rem]" />
 			</div>
 			<div class="absolute right-11 top-1/2 -translate-y-1/2 text-white text-xl">
-				<a href="https://cfuk.nu">cfuk.nu</a>
+				<button on:click={toggleInfo} class="p-2">
+					<!-- <a href="https://cfuk.nu">cfuk.nu</a> -->
+					 <p>CFUK</p>
+				</button>
 			</div>
 		</nav>
 	</header>
