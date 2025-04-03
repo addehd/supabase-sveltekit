@@ -28,7 +28,7 @@
   <div class="bg-gray-900/25 backdrop-blur-lg absolute inset-0"></div>
   <nav class="flex space-x-[20rem] justify-end pointer-events-auto relative">
     <div class="text-white font-bold text-xl">
-      <a href="/rum/32">Hangaren</a>
+      <a href="/hangaren/32">Hangaren</a>
     </div>
   </nav>
 </header>

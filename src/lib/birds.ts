@@ -16,12 +16,16 @@ export function setupBirds(vg, room) {
         lastCheckTime: 0,
         checkInterval: 200, // ms
         birds: [],
+        enabled: true, // add enabled flag
         
         addBird: function(bird, id) {
             this.birds.push({ object: bird, id: id });
         },
         
         update: function(camera, playerPosition) {
+            // skip update if disabled
+            if (!this.enabled) return;
+            
             const now = performance.now();
             if (now - this.lastCheckTime < this.checkInterval) return;
             this.lastCheckTime = now;
@@ -86,11 +90,31 @@ export function setupBirds(vg, room) {
     let birdSoundPlaying = false;
     let audioEnabled = true;
     
+    // update audio button and controls
+    const audioButton = document.createElement('button');
+    audioButton.innerHTML = '🔇'; // initially set to mute icon since sound will be playing
+    audioButton.style.position = 'absolute';
+    audioButton.style.bottom = '27px';
+    audioButton.style.left = '12.3%'; 
+    audioButton.style.color = 'white';
+    audioButton.style.zIndex = '1000';
+    audioButton.style.fontSize = '1.7rem';
+    audioButton.style.display = 'none'; // initially hidden
+    document.body.appendChild(audioButton);
+
+    // separate background audio from bird sound effects
+    const backgroundAudio = new Audio('/seagull.mp3');
+    backgroundAudio.loop = true;
+    
+    // show audio button when bird sound starts playing
     const playBirdSound = () => {
         if (birdSoundPlaying || !audioEnabled) return;
         birdSoundPlaying = true;
         birdSound.currentTime = 0;
         birdSound.play().catch(e => console.error('bird sound failed:', e));
+        
+        // show audio button when sound starts playing
+        audioButton.style.display = 'block';
     };
     
     const stopBirdSound = () => {
@@ -235,29 +259,17 @@ export function setupBirds(vg, room) {
         flyHeight: 80
     });
 
-    // update audio button and controls
-    const audioButton = document.createElement('button');
-    audioButton.innerHTML = '🔊';
-    audioButton.style.position = 'absolute';
-    audioButton.style.bottom = '27px';
-    audioButton.style.left = '12.3%'; 
-    audioButton.style.color = 'white';
-    audioButton.style.zIndex = '1000';
-    audioButton.style.fontSize = '1.7rem';
-    document.body.appendChild(audioButton);
-
-    const audio = new Audio('/seagull.mp3');
-    audio.loop = true;
-    
+    // Audio button event listener
     audioButton.addEventListener('click', () => {
         // toggle audio state
         audioEnabled = !audioEnabled;
         
         if (audioEnabled) {
-            // turn on background audio
-            audio.currentTime = 0;
-            audio.play().catch(e => console.error('Audio play failed:', e));
+            // update button appearance to show mute icon (since sound is playing)
             audioButton.innerHTML = '🔇';
+            
+            // enable raycaster
+            visibilitySystem.enabled = true;
             
             // restart bird sound if any birds are visible
             const anyBirdVisible = Object.values(birdVisibility).some(visible => visible);
@@ -265,11 +277,18 @@ export function setupBirds(vg, room) {
                 playBirdSound();
             }
         } else {
-            // turn off all audio (both background and bird sounds)
-            audio.pause();
+            // update button appearance to show play icon (since sound is stopped)
             audioButton.innerHTML = '🔊';
             
-            // importantly, stop the bird sound when button is pressed
+            // disable raycaster
+            visibilitySystem.enabled = false;
+            
+            // reset all bird visibility states
+            Object.keys(birdVisibility).forEach(key => {
+                birdVisibility[key] = false;
+            });
+            
+            // stop the bird sound when button is pressed
             stopBirdSound();
         }
     });

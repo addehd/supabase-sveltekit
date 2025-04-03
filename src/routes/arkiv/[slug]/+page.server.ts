@@ -63,19 +63,24 @@ export const actions = {
         return { success: false, error: 'Failed to generate audio' };
       }
 
+      const wallLower = wall?.toLowerCase();
+      const roomLower = room?.toLowerCase();
+
+      
       const { data, error } = await supabaseClient
-        .from('artworks')
+        .from('artworks_merged')
         .insert({
           title,
           short_description: shortDescription,
           description,
-          wall: wall?.toLowerCase(),
-          room: room,
+          wall: wallLower,
+          room: roomLower,
           order: order,
           exhibitions_id: slug,
           artist_id: artistId,
           image_url: imageUrl || '',
           audio: audioUrl,
+          artwork_id: Math.floor(Math.random() * 1000000) + 1,
         })
         .select();
 
@@ -110,14 +115,10 @@ export const actions = {
       let audioUrl = '';
 
       const existingArtwork = await supabaseClient
-        .from('artworks')
+        .from('artworks_merged')
         .select('*')
         .eq('artwork_id', artworkId)
         .single();
-
-      console.log('existingArtwork:', existingArtwork);
-      console.log('formData:', formData);
-      //return { success: true };
 
       const currentImageUrl = existingArtwork.data.image_url;
 
@@ -161,7 +162,7 @@ export const actions = {
       
       fields.forEach(field => {
         const newValue = formData.get(field);
-        if (newValue !== null && newValue !== existingArtwork[field]) {
+        if (newValue !== null && newValue !== existingArtwork.data[field]) {
           updates[field] = newValue;
         }
       });
@@ -187,7 +188,7 @@ export const actions = {
       }
 
       const { data, error } = await supabaseClient
-        .from('artworks')
+        .from('artworks_merged')
         .update(updates)
         .eq('artwork_id', artworkId)
         .select();
@@ -235,9 +236,9 @@ export const actions = {
       const formData = await request.formData();
       const artworkId = formData.get('artwork_id');
 
-      // delete the artwork from the database
+      // delete the artwork from the correct table
       const { error } = await supabaseClient
-        .from('artworks')
+        .from('artworks_merged')
         .delete()
         .eq('artwork_id', artworkId);
 
@@ -256,7 +257,7 @@ export const actions = {
 
 export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
   const { data: artworks, error } = await supabase
-    .from('artworks')
+    .from('artworks_merged')
     .select('*')
     .eq('exhibitions_id', params.slug)
     .order('order', { ascending: true });

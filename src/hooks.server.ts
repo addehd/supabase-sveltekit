@@ -67,15 +67,20 @@ const authGuard: Handle = async ({ event, resolve }) => {
   event.locals.session = session
   event.locals.user = user
 
-  if (!event.locals.session && event.url.pathname.startsWith('/arkiv')) {
+  const isLoggedIn = event.locals.session && event.locals.user
+
+  // /arkiv
+  if (!isLoggedIn && event.url.pathname.startsWith('/arkiv')) {
     redirect(303, '/')
   }
 
-  // if (event.locals.session && event.url.pathname === '/') {
+  // // /
+  // if (isLoggedIn && event.url.pathname === '/') {
   //   redirect(303, '/arkiv')
   // }
 
-  if (!event.locals.session && event.url.pathname === '/') {
+  // /hangaren/32
+  if (!isLoggedIn && event.url.pathname === '/') {
     redirect(303, '/hangaren/32')
   }
 

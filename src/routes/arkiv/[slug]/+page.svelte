@@ -4,6 +4,7 @@
   
   export let data;
 
+  // Keep internal logic values in English
   let sections = {
     Hangaren: {
       East: data.artworks.filter(artwork => artwork.wall === 'east'),
@@ -15,6 +16,16 @@
       'Stappen West': data.artworks.filter(artwork => artwork.wall === 'stappen west'),
       'Stappen South': data.artworks.filter(artwork => artwork.wall === 'stappen south')
     }
+  };
+
+  // Translations for display
+  const wallTranslations = {
+    'East': 'Öst',
+    'West': 'Väst',
+    'North': 'Nord',
+    'South': 'Syd',
+    'Stappen West': 'Stappen Väst',
+    'Stappen South': 'Stappen Syd'
   };
 
   function addForm(section, wallPosition) {
@@ -45,16 +56,16 @@
 
 </script>
 
-<div class="text-white">
-  <h1 class="w-full text-center text-5xl pt-24 p-7">Utställning nr {data.exhibition_id}</h1>
+<div class="text-white mt-24">
+  <!-- <h1 class="w-full text-center text-5xl pt-24 p-7">Utställning nr {data.exhibition_id}</h1> -->
   {#each Object.entries(sections) as [sectionName, walls]}
     <h2 class="text-3xl mb-4 ml-7">{sectionName} </h2>
     {#each Object.entries(walls) as [wallPosition, artworks]}
       <div class="border border-solid border-gray-300 p-7 my-7">
-        <h3 class="text-2xl">{wallPosition} wall</h3>
+        <h3 class="text-2xl mb-4">{wallTranslations[wallPosition] || wallPosition} vägg</h3>
         
         <div class="form-container">
-          {wallPosition}
+         
           <div class="artwork-scroll">
             {#each artworks as form, formIndex (form.artwork_id)}
             <div class="artwork rounded-sm flex justify-between px-7 py-7 bg-gray-300/15 w-[60rem] relative"
@@ -70,9 +81,9 @@
                  }}
                  animate:flip={{ duration: 300 }}>
               <div class="artwork-number">{formIndex + 1}</div>
-              <button class="absolute top-2 left-2 text-red-500 hover:text-red-700"
+              <button class="absolute top-[-4px] right-11 text-2xl text-red-500 hover:text-red-700"
                 on:click={async () => {
-                  if (confirm('Are you sure you want to delete this artwork?')) {
+                  if (confirm('Är du säker på att du vill ta bort detta konstverk?')) {
                     const formData = new FormData();
                     formData.append('artwork_id', form.artwork_id);
                     const response = await fetch('?/delete_artwork', {
@@ -88,7 +99,6 @@
                 ×
               </button>
               <div class="flex flex-col">
-                {wallPosition}
           
                 <ArtPieceForm
                   exhibition_id={data.exhibition_id}
@@ -108,7 +118,7 @@
         </div>
         <button class="bg-green-500 mt-5 text-white px-4 py-2 rounded-md hover:bg-green-600 mb-4"
           on:click={() => addForm(sectionName, wallPosition)} >
-          Add art to {wallPosition} wall
+          Lägg till konst på {wallTranslations[wallPosition] || wallPosition} vägg
         </button>
       </div>
       {/each}

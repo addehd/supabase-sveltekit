@@ -80,6 +80,7 @@ export const actions = {
     const { supabaseClient } = await checkAuthentication(locals);
 
     const formData = await request.formData();
+
     const exhibition_id = parseInt(formData.get('exhibition_id'), 10);
     const name = formData.get('name');
     const description = formData.get('description');

@@ -13,6 +13,8 @@
 
   export let data;
 
+  console.log("artworks", data.artworks);
+
   const moduleMap = {
     'stappen': () => import('$lib/stappen'),
     'rum': () => import('$lib/main')
