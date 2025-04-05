@@ -14,6 +14,7 @@ export const actions = {
     const formData = await request.formData();
     const name = formData.get('name');
     const description = formData.get('description');
+    const room = formData.get('room') || 'hangaren'; // Default to hangaren if not specified
     const image = formData.get('image');
   
     const fileExt = image.name.split('.').pop();
@@ -49,6 +50,7 @@ export const actions = {
           start_date: new Date(),
           end_date: new Date(),
           image_url: imageUrl,
+          default_room: room, // Store the selected room as the default
         },
       ])
       .select();
@@ -63,8 +65,8 @@ export const actions = {
     const { data: room_data, error: roomError } = await supabaseClient
       .from('rooms')
       .insert([
-        { name: 'hangaren', exhibition_id: exhibitionId },
-        { name: 'stappen', exhibition_id: exhibitionId },
+        { name: 'hangaren', exhibition_id: exhibitionId, is_default: room === 'hangaren' },
+        { name: 'stappen', exhibition_id: exhibitionId, is_default: room === 'stappen' },
       ])
       .select();
   
@@ -129,5 +131,8 @@ export const actions = {
 
 export const load: PageServerLoad = async ({ locals: { supabase } }) => {
   const { data: exhibitions } = await supabase.from('exhibitions').select();
+
+  console.log(exhibitions);
+  
   return { exibitions: exhibitions ?? [] };
 };

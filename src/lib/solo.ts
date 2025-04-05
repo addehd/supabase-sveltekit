@@ -11,6 +11,20 @@ const fadeInDuration = 900;
 const offsetDistance = 6;
 const objectURL = '/apple.glb';
 
+// custom VR button that only shows when supported
+const createVRButtonIfSupported = (renderer) => {
+  if (navigator.xr) {
+    return navigator.xr.isSessionSupported('immersive-vr')
+      .then(supported => {
+        if (supported) {
+          return VRButton.createButton(renderer);
+        }
+        return null;
+      });
+  }
+  return Promise.resolve(null);
+};
+
 const initRum = async (el, data) => {
 
   scene = new THREE.Scene();
@@ -19,8 +33,12 @@ const initRum = async (el, data) => {
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.xr.enabled = true;
 
-  // add vr button
-  document.body.appendChild(VRButton.createButton(renderer));
+  // add vr button if supported
+  createVRButtonIfSupported(renderer).then(button => {
+    if (button) {
+      document.body.appendChild(button);
+    }
+  });
 
   // lights
   const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 0.2);

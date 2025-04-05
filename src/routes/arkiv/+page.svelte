@@ -16,10 +16,17 @@ function addExhibition() {
     nextYear = currentYear; 
   }
 
-  exhibitions = [...exhibitions, { name: '', year: nextYear.toString(), description: '' }];
+  exhibitions = [...exhibitions, { 
+    name: '', 
+    year: nextYear.toString(), 
+    description: '',
+    default_room: 'hangaren' // or leave empty to force selection
+  }];
+
+  console.log('exhibitions', exhibitions);
 }
 </script>
-<div class="flex justify-start shadow-xl fixed bottom-11 w-[21rem] right-11 z-11">
+<div class="flex justify-start shadow-xl fixed bottom-11 w-[21rem] right-11 z-11 shadow-black">
   <button on:click={addExhibition} class="bg-green-500 border border-solid border-white mx-auto w-full max-w-sm p-3 text-white px-6 py-4 rounded-md hover:bg-green-600">
     Skapa ny utställning
   </button>
@@ -41,10 +48,20 @@ function addExhibition() {
           <input name="name" type="text" class="text-black w-full px-3 py-2 border rounded" bind:value={exhibition.title} required>
         </label>
         
-        <label class="mb-11">
+        <label class="mb-4">
           Beskrivning:
           <textarea name="description" class="text-black w-full px-3 py-2 border rounded" bind:value={exhibition.description} required></textarea>
         </label>
+        
+        <!-- Room selection dropdown -->
+        <div class="flex mb-4 items-center">
+          <div class="w-1/3 text-white">Plats:</div>
+          <select name="room" class="text-black w-2/3 px-3 py-1 border rounded text-sm" required>
+            <option value="" disabled selected={!exhibition.default_room && !exhibition.room}>Välj</option>
+            <option value="hangaren" selected={exhibition.default_room === 'hangaren' || exhibition.room === 'hangaren'}>Hangaren</option>
+            <option value="stappen" selected={exhibition.default_room === 'stappen' || exhibition.room === 'stappen'}>Stappen</option>
+          </select>
+        </div>
 
         <!-- image preview -->
         <div class="w-full h-[14rem] rounded-md mb-4 bg-cover bg-center mt-3" 
@@ -89,20 +106,22 @@ function addExhibition() {
             {:else}
               <!-- existing exhibition - show edit and delete buttons -->
               <button type="submit" formaction="?/edit_exhibition" class="bg-green-500 text-white px-4 py-2 text-sm rounded-md hover:bg-yellow-600">
-                Spara ändringar
+                Spara 
               </button>
+
               
-              <button type="submit" formaction="?/delete_exhibition" class="bg-red-500 text-white px-4 py-2 text-sm rounded-md hover:bg-red-600">
-                Ta bort
-              </button>
               
               <a href={`/arkiv/${exhibition.exhibition_id}`}>
                 <button type="button" class="bg-blue-500 text-white px-4 py-2 text-sm rounded-md hover:bg-green-600">
                   Redigera
                 </button>
               </a>
+
+              <button type="submit" formaction="?/delete_exhibition" class="bg-red-500 text-white px-4 py-2 text-sm rounded-md hover:bg-red-600">
+                Radera
+              </button>
               
-              <a href={`/rum/${exhibition.exhibition_id}`} class="inline-block">
+              <a href={`/hangaren/${exhibition.exhibition_id}`} class="inline-block">
                 <button type="button" class="bg-purple-500 text-white px-3 py-2 text-sm rounded-md hover:bg-purple-600">
                  Besök →
                 </button>
