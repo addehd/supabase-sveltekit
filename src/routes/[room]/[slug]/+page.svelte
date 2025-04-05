@@ -132,7 +132,8 @@
 {#if !isMobile}
 <div class="hidden sm:flex fixed backdrop-blur-lg bottom-0 w-full z-50 items-center justify-between border-t-[1px] border-white/20 
   {$isMenuOpen ? 'block' : 'hidden'} md:block">
-  <nav class="flex space-x-[20rem] justify-end w-full"> <div class="text-white bg-gradient-to-r {config.gradientClasses} font-bold text-xl py-7 right-0"> <a class="px-11 flex items-center gap-1" href={config.nextRoute} data-sveltekit-reload>
+  <nav class="flex space-x-[20rem] justify-end w-full"> <div class="text-white bg-gradient-to-r {config.gradientClasses} font-bold text-xl py-7 right-0"> 
+    <a class="px-11 flex items-center gap-1" href={config.nextRoute} data-sveltekit-reload>
      {config.nextText} <svg class="w-9 h-9" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path stroke="currentColor" fill="none" stroke-width="1.5" d="M14 6l6 6-6 6" /> </svg> </a> </div> </nav>
 </div>
 {/if}

@@ -13,8 +13,9 @@ const objectURL = '/apple.glb';
 
 // custom VR button that only shows when supported
 const createVRButtonIfSupported = (renderer) => {
-  if (navigator.xr) {
-    return navigator.xr.isSessionSupported('immersive-vr')
+  // check for xr support with type assertion
+  if ('xr' in navigator) {
+    return (navigator as any).xr.isSessionSupported('immersive-vr')
       .then(supported => {
         if (supported) {
           return VRButton.createButton(renderer);
@@ -66,12 +67,19 @@ const initRum = async (el, data) => {
 
       const boundingBox = new THREE.Box3().setFromObject(gltf.scene);
       const center = boundingBox.getCenter(new THREE.Vector3());
+      
+      // store original position before centering
+      const originalPosition = gltf.scene.position.clone();
+      
+      // center the model at origin
       gltf.scene.position.sub(center);
-
+      
+      // scale the model
       gltf.scene.scale.multiplyScalar(scaleFactor);
-
-      // set controls target to the center of the object
-      controls.target.copy(center);
+      
+      // set controls target to origin (where we've centered the object)
+      controls.target.set(0, 0, 0);
+      controls.update();
 
       // calculate position in front of the player
       const direction = new THREE.Vector3();

@@ -1,5 +1,12 @@
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
+import { createScene } from './solo';
+
+// reference to solo for later use
+let solo: any = null;
+
+// reference to /solo path
+const soloPath = '/solo/11';
 
 // in mark.ts, modify the function signature and add vg.add:
 export const setupMark = (
@@ -53,9 +60,43 @@ export const setupMark = (
   const checkPlayerAboveMark = (playerPosition: THREE.Vector3) => {
     const markX = object.position.x;
     const markZ = object.position.z;
-
-    if (Math.abs(playerPosition.x - markX) < 1 && Math.abs(playerPosition.z - markZ) < 1) {
-      console.log("Player is above the mark");
+    const emojiId = 'apple-emoji';
+    
+    if (Math.abs(playerPosition.x - markX) < 3 && Math.abs(playerPosition.z - markZ) < 3) {
+      // player is above the mark
+      if (!document.getElementById(emojiId)) {
+        // create link that wraps the emoji
+        const link = document.createElement('a');
+        link.href = soloPath;
+        link.setAttribute('data-sveltekit-reload', '');
+        link.style.textDecoration = 'none';
+        link.style.position = 'fixed';
+        link.style.bottom = '22px';
+        link.style.left = '28%';
+        link.style.transform = 'translateX(-50%)';
+        link.style.zIndex = '1000';
+        link.dataset.timestamp = Date.now().toString();
+        link.id = emojiId;
+        
+        // create the emoji inside the link
+        const emoji = document.createElement('span');
+        emoji.textContent = '🍎';
+        emoji.style.fontSize = '28px';
+        
+        link.appendChild(emoji);
+        document.body.appendChild(link);
+      }
+    } else {
+      // check if emoji exists and has been there less than 30 seconds
+      const link = document.getElementById(emojiId);
+      if (link) {
+        const timestamp = parseInt(link.dataset.timestamp || '0');
+        const currentTime = Date.now();
+        
+        if (currentTime - timestamp >= 30000) {
+          document.body.removeChild(link);
+        }
+      }
     }
   };
 

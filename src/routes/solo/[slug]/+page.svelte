@@ -24,21 +24,20 @@
   class="w-full h-full fixed top-0 left-0" 
   bind:this={el} />
 
-<header class="fixed bottom-0 w-full p-9 z-50 pointer-events-none">
+<header class="fixed bottom-0 w-full p-9 z-50">
   <div class="bg-gray-900/25 backdrop-blur-lg absolute inset-0"></div>
-  <nav class="flex space-x-[20rem] justify-end pointer-events-auto relative">
-    <div class="text-white font-bold text-xl">
-      <a href="/hangaren/32">Hangaren</a>
-    </div>
-  </nav>
-</header>
 
-<!-- {#if showDiv}
-  <div
-    class="fixed inset-0 bg-black flex items-center justify-center z-50"
-    transition:fade="{{ duration: 0 }}">
-    <div class="w-[20rem] h-[10rem]">
-      <Loading />
-    </div>
+  <div class="hidden sm:flex fixed backdrop-blur-lg bottom-0 w-full z-50 items-center justify-between border-t-[1px] border-white/20 md:block pointer-events-auto">
+    <nav class="flex space-x-[20rem] justify-end w-full pointer-events-auto"> 
+      <div class="text-white min-w-[17rem] bg-gradient-to-r from-blue-500 to-purple-500 font-bold text-xl py-7 right-0 pointer-events-auto"> 
+        <a class="px-11 flex items-center gap-1 z-[5000] pointer-events-auto cursor-pointer" 
+           href="#" 
+           on:click|preventDefault={() => history.back()}>
+          Back <svg class="w-9 h-9" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> 
+            <path stroke="currentColor" fill="none" stroke-width="1.5" d="M14 6l6 6-6 6" /> 
+          </svg> 
+        </a> 
+      </div> 
+    </nav>
   </div>
-{/if} -->
+</header>
