@@ -14,31 +14,140 @@ const VIDEO_CONFIG = {
   }
 };
 
+// create a client-side proxy for video URLs
+function createVideoProxy(url) {
+  // if already a local URL, return as is
+  if (url.startsWith('/')) {
+    return url;
+  }
+  
+  // for known working URLs, return as is
+  if (url.includes('storage.googleapis.com')) {
+    return url;
+  }
+  
+  // create a video element to proxy the content
+  const proxyVideo = document.createElement('video');
+  proxyVideo.style.display = 'none';
+  proxyVideo.crossOrigin = 'anonymous';
+  proxyVideo.src = url;
+  proxyVideo.muted = true; // no longer needed for autoplay but keeping for safety
+  proxyVideo.loop = true;
+  document.body.appendChild(proxyVideo);
+  
+  // create a canvas element
+  const canvas = document.createElement('canvas');
+  canvas.width = VIDEO_CONFIG.htmlWidth;
+  canvas.height = VIDEO_CONFIG.htmlHeight;
+  canvas.style.display = 'none';
+  document.body.appendChild(canvas);
+  
+  const ctx = canvas.getContext('2d');
+  
+  // start drawing frames from the proxy video to the canvas
+  setInterval(() => {
+    if (proxyVideo.readyState >= 2 && !proxyVideo.paused) {
+      try {
+        ctx.drawImage(proxyVideo, 0, 0, canvas.width, canvas.height);
+      } catch (e) { 
+        console.error('Canvas draw error:', e);
+      }
+    }
+  }, 16); // ~60fps
+  
+  // return the canvas element for the texture
+  return { canvas, proxyVideo };
+}
+
 export function setupVideo(room, vg, videoUrl = '/test.mp4') {
     // create video element first
     const video = document.createElement('video');
+    video.crossOrigin = 'anonymous'; // set crossOrigin before src
     video.src = videoUrl;
     video.loop = true;
     video.playsInline = true;
     video.width = VIDEO_CONFIG.htmlWidth;
     video.height = VIDEO_CONFIG.htmlHeight;
     video.autoplay = false;
-
+    
+    // track if we're using the proxy approach
+    let proxyData = null;
+    let usingProxy = false;
+    
+    // Function to play video for 2 seconds then pause
+    const playForTwoSeconds = (videoElement) => {
+      if (videoElement) {
+        videoElement.play().then(() => {
+          // set timeout to pause after 2 seconds
+          setTimeout(() => {
+            videoElement.pause();
+            // update play button state
+            playButton.innerHTML = ' ▶️';
+            // update store state
+            videoIsPlaying.set(false);
+          }, 2000);
+        }).catch(e => {
+          console.error('Play failed:', e);
+        });
+      }
+    };
+    
     // subscribe to video source changes after video element is created
     const unsubscribe = videoSource.subscribe(url => {
         console.log('Video source changed:', url);
+        video.crossOrigin = 'anonymous'; // ensure crossOrigin is set before changing src
         video.src = url;
         video.load();
+        
+        // wait for video to load then play for 2 seconds
+        video.addEventListener('loadeddata', function onceLoaded() {
+          // play for 2 seconds once loaded
+          playForTwoSeconds(video);
+          // remove event listener after first load
+          video.removeEventListener('loadeddata', onceLoaded);
+        }, { once: true });
+        
+        // set a timeout to check if video loads correctly
+        setTimeout(() => {
+            if (video.videoWidth === 0 || video.error) {
+                console.log('Video not loading correctly, trying proxy approach');
+                // try proxy approach
+                proxyData = createVideoProxy(url);
+                usingProxy = true;
+                
+                if (proxyData.proxyVideo) {
+                    // sync play state
+                    proxyData.proxyVideo.loop = true;
+                    
+                    // play for 2 seconds
+                    playForTwoSeconds(proxyData.proxyVideo);
+                    
+                    // update texture to use canvas
+                    if (proxyData.canvas && videoTexture) {
+                        videoTexture.image = proxyData.canvas;
+                        videoTexture.needsUpdate = true;
+                    }
+                }
+            }
+        }, 2000);
     });
-
+    
     // add subscription to videoIsPlaying store
     const unsubscribeVideo = videoIsPlaying.subscribe(isPlaying => {
         if (isPlaying) {
-            video.play().catch(e => console.error('Play failed:', e));
+            if (usingProxy && proxyData?.proxyVideo) {
+                proxyData.proxyVideo.play().catch(e => console.error('Proxy play failed:', e));
+            } else {
+                video.play().catch(e => console.error('Play failed:', e));
+            }
             console.log('video is playing');
         } else {
             console.log('video is paused');
-            video.pause();
+            if (usingProxy && proxyData?.proxyVideo) {
+                proxyData.proxyVideo.pause();
+            } else {
+                video.pause();
+            }
         }
     });
 
@@ -53,11 +162,19 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
     playButton.style.fontSize = '1.6rem';
     
     playButton.addEventListener('click', () => {
-        if (video.paused) {
-            video.play().catch(e => console.error('Play failed:', e));
+        if ((usingProxy && proxyData?.proxyVideo?.paused) || (!usingProxy && video.paused)) {
+            if (usingProxy && proxyData?.proxyVideo) {
+                proxyData.proxyVideo.play().catch(e => console.error('Proxy play failed:', e));
+            } else {
+                video.play().catch(e => console.error('Play failed:', e));
+            }
             playButton.innerHTML = ' ⏸️ ';
         } else {
-            video.pause();
+            if (usingProxy && proxyData?.proxyVideo) {
+                proxyData.proxyVideo.pause();
+            } else {
+                video.pause();
+            }
             playButton.innerHTML = ' ▶️';
         }
     });
@@ -65,16 +182,47 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
     document.body.appendChild(playButton);
 
     video.addEventListener('error', (e) => {
-      console.error('Video error:', video.error);
+      console.error('Video error:', video.error, video.error?.code, video.error?.message);
+      console.error('Video source:', video.src);
+      console.error('Cross-origin issues may prevent the video from loading properly');
     });
 
     video.addEventListener('loadeddata', () => {
       console.log('Video loaded successfully');
+      // Test if video is actually playable by checking dimensions
+      if (video.videoWidth === 0 || video.videoHeight === 0) {
+        console.error('Video loaded but dimensions are zero - possible CORS issue');
+        
+        // Try to create a backup canvas-based approach for CORS videos
+        try {
+          proxyData = createVideoProxy(video.src);
+          usingProxy = true;
+          
+          // Start canvas updates
+          if (proxyData?.canvas) {
+            videoTexture.image = proxyData.canvas;
+            videoTexture.needsUpdate = true;
+          }
+        } catch (e) {
+          console.error('Canvas fallback failed:', e);
+        }
+      } else {
+        console.log('Video dimensions:', video.videoWidth, 'x', video.videoHeight);
+      }
     });
 
     const videoTexture = new THREE.VideoTexture(video);
     videoTexture.minFilter = THREE.LinearFilter;
     videoTexture.magFilter = THREE.LinearFilter;
+    
+    // setup rendering loop to update texture if using proxy
+    const updateTexture = () => {
+      if (usingProxy && videoTexture) {
+        videoTexture.needsUpdate = true;
+      }
+      requestAnimationFrame(updateTexture);
+    };
+    updateTexture();
     
     const geometry = new THREE.PlaneGeometry(VIDEO_CONFIG.width, VIDEO_CONFIG.height);
     const material = new THREE.MeshBasicMaterial({ 
