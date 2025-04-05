@@ -20,7 +20,8 @@ function addExhibition() {
     name: '', 
     year: nextYear.toString(), 
     description: '',
-    default_room: 'hangaren' // or leave empty to force selection
+    default_room: 'hangaren', // or leave empty to force selection
+    video: ''
   }];
 
   console.log('exhibitions', exhibitions);
@@ -52,9 +53,15 @@ function addExhibition() {
           Beskrivning:
           <textarea name="description" class="text-black w-full px-3 py-2 border rounded" bind:value={exhibition.description} required></textarea>
         </label>
+
+        <!-- Video URL field -->
+        <label class="mb-11">
+          Video URL:
+          <input name="video" type="url" class="text-black w-full px-3 py-2 border rounded" bind:value={exhibition.video} placeholder="https://www.youtube.com/watch?v=...">
+        </label>
         
         <!-- Room selection dropdown -->
-        <div class="flex mb-4 items-center">
+        <div class="flex mb-4 mt-4 items-center">
           <div class="w-1/3 text-white">Plats:</div>
           <select name="room" class="text-black w-2/3 px-3 py-1 border rounded text-sm" required>
             <option value="" disabled selected={!exhibition.default_room && !exhibition.room}>Välj</option>

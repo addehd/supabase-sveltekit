@@ -16,6 +16,7 @@ export const actions = {
     const description = formData.get('description');
     const room = formData.get('room') || 'hangaren'; // Default to hangaren if not specified
     const image = formData.get('image');
+    const video = formData.get('video'); // Get video URL
   
     const fileExt = image.name.split('.').pop();
     const fileName = `${name}-${Date.now()}.${fileExt}`;
@@ -51,6 +52,7 @@ export const actions = {
           end_date: new Date(),
           image_url: imageUrl,
           default_room: room, // Store the selected room as the default
+          video: video, // Add video URL to the insert
         },
       ])
       .select();
@@ -86,6 +88,7 @@ export const actions = {
     const exhibition_id = parseInt(formData.get('exhibition_id'), 10);
     const name = formData.get('name');
     const description = formData.get('description');
+    const video = formData.get('video'); // Get video URL from form data
 
     if (isNaN(exhibition_id)) {
       return { success: false, error: 'Invalid exhibition ID' };
@@ -93,7 +96,7 @@ export const actions = {
 
     const { error } = await supabaseClient
       .from('exhibitions')
-      .update({ title: name, description: description })
+      .update({ title: name, description: description, video: video }) // Add video to update
       .eq('exhibition_id', exhibition_id);
 
     if (error) {
