@@ -95,7 +95,7 @@ export function setupBirds(vg, room) {
     audioButton.innerHTML = '🔇'; // initially set to mute icon since sound will be playing
     audioButton.style.position = 'absolute';
     audioButton.style.bottom = '27px';
-    audioButton.style.left = '12.3%'; 
+    audioButton.style.left = '12.1%'; 
     audioButton.style.color = 'white';
     audioButton.style.zIndex = '1000';
     audioButton.style.fontSize = '1.7rem';
@@ -240,7 +240,7 @@ export function setupBirds(vg, room) {
         startAngle: 0,
         radius: 50,
         rotationSpeed: 0.0005,
-        flyHeight: 40
+        flyHeight: 50
     });
 
     createBird({
@@ -256,7 +256,7 @@ export function setupBirds(vg, room) {
         startAngle: (4 * Math.PI) / 3,
         radius: 165,
         rotationSpeed: 0.00026,
-        flyHeight: 80
+        flyHeight: 70
     });
 
     // Audio button event listener

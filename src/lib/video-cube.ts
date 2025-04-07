@@ -31,7 +31,7 @@ function createVideoProxy(url) {
   proxyVideo.style.display = 'none';
   proxyVideo.crossOrigin = 'anonymous';
   proxyVideo.src = url;
-  proxyVideo.muted = true; // no longer needed for autoplay but keeping for safety
+  proxyVideo.muted = false; // ensure sound is on
   proxyVideo.loop = true;
   document.body.appendChild(proxyVideo);
   
@@ -62,13 +62,14 @@ function createVideoProxy(url) {
 export function setupVideo(room, vg, videoUrl = '/test.mp4') {
     // create video element first
     const video = document.createElement('video');
-    video.crossOrigin = 'anonymous'; // set crossOrigin before src
+    video.crossOrigin = 'anonymous';
     video.src = videoUrl;
     video.loop = true;
     video.playsInline = true;
     video.width = VIDEO_CONFIG.htmlWidth;
     video.height = VIDEO_CONFIG.htmlHeight;
     video.autoplay = false;
+    video.muted = false; // ensure sound is on
     
     // track if we're using the proxy approach
     let proxyData = null;
@@ -77,10 +78,13 @@ export function setupVideo(room, vg, videoUrl = '/test.mp4') {
     // Function to play video for 2 seconds then pause
     const playForTwoSeconds = (videoElement) => {
       if (videoElement) {
+        // mute for preview
+        videoElement.muted = true;
         videoElement.play().then(() => {
-          // set timeout to pause after 2 seconds
           setTimeout(() => {
             videoElement.pause();
+            // unmute for next manual play
+            videoElement.muted = false;
             // update play button state
             playButton.innerHTML = ' ▶️';
             // update store state

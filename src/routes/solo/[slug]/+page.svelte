@@ -33,7 +33,7 @@
         <a class="px-11 flex items-center gap-1 z-[5000] pointer-events-auto cursor-pointer" 
            href="#" 
            on:click|preventDefault={() => history.back()}>
-          Back <svg class="w-9 h-9" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> 
+          Tillbaka <svg class="w-9 h-9" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> 
             <path stroke="currentColor" fill="none" stroke-width="1.5" d="M14 6l6 6-6 6" /> 
           </svg> 
         </a> 

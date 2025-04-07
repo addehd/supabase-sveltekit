@@ -161,7 +161,6 @@ const initRum = (el, data) => {
     
     // create day/night toggle button
     const toggleButton = document.createElement('button');
-    toggleButton.textContent = '🌙';
     toggleButton.style.position = 'absolute';
     toggleButton.style.bottom = '20px';
     toggleButton.style.left = '20%';
@@ -174,6 +173,8 @@ const initRum = (el, data) => {
     toggleButton.style.cursor = 'pointer';
     toggleButton.style.zIndex = '1000';
     toggleButton.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+    toggleButton.style.opacity = '0'; // start hidden
+    toggleButton.style.transition = 'opacity 0.5s ease-in-out';
     
     // add button to document body, positioned relative to canvas
     canvas.parentElement.style.position = 'relative';
@@ -181,6 +182,12 @@ const initRum = (el, data) => {
     
     // set initial skybox
     vg.scene.background = skyboxTexture;
+    
+    // show button after 20 seconds
+    setTimeout(() => {
+      toggleButton.textContent = '🌙'; 
+      toggleButton.style.opacity = '1';
+    }, 20000);
     
     // toggle function for day/night
     const toggleDayNight = () => {
@@ -215,7 +222,7 @@ const initRum = (el, data) => {
         });
       } else {
         // day mode
-        toggleButton.textContent = '☀️';  // show sun in day mode
+        toggleButton.textContent = '🌙';
         
         // change skybox to day version
         vg.scene.background = skyboxTexture;
